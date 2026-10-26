@@ -3,12 +3,14 @@
 //
 //   node bot/horovod-bot.mjs
 //
-// Скрипт спросит токен из @BotFather (символы при вводе не показываются). Можно задать заранее: BOT_TOKEN=... node bot/horovod-bot.mjs
+// Токен из @BotFather скрипт берёт из BOT_TOKEN, затем из файла bot/.token, иначе спросит в терминале.
 // Токен нигде не сохраняется и не печатается.
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
+const here = path.dirname(fileURLToPath(import.meta.url));
 // скрытый ввод токена в терминале
 function askToken() {
   return new Promise(resolve => {
@@ -26,10 +28,11 @@ function askToken() {
     stdin.on('data', onData);
   });
 }
-const TOKEN = process.env.BOT_TOKEN || (process.stdin.isTTY ? await askToken() : '');
+// токен: переменная окружения, затем файл bot/.token (в git не попадает), затем скрытый запрос в терминале
+const fileToken = () => { try { return readFileSync(path.join(here, '.token'), 'utf8').trim(); } catch (e) { return ''; } };
+const TOKEN = process.env.BOT_TOKEN || fileToken() || (process.stdin.isTTY ? await askToken() : '');
 const APP_URL = process.env.APP_URL || 'https://sunpoul.github.io/HOROVOD/';
 const API = process.env.TG_API || 'https://api.telegram.org'; // свой адрес нужен только для проверки на поддельном API
-const here = path.dirname(fileURLToPath(import.meta.url));
 const COVER = path.join(here, '..', 'brand', 'telegram', 'welcome-1280x720.png');
 
 if (!TOKEN) { console.error('Токен не введён. Запустите в терминале: node bot/horovod-bot.mjs'); process.exit(1); }
