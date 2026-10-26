@@ -412,6 +412,50 @@ html.tg .home, html.tg .profile { inset: calc(var(--tabs-h) + var(--tg-top)) 0 0
 html.tg .toasts { bottom: calc(20px + var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)); }
 html.tg #exportBtn { display: none; } /* вместо неё — главная кнопка Telegram */
 
+/* Mini App на телефоне (до 700 px): холст сверху, инспектор — нижняя шторка, разделы — нижняя навигация.
+   Зоны касания не меньше 44 px, поля ввода от 16 px (iOS не приближает страницу), всё держится в безопасных зонах. */
+html.tg-m { --tg-bot: calc(var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)); --sheet-f: .4; }
+html.tg-m body { padding-top: 0; overflow: hidden; }
+html.tg-m .tabbar { display: none; }
+html.tg-m .app { position: fixed; inset: 0; height: auto; min-height: 0; padding-top: var(--tg-top, 0px); display: grid; grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto; grid-template-areas: "top" "stage" "grip" "panel" "rail"; }
+html.tg-m .top { flex-wrap: nowrap; height: 52px; padding: 0 6px 0 12px; gap: 8px; }
+html.tg-m .brand { flex: 1; min-width: 0; }
+html.tg-m .brand #avatarBtn { display: none; }
+html.tg-m .pj-name { max-width: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+html.tg-m .fmtsel { margin: 0; }
+html.tg-m .actions { margin-left: 0; gap: 0; }
+html.tg-m .actions .sep { display: none; }
+html.tg-m .icon-btn { width: 44px; height: 44px; }
+html.tg-m .stage { height: auto; min-height: 0; padding: 0; }
+html.tg-m .stage-hint, html.tg-m .frame-meta { display: none; }
+html.tg-m .stage-tools { position: absolute; z-index: 5; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 2px; padding: 3px; background: var(--float); border: 1px solid var(--line); border-radius: 22px; }
+html.tg-m .sheet-grip { grid-area: grip; display: grid; place-items: center; height: 24px; background: var(--panel); border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; touch-action: none; cursor: grab; }
+html.tg-m .sheet-grip::before { content: ""; width: 40px; height: 4px; border-radius: 4px; background: var(--toggle-off); }
+html.tg-m .panel { grid-area: panel; height: calc(var(--sheet-f) * var(--tg-viewport-stable-height, 100dvh)); overflow-y: auto; overscroll-behavior: contain; border-right: 0;
+  padding: 0; transition: height .24s cubic-bezier(.2, .8, .2, 1); }
+html.tg-m.sheet-drag .panel { transition: none; }
+html.tg-m .panel-head { position: sticky; padding-top: 4px; }
+html.tg-m .rail { grid-area: rail; flex-direction: row; gap: 2px; overflow-x: auto; scrollbar-width: none; border-right: 0; border-bottom: 0; border-top: 1px solid var(--line); padding: 4px 6px calc(4px + var(--tg-bot)); }
+html.tg-m .rail::-webkit-scrollbar { display: none; }
+html.tg-m .tab { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 8px 0; justify-content: center; font-size: 10px; }
+html.tg-m .field { grid-template-columns: minmax(0, 1fr) 76px; row-gap: 2px; }
+html.tg-m .field input[type=range] { grid-column: 1 / -1; height: 40px; }
+html.tg-m .field input[type=range]::-webkit-slider-runnable-track { height: 40px; }
+html.tg-m .field input[type=range]::-webkit-slider-thumb { height: 40px; width: 34px; }
+html.tg-m .num, html.tg-m .swatch input.hex, html.tg-m .seg button, html.tg-m input[type=color] { height: 40px; }
+html.tg-m .seg.icons button { height: 44px; }
+html.tg-m .btn, html.tg-m .text-input { height: 44px; }
+html.tg-m .btn.small { height: 36px; }
+html.tg-m .toggle { min-height: 44px; }
+html.tg-m input, html.tg-m textarea, html.tg-m select { font-size: 16px; }
+html.tg-m .home, html.tg-m .profile { inset: var(--tg-top, 0px) 0 0 0; }
+html.tg-m .home-body, html.tg-m .pf-wrap { padding-bottom: calc(24px + var(--tg-bot)); }
+html.tg-m .toasts { bottom: calc(76px + var(--tg-bot)); }
+html.tg-m .popover { position: fixed; z-index: 60; left: 0; right: 0; top: auto; bottom: 0; width: auto; max-width: none; max-height: 80dvh; overflow-y: auto; overscroll-behavior: contain;
+  border-width: 1px 0 0; border-radius: 16px 16px 0 0; padding-bottom: var(--tg-bot); box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5); }
+@media (prefers-reduced-motion: reduce) { html.tg-m .panel { transition: none; } }
+
 /* встроенный режим iOS: интерфейс рисует нативное приложение, здесь остаётся только холст */
 body.ios { background: #000; overflow: hidden; padding-top: 0; }
 body.ios .tabbar { display: none !important; }
@@ -3027,7 +3071,8 @@ const STICKERS = '__STICKERS__';
   function resize() {
     if (exporting) return;
     const stage = $('stage'); const cs = getComputedStyle(stage);
-    let availW = stage.clientWidth - 48 - parseFloat(cs.paddingRight), availH = stage.clientHeight - 80 - ($('player').hidden ? 0 : 66) - parseFloat(cs.paddingBottom);
+    const tgm = document.documentElement.classList.contains('tg-m'); // Mini App на телефоне: по краям только панель инструментов
+    let availW = stage.clientWidth - (tgm ? 100 : 48) - parseFloat(cs.paddingRight), availH = stage.clientHeight - (tgm ? 28 : 80) - ($('player').hidden ? 0 : 66) - parseFloat(cs.paddingBottom);
     if (IOS) { availW = stage.clientWidth - 24; availH = stage.clientHeight - ios.top - ios.bottom - 16; }
     const [w, hh] = FORMATS[st.format];
     let fw = availW, fh = availW * hh / w;
@@ -4273,7 +4318,10 @@ const STICKERS = '__STICKERS__';
   function tgColors() {
     if (!TG) return;
     const cs = getComputedStyle(document.documentElement), bg = hexOf(cs.getPropertyValue('--bg')), top = hexOf(cs.getPropertyValue('--canvas'));
-    try { TG.setHeaderColor(top); TG.setBackgroundColor(bg); if (TG.isVersionAtLeast('7.10')) TG.setBottomBarColor(bg); } catch (e) {}
+    try {
+      TG.setHeaderColor(top); TG.setBackgroundColor(bg); if (TG.isVersionAtLeast('7.10')) TG.setBottomBarColor(bg);
+      TG.MainButton.setParams({ color: hexOf(cs.getPropertyValue('--accent')), text_color: hexOf(cs.getPropertyValue('--accent-ink')) }); // без цветного акцента, как и весь интерфейс
+    } catch (e) {}
   }
   // чем делиться из Telegram: системное окно «Поделиться» с файлом (сохранить в «Файлы», отправить в чат), иначе обычная загрузка
   async function tgSave(filename, blob) {
@@ -4294,6 +4342,47 @@ const STICKERS = '__STICKERS__';
     const fitTheme = () => { if (saved() !== 'light' && saved() !== 'dark') document.documentElement.setAttribute('data-theme', TG.colorScheme === 'light' ? 'light' : 'dark'); tgColors(); };
     fitTheme(); TG.onEvent('themeChanged', fitTheme);
     TG.onEvent('viewportChanged', () => resize());
+
+    // телефон: панель инструментов камеры уезжает на холст, настройки — в нижнюю шторку
+    const tools = h('div', { class: 'stage-tools' });
+    const grip = h('div', { class: 'sheet-grip', role: 'button', tabindex: '0', 'aria-label': 'Высота панели настроек' });
+    $('panel').before(grip); $('stage').append(tools);
+    const root = document.documentElement, SH = { i: 1, f: .4 };
+    const stageH = () => { const v = getComputedStyle(root).getPropertyValue('--tg-viewport-stable-height').trim(); return /px$/.test(v) ? parseFloat(v) : innerHeight; }; // до расширения SDK отдаёт «100vh»
+    // остановки шторки: свёрнута, половина, высокая; над высокой всегда остаётся место для холста (шапка, ручка и навигация занимают около 290 px)
+    const snaps = () => [0, .4, Math.max(.4, Math.min(.66, (stageH() - 290) / stageH()))];
+    const setSheet = (f, i) => { f = Math.max(0, Math.min(snaps()[2], f)); SH.f = f; if (i != null) SH.i = i; root.style.setProperty('--sheet-f', f.toFixed(3)); };
+    const snapTo = i => { setSheet(snaps()[i], i); try { TG.HapticFeedback.selectionChanged(); } catch (e) {} };
+    const mq = matchMedia('(max-width: 700px)');
+    const layoutMode = () => {
+      root.classList.toggle('tg-m', mq.matches);
+      if (mq.matches) tools.append($('lockBtn'), $('camBtn'), $('playBtn'));
+      else $('exportBtn').before($('lockBtn'), $('camBtn'), $('playBtn'));
+      resize();
+    };
+    mq.addEventListener('change', layoutMode); layoutMode();
+    let drag = null;
+    grip.addEventListener('pointerdown', e => { drag = { y: e.clientY, f: SH.f, t: e.timeStamp, moved: false }; grip.setPointerCapture(e.pointerId); root.classList.add('sheet-drag'); });
+    grip.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const dy = drag.y - e.clientY; if (Math.abs(dy) > 5) drag.moved = true;
+      setSheet(drag.f + dy / stageH());
+    });
+    const endDrag = e => {
+      if (!drag) return; root.classList.remove('sheet-drag');
+      const v = (drag.y - e.clientY) / Math.max(1, e.timeStamp - drag.t); // px/мс: быстрый свайп листает на следующую остановку
+      let i;
+      if (!drag.moved) i = SH.i === 0 ? 1 : 0; // касание без движения: свернуть или развернуть
+      else { const f = SH.f + v * .12; const S = snaps(); i = S.reduce((b, s, k) => Math.abs(s - f) < Math.abs(S[b] - f) ? k : b, 0); }
+      drag = null; snapTo(i);
+    };
+    grip.addEventListener('pointerup', endDrag); grip.addEventListener('pointercancel', endDrag);
+    grip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); snapTo((SH.i + 1) % 3); } });
+    // нижняя навигация: повторное касание активного раздела сворачивает шторку, касание другого разворачивает её
+    $('rail').addEventListener('click', e => {
+      const t = e.target.closest && e.target.closest('.tab'); if (!t || !mq.matches) return;
+      if (SH.i === 0) snapTo(1); else if (t.getAttribute('aria-selected') === 'true') snapTo(0);
+    }, true);
     // кнопка «Назад» в шапке Telegram закрывает то, что открыто поверх, и ведёт на главный экран
     const editing = () => !!PJ.id && !homeOpen && !profileOpen; // открыт проект, а не главный экран или профиль
     const backNeeded = () => !!openMenu || !$('modal').hidden || !$('exportPop').hidden || profileOpen || editing();
