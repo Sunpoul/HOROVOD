@@ -4328,6 +4328,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     v.addEventListener('seeked', fin);
     v.currentTime = t;
   });
+  // описание AAC-LC (AudioSpecificConfig) для MP4: нужно плееру iPhone; не все кодировщики отдают его сами
+  const aacConfig = (rate, ch) => { const i = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350].indexOf(rate), f = i < 0 ? 4 : i; return new Uint8Array([(2 << 3) | (f >> 1), ((f & 1) << 7) | (ch << 3)]); };
   async function renderVideo() {
     if (renderJob || recorder) return;
     wakeAudio();
@@ -4365,6 +4367,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const vids = [...shapes.filter(S => S.video).map(S => ({ v: S.video, tex: S.tex, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, tex: bgTex, hold: false }] : [])]
       .map(x => Object.assign(x, { wasPlaying: !x.v.paused }));
     let venc = null, aenc = null, failure = null;
+    const audioDiag = { adts: false, desc: true };
     offlineRun = true; exporting = true;
     try {
       const { Muxer, ArrayBufferTarget } = await loadMuxer();
@@ -4421,7 +4424,23 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         if (peak < 0.0005) toast('В выбранном участке звука нет, в ролике будет тишина. Проверьте отметку начала и длину отрывка на вкладке «Музыка».', true);
         tl = mix;
         // кодируем звук целиком, пока сцена ещё не рисуется
-        aenc = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: e => { failure = e; } });
+        // Safari/iPhone может отдавать AAC в обёртке ADTS или без описания — приводим к тому, что ждёт MP4
+        let firstAudio = true;
+        aenc = new AudioEncoder({ error: e => { failure = e; }, output: (c, m) => {
+          let chunk = c, meta = m;
+          if (acfg.mux === 'aac') {
+            const d = new Uint8Array(c.byteLength); c.copyTo(d);
+            if (d.length > 7 && d[0] === 0xFF && (d[1] & 0xF0) === 0xF0 && (((d[3] & 3) << 11) | (d[4] << 3) | (d[5] >> 5)) === d.length) {
+              audioDiag.adts = true; chunk = new EncodedAudioChunk({ type: c.type, timestamp: c.timestamp, duration: c.duration, data: d.subarray((d[1] & 1) ? 7 : 9) });
+            }
+            if (firstAudio) {
+              const dc = m && m.decoderConfig; audioDiag.desc = !!(dc && dc.description && dc.description.byteLength);
+              if (!audioDiag.desc) meta = { decoderConfig: Object.assign({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: 2 }, dc || {}, { description: aacConfig(sr, 2) }) };
+            }
+          }
+          firstAudio = false;
+          muxer.addAudioChunk(chunk, meta);
+        } });
         aenc.configure(acfg);
         for (let o = 0; o < N && !job.cancel; o += 4096) {
           const n = Math.min(4096, N - o), planar = new Float32Array(n * 2);
@@ -4465,7 +4484,18 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         await venc.flush(); venc.close(); venc = null;
         if (failure) throw failure;
         muxer.finalize();
-        saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, new Blob([target.buffer], { type: 'video/mp4' }));
+        const outBlob = new Blob([target.buffer], { type: 'video/mp4' });
+        if (hasSound) {
+          // проверяем готовый файл: читается ли звук и не тишина ли это; результат показываем, чтобы было видно, что записалось
+          let check = 'проверить не удалось';
+          try {
+            const dec = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await outBlob.arrayBuffer().then(b => b.slice(0)));
+            let peak = 0; const x = dec.getChannelData(0); for (let i = 0; i < x.length; i += 11) peak = Math.max(peak, Math.abs(x[i]));
+            check = peak > 0.0005 ? `звук читается, пик ${peak.toFixed(2)}` : 'дорожка есть, но тихая';
+          } catch (e) {}
+          toast(`Звук: ${acfg.mux.toUpperCase()} ${sr} Гц${audioDiag.adts ? ', ADTS' : ''}${audioDiag.desc ? '' : ', описание добавлено'}; ${check}.`);
+        }
+        saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, outBlob);
       } else toast('Рендер отменён');
     } catch (e) {
       console.error(e); toast('Не получилось отрендерить видео: ' + (e && e.message ? e.message : e), true);
