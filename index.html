@@ -4260,8 +4260,11 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     vids.forEach(x => { if (x.play) x.v.play().catch(() => {}); });
     if (withAudio) MU.audio.play().catch(() => {});
   }
+  // iPhone разрешает включить звук только прямо в касании кнопки; после ожидания контекст остаётся «спящим» и запись выходит немой
+  const wakeAudio = () => { try { if (MU.ctx && MU.ctx.state !== 'running') MU.ctx.resume().catch(() => {}); } catch (e) {} };
   async function recordVideo() {
     if (recorder) return; // запись уже идёт или готовится
+    wakeAudio();
     if (!window.MediaRecorder || !renderer.domElement.captureStream) { toast('Этот браузер не умеет записывать видео с холста.', true); return; }
     const withAudio = !!(MU.audio && MU.dest);
     const types = withAudio
@@ -4327,6 +4330,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   });
   async function renderVideo() {
     if (renderJob || recorder) return;
+    wakeAudio();
     const withAudio = !!(MU.audio && MU.file);
     const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
     if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
@@ -4413,6 +4417,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
             }
           } catch (e) { toast('Не удалось прочитать звук видео «' + vs.name + '»: оно будет без звука.', true); }
         }
+        let peak = 0; for (let ch = 0; ch < 2; ch++) { const d = mix.getChannelData(ch); for (let i = 0; i < N; i += 7) peak = Math.max(peak, Math.abs(d[i])); }
+        if (peak < 0.0005) toast('В выбранном участке звука нет, в ролике будет тишина. Проверьте отметку начала и длину отрывка на вкладке «Музыка».', true);
         tl = mix;
         // кодируем звук целиком, пока сцена ещё не рисуется
         aenc = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: e => { failure = e; } });
