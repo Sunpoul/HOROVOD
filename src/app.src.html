@@ -411,8 +411,8 @@ html.tg .tabbar { top: var(--tg-top); }
 html.tg .home, html.tg .profile { inset: calc(var(--tabs-h) + var(--tg-top)) 0 0 0; }
 html.tg .toasts { bottom: calc(20px + var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)); }
 html.tg #exportBtn { font-size: 0; gap: 0; width: 36px; padding: 0; border-radius: 999px; } /* в Telegram экспорт — иконка в верхней панели */
-html.tg-m #exportBtn { width: 44px; height: 44px; margin-left: 0; background: transparent; border-color: transparent; color: var(--fg); } /* значок как у стрелок отмены и возврата */
-html.tg-m #exportBtn:hover, html.tg-m #exportBtn[aria-expanded="true"] { background: var(--well); }
+html.tg-m #exportBtn { width: 40px; height: 40px; margin: 0 2px 0 4px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); } /* белая круглая кнопка 40 px (на светлой теме чёрная) */
+html.tg-m #exportBtn:hover, html.tg-m #exportBtn[aria-expanded="true"] { background: var(--accent-hover); border-color: var(--accent-hover); }
 
 /* Mini App на телефоне (до 700 px): холст сверху, инспектор — нижняя шторка, разделы — нижняя навигация.
    Зоны касания не меньше 44 px, поля ввода от 16 px (iOS не приближает страницу), всё держится в безопасных зонах. */
