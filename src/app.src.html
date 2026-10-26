@@ -4388,14 +4388,27 @@ const STICKERS = '__STICKERS__';
       TG.setHeaderColor(top); TG.setBackgroundColor(bg); if (TG.isVersionAtLeast('7.10')) TG.setBottomBarColor(bg);
     } catch (e) {}
   }
-  // чем делиться из Telegram: системное окно «Поделиться» с файлом (сохранить в «Файлы», отправить в чат), иначе обычная загрузка
-  async function tgSave(filename, blob) {
+  // Сохранение из Telegram. Системное «Поделиться» (сохранить в «Фото» или «Файлы», отправить в чат) iPhone разрешает только в самом касании кнопки,
+  // а рендер идёт долго, поэтому показываем окно «Готово» с предпросмотром и кнопкой: файл отдаётся системе уже из её нажатия.
+  function tgSave(filename, blob) {
     const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
-    try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: filename }); toast('Файл готов'); return; }
-    } catch (e) { if (e && e.name === 'AbortError') return; }
-    const a = h('a', { href: URL.createObjectURL(blob), download: filename }); document.body.append(a); a.click(); a.remove();
-    toast('Если файл не появился, откройте приложение в браузере по кнопке ⋯ → «Открыть в браузере».');
+    const url = URL.createObjectURL(blob);
+    let canShare = false; try { canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) {}
+    const isVideo = /^video\//.test(file.type), isImage = /^image\//.test(file.type);
+    const mb = (blob.size / 1048576).toFixed(1);
+    const close = () => { closeModal(); setTimeout(() => URL.revokeObjectURL(url), 60000); };
+    const save = async () => {
+      try { if (canShare) { await navigator.share({ files: [file], title: filename }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+      const a = h('a', { href: url, download: filename }); document.body.append(a); a.click(); a.remove(); // запасной путь: обычная загрузка
+      toast('Если файл не сохранился, откройте приложение в браузере: ⋯ → «Открыть в браузере».');
+    };
+    modal(d => d.append(...[
+      h('h3', { id: 'dlgTitle' }, isVideo ? 'Видео готово' : 'Картинка готова'),
+      isVideo ? h('video', { src: url, controls: '', playsinline: '', preload: 'metadata', style: 'width:100%;max-height:48vh;border-radius:12px;background:#000' }) : null,
+      isImage ? h('img', { src: url, alt: filename, style: 'width:100%;max-height:48vh;object-fit:contain;border-radius:12px;background:#000' }) : null,
+      h('p', { class: 'hint' }, `${filename} · ${mb} МБ` + (isVideo ? '. Если в предпросмотре нет звука, значит, его нет и в файле.' : '')),
+      h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Закрыть'),
+        h('button', { class: 'btn primary', type: 'button', onclick: save }, canShare ? 'Сохранить или отправить' : 'Скачать'))].filter(Boolean)));
   }
   function initTelegram() {
     document.documentElement.classList.add('tg'); document.body.classList.add('tg');
