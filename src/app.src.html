@@ -435,10 +435,10 @@ html.tg-m .sheet-grip::before { content: ""; width: 40px; height: 4px; border-ra
 html.tg-m .panel { grid-area: panel; height: calc(var(--sheet-f) * var(--tg-viewport-stable-height, 100dvh)); overflow-y: auto; overscroll-behavior: contain; border-right: 0;
   padding: 0; transition: height .24s cubic-bezier(.2, .8, .2, 1); }
 html.tg-m.sheet-drag .panel { transition: none; }
-html.tg-m .panel-head { position: sticky; padding-top: 4px; }
-html.tg-m .rail { grid-area: rail; flex-direction: row; gap: 2px; overflow-x: auto; scrollbar-width: none; border-right: 0; border-bottom: 0; border-top: 1px solid var(--line); padding: 4px 6px calc(4px + var(--tg-bot)); }
+html.tg-m .panel-head { position: static; padding-top: 4px; } /* «Текст / Шрифт» уезжает вместе с содержимым, а не занимает место на экране */
+html.tg-m .rail { grid-area: rail; flex-direction: row; gap: 2px; overflow-x: auto; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; border-right: 0; border-bottom: 0; border-top: 1px solid var(--line); padding: 4px 6px calc(4px + var(--tg-bot)); }
 html.tg-m .rail::-webkit-scrollbar { display: none; }
-html.tg-m .tab { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 8px 0; justify-content: center; font-size: 10px; }
+html.tg-m .tab { flex: 0 0 76px; min-height: 56px; padding: 8px 4px; justify-content: center; font-size: 11px; scroll-snap-align: start; }
 html.tg-m .field { grid-template-columns: minmax(0, 1fr) 76px; row-gap: 2px; }
 html.tg-m .field input[type=range] { grid-column: 1 / -1; height: 40px; }
 html.tg-m .field input[type=range]::-webkit-slider-runnable-track { height: 40px; }
