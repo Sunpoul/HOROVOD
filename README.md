@@ -104,6 +104,7 @@
 | `index.html` | Готовое приложение (шрифты встроены). Открывается двойным кликом. |
 | `src/app.src.html` | Исходник приложения с метками `__UB__`, `__RM__`, `__TS__`, `__BN__`, `__OS__`, `__CJK__`, `__STICKERS__` вместо шрифтов и стикеров. |
 | `fonts/` | Подмножества шрифтов: Unbounded Bold, Rubik Mono One, Noto Sans SC Bold (около 7 700 частых иероглифов). Эти три — под лицензией SIL OFL 1.1. Ещё `bebas-neue.ttf` (Bebas Neue, SIL OFL 1.1, текст лицензии в `OFL-BebasNeue.txt`; только латиница, кириллица подставляется из Unbounded), `oswald-bold.ttf` (Oswald Bold, SIL OFL 1.1, текст лицензии в `OFL-Oswald.txt`, с кириллицей) и `tsarevich.ttf` (Tsarevich, с ofont.ru): перед коммерческим использованием проверьте лицензию у автора. |
+| `bot/` | Приветствие бота: тексты, картинки для BotFather и скрипт `horovod-bot.mjs`, который присылает приветственный пост с кнопкой «Начать». См. [bot/README.md](bot/README.md). |
 | `brand/` | Логотип HOROVOD: `Horovod_logo_blck.svg` (чёрный, для светлой темы) и `Horovod_logo_wh.svg` (светло-серый, для тёмной). Встроен в интерфейс и в значок вкладки. |
 | `build.py` | Собирает `index.html`, офлайн-бандл для iOS и `Spec.generated.swift` из исходника. |
 | `stickers/` | PNG-стикеры для вкладки «Картинки»; встраиваются в сборку. |
