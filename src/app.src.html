@@ -420,16 +420,17 @@ html.tg-m body { padding-top: 0; overflow: hidden; }
 html.tg-m .tabbar { display: none; }
 html.tg-m .app { position: fixed; inset: 0; height: auto; min-height: 0; padding-top: var(--tg-top, 0px); display: grid; grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto auto auto; grid-template-areas: "top" "stage" "grip" "panel" "rail"; }
-html.tg-m .top { flex-wrap: wrap; height: auto; padding: 2px 6px 2px 12px; gap: 0 8px; } /* два ряда: проект и формат, ниже кнопки справа, как раньше */
-html.tg-m .brand { flex: 1; min-width: 0; min-height: 44px; }
+html.tg-m .top { flex-wrap: nowrap; height: 52px; padding: 0 6px 0 12px; gap: 8px; }
+html.tg-m .brand { flex: 1; min-width: 0; }
 html.tg-m .brand #avatarBtn { display: none; }
 html.tg-m .pj-name { max-width: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 html.tg-m .fmtsel { margin: 0; }
-html.tg-m .actions { flex: 1 1 100%; justify-content: flex-end; margin-left: 0; gap: 0; }
-html.tg-m .actions .sep { display: block; }
+html.tg-m .actions { margin-left: 0; gap: 0; }
+html.tg-m .actions .sep { display: none; }
 html.tg-m .icon-btn { width: 44px; height: 44px; }
 html.tg-m .stage { height: auto; min-height: 0; padding: 0; }
 html.tg-m .stage-hint, html.tg-m .frame-meta { display: none; }
+html.tg-m .stage-tools { position: absolute; z-index: 5; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 2px; padding: 3px; background: var(--float); border: 1px solid var(--line); border-radius: 22px; }
 html.tg-m .sheet-grip { grid-area: grip; display: grid; place-items: center; height: 24px; background: var(--panel); border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; touch-action: none; cursor: grab; }
 html.tg-m .sheet-grip::before { content: ""; width: 40px; height: 4px; border-radius: 4px; background: var(--toggle-off); }
 html.tg-m .panel { grid-area: panel; height: calc(var(--sheet-f) * var(--tg-viewport-stable-height, 100dvh)); overflow-y: auto; overscroll-behavior: contain; border-right: 0;
@@ -3072,8 +3073,8 @@ const STICKERS = '__STICKERS__';
   function resize() {
     if (exporting) return;
     const stage = $('stage'); const cs = getComputedStyle(stage);
-    const tgm = document.documentElement.classList.contains('tg-m'); // Mini App на телефоне: поля поуже
-    let availW = stage.clientWidth - (tgm ? 32 : 48) - parseFloat(cs.paddingRight), availH = stage.clientHeight - (tgm ? 28 : 80) - ($('player').hidden ? 0 : 66) - parseFloat(cs.paddingBottom);
+    const tgm = document.documentElement.classList.contains('tg-m'); // Mini App на телефоне: по краям только панель инструментов
+    let availW = stage.clientWidth - (tgm ? 100 : 48) - parseFloat(cs.paddingRight), availH = stage.clientHeight - (tgm ? 28 : 80) - ($('player').hidden ? 0 : 66) - parseFloat(cs.paddingBottom);
     if (IOS) { availW = stage.clientWidth - 24; availH = stage.clientHeight - ios.top - ios.bottom - 16; }
     const [w, hh] = FORMATS[st.format];
     let fw = availW, fh = availW * hh / w;
@@ -4343,9 +4344,10 @@ const STICKERS = '__STICKERS__';
     fitTheme(); TG.onEvent('themeChanged', fitTheme);
     TG.onEvent('viewportChanged', () => resize());
 
-    // телефон: настройки уезжают в нижнюю шторку
+    // телефон: панель инструментов камеры уезжает на холст, настройки — в нижнюю шторку
+    const tools = h('div', { class: 'stage-tools' });
     const grip = h('div', { class: 'sheet-grip', role: 'button', tabindex: '0', 'aria-label': 'Высота панели настроек' });
-    $('panel').before(grip);
+    $('panel').before(grip); $('stage').append(tools);
     const root = document.documentElement, SH = { i: 1, f: .4 };
     const stageH = () => { const v = getComputedStyle(root).getPropertyValue('--tg-viewport-stable-height').trim(); return /px$/.test(v) ? parseFloat(v) : innerHeight; }; // до расширения SDK отдаёт «100vh»
     // остановки шторки: свёрнута, половина, высокая; над высокой всегда остаётся место для холста (шапка, ручка и навигация занимают около 290 px)
@@ -4355,6 +4357,8 @@ const STICKERS = '__STICKERS__';
     const mq = matchMedia('(max-width: 700px)');
     const layoutMode = () => {
       root.classList.toggle('tg-m', mq.matches);
+      if (mq.matches) tools.append($('lockBtn'), $('camBtn'), $('playBtn'));
+      else $('exportBtn').before($('lockBtn'), $('camBtn'), $('playBtn'));
       resize();
     };
     mq.addEventListener('change', layoutMode); layoutMode();
