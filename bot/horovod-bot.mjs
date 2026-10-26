@@ -1,20 +1,38 @@
 // Приветственный бот HOROVOD: на /start присылает картинку, описание и кнопку «Начать», которая открывает Mini App.
 // Без зависимостей, нужен Node 18 или новее.
 //
-//   BOT_TOKEN=<токен из @BotFather> node bot/horovod-bot.mjs
+//   node bot/horovod-bot.mjs
 //
-// Токен берётся только из переменной окружения и нигде не сохраняется и не печатается.
+// Скрипт спросит токен из @BotFather (символы при вводе не показываются). Можно задать заранее: BOT_TOKEN=... node bot/horovod-bot.mjs
+// Токен нигде не сохраняется и не печатается.
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const TOKEN = process.env.BOT_TOKEN;
+// скрытый ввод токена в терминале
+function askToken() {
+  return new Promise(resolve => {
+    const stdin = process.stdin; let buf = '';
+    process.stdout.write('Вставьте токен бота и нажмите Return (символы не показываются): ');
+    stdin.setRawMode(true); stdin.resume(); stdin.setEncoding('utf8');
+    const onData = chunk => {
+      for (const c of chunk) {
+        if (c === '\r' || c === '\n') { stdin.setRawMode(false); stdin.pause(); stdin.off('data', onData); process.stdout.write('\n'); resolve(buf.trim()); return; }
+        if (c === '\u0003') process.exit(130);
+        if (c === '\u007f' || c === '\b') buf = buf.slice(0, -1);
+        else if (c >= ' ') buf += c;
+      }
+    };
+    stdin.on('data', onData);
+  });
+}
+const TOKEN = process.env.BOT_TOKEN || (process.stdin.isTTY ? await askToken() : '');
 const APP_URL = process.env.APP_URL || 'https://sunpoul.github.io/HOROVOD/';
 const API = process.env.TG_API || 'https://api.telegram.org'; // свой адрес нужен только для проверки на поддельном API
 const here = path.dirname(fileURLToPath(import.meta.url));
 const COVER = path.join(here, '..', 'brand', 'telegram', 'welcome-1280x720.png');
 
-if (!TOKEN) { console.error('Задайте токен: BOT_TOKEN=... node bot/horovod-bot.mjs'); process.exit(1); }
+if (!TOKEN) { console.error('Токен не введён. Запустите в терминале: node bot/horovod-bot.mjs'); process.exit(1); }
 
 const BUTTON = 'Начать';
 const CAPTION = [
