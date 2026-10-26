@@ -3,6 +3,14 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>try{var __t=localStorage.getItem('horovod.theme');if(__t==='light'||__t==='dark')document.documentElement.setAttribute('data-theme',__t)}catch(e){}</script>
+<script>
+/* Telegram Mini App: официальный SDK подключается только внутри Telegram — параметры запуска приходят в хэше адреса */
+(function () {
+  var ok = /tgWebApp(Data|Platform|Version)=/.test(location.hash + location.search);
+  try { ok = ok || !!sessionStorage.getItem('__telegram__initParams'); } catch (e) {}
+  if (ok) document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>');
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&display=swap">
@@ -396,6 +404,14 @@ body.ios .home, body.ios .modal, body.ios .busy, body.ios .profile, body.ios .lo
   .pj-name { max-width: 130px; }
 }
 
+/* Telegram Mini App: безопасные зоны задаёт SDK (--tg-*-inset), системную шапку Telegram рисует сам клиент */
+html.tg { --tg-top: calc(var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
+html.tg body { padding-top: calc(var(--tabs-h) + var(--tg-top)); }
+html.tg .tabbar { top: var(--tg-top); }
+html.tg .home, html.tg .profile { inset: calc(var(--tabs-h) + var(--tg-top)) 0 0 0; }
+html.tg .toasts { bottom: calc(20px + var(--tg-safe-area-inset-bottom, 0px) + var(--tg-content-safe-area-inset-bottom, 0px)); }
+html.tg #exportBtn { display: none; } /* вместо неё — главная кнопка Telegram */
+
 /* встроенный режим iOS: интерфейс рисует нативное приложение, здесь остаётся только холст */
 body.ios { background: #000; overflow: hidden; padding-top: 0; }
 body.ios .tabbar { display: none !important; }
@@ -582,8 +598,10 @@ const STICKERS = '__STICKERS__';
   const ios = { top: 0, bottom: 0 };
 
   let quiet = false, quietUntil = 0; // во время открытия проекта уведомления не нужны
+  let TG = null; // Telegram.WebApp, если приложение открыто как Mini App
   function toast(msg, err) {
     if (quiet || Date.now() < quietUntil) return;
+    if (TG) { try { TG.HapticFeedback.notificationOccurred(err ? 'error' : 'success'); } catch (e) {} }
     if (IOS) { post({ type: 'toast', text: msg, error: !!err }); return; }
     const t = h('div', { class: 'toast' + (err ? ' err' : '') }, msg);
     $('toasts').append(t);
@@ -3082,6 +3100,7 @@ const STICKERS = '__STICKERS__';
       }
       return;
     }
+    if (TG) { await tgSave(filename, blob); return; }
     if (!window.claude) { // страница открыта как файл, вне Claude
       const a = h('a', { href: URL.createObjectURL(blob), download: filename }); document.body.append(a); a.click(); a.remove();
       return;
@@ -3982,6 +4001,7 @@ const STICKERS = '__STICKERS__';
     const next = effectiveTheme() === 'light' ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('horovod.theme', next); } catch (e) {}
+    tgColors();
   }
   function toggleAvatarMenu(anchor) {
     if (openMenu && openMenu.dataset.id === 'avatar') { closeMenu(); anchor.setAttribute('aria-expanded', 'false'); return; }
@@ -4245,6 +4265,71 @@ const STICKERS = '__STICKERS__';
     document.addEventListener('touchend', unlock, true);
     document.addEventListener('click', unlock, true);
   }
+
+  /* =================== TELEGRAM MINI APP =================== */
+  // Работает на официальном telegram-web-app.js. Вне Telegram SDK не подгружается и всё остальное не меняется.
+  const hexOf = css => { const el = document.createElement('i'); el.style.color = css; document.body.append(el); const m = getComputedStyle(el).color.match(/\d+/g) || [0, 0, 0]; el.remove(); return '#' + m.slice(0, 3).map(n => (+n).toString(16).padStart(2, '0')).join(''); };
+  // цвета шапки, фона и нижней панели Telegram подстраиваются под тему приложения
+  function tgColors() {
+    if (!TG) return;
+    const cs = getComputedStyle(document.documentElement), bg = hexOf(cs.getPropertyValue('--bg')), top = hexOf(cs.getPropertyValue('--canvas'));
+    try { TG.setHeaderColor(top); TG.setBackgroundColor(bg); if (TG.isVersionAtLeast('7.10')) TG.setBottomBarColor(bg); } catch (e) {}
+  }
+  // чем делиться из Telegram: системное окно «Поделиться» с файлом (сохранить в «Файлы», отправить в чат), иначе обычная загрузка
+  async function tgSave(filename, blob) {
+    const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: filename }); toast('Файл готов'); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+    const a = h('a', { href: URL.createObjectURL(blob), download: filename }); document.body.append(a); a.click(); a.remove();
+    toast('Если файл не появился, откройте приложение в браузере по кнопке ⋯ → «Открыть в браузере».');
+  }
+  function initTelegram() {
+    document.documentElement.classList.add('tg'); document.body.classList.add('tg');
+    const at = v => { try { return TG.isVersionAtLeast(v); } catch (e) { return false; } };
+    TG.ready(); TG.expand();
+    if (at('7.7')) TG.disableVerticalSwipes(); // свайп вниз не должен закрывать редактор
+    // тема: если в приложении тему не выбирали вручную, берём тему Telegram
+    const saved = () => { try { return localStorage.getItem('horovod.theme'); } catch (e) { return null; } };
+    const fitTheme = () => { if (saved() !== 'light' && saved() !== 'dark') document.documentElement.setAttribute('data-theme', TG.colorScheme === 'light' ? 'light' : 'dark'); tgColors(); };
+    fitTheme(); TG.onEvent('themeChanged', fitTheme);
+    TG.onEvent('viewportChanged', () => resize());
+    // кнопка «Назад» в шапке Telegram закрывает то, что открыто поверх, и ведёт на главный экран
+    const editing = () => !!PJ.id && !homeOpen && !profileOpen; // открыт проект, а не главный экран или профиль
+    const backNeeded = () => !!openMenu || !$('modal').hidden || !$('exportPop').hidden || profileOpen || editing();
+    const back = () => {
+      if (!$('modal').hidden) closeModal();
+      else if (openMenu) closeMenu();
+      else if (!$('exportPop').hidden) closeExport();
+      else if (profileOpen) closeProfile();
+      else if (editing()) goHome();
+    };
+    TG.BackButton.onClick(back);
+    // главная кнопка — экспорт; пока идёт экспорт, на ней крутится индикатор
+    const MB = TG.MainButton; MB.setText('Экспорт'); MB.onClick(() => { if ($('exportPop').hidden) openExport(); else closeExport(); });
+    const state = { back: null, main: null, busy: null, confirm: null };
+    const sync = () => {
+      const lockOn = !$('lock').hidden;
+      const b = !lockOn && backNeeded(); if (b !== state.back) { state.back = b; b ? TG.BackButton.show() : TG.BackButton.hide(); }
+      const m = !lockOn && editing() && $('modal').hidden; if (m !== state.main) { state.main = m; m ? MB.show() : MB.hide(); }
+      if (exporting !== state.busy) {
+        state.busy = exporting; exporting ? MB.showProgress(true) : MB.hideProgress();
+        if (state.confirm !== exporting) { state.confirm = exporting; exporting ? TG.enableClosingConfirmation() : TG.disableClosingConfirmation(); }
+      }
+    };
+    setInterval(sync, 250); sync();
+    // отклик на касания: лёгкая вибрация на кнопках, «щелчок» при отпускании ползунка
+    document.addEventListener('click', e => { if (e.target.closest && e.target.closest('button, [role=tab], [role=option], [role=menuitem]')) { try { TG.HapticFeedback.impactOccurred('light'); } catch (er) {} } }, true);
+    document.addEventListener('change', e => { if (e.target.matches && e.target.matches('input[type=range]')) { try { TG.HapticFeedback.selectionChanged(); } catch (er) {} } }, true);
+    // профиль берём из Telegram, если он ещё не заполнен (пароль и почта остаются необязательными)
+    const u = TG.initDataUnsafe && TG.initDataUnsafe.user;
+    if (u && !lsGet(PF_KEY)) { lsSet(PF_KEY, { name: [u.first_name, u.last_name].filter(Boolean).join(' '), email: '' }); renderAvatar(); }
+    if (u && u.photo_url && !getAvatar()) {
+      quietUntil = Date.now() + 3000;
+      fetch(u.photo_url).then(r => r.blob()).then(bl => setAvatarFile(new File([bl], 'telegram.jpg', { type: bl.type || 'image/jpeg' }))).catch(() => {});
+    }
+  }
+  try { const w = window.Telegram && window.Telegram.WebApp; if (w && w.platform && w.platform !== 'unknown') { TG = w; initTelegram(); } } catch (e) { console.error(e); TG = null; }
   renderRail(); renderPanel(); renderFormats();
   applyLights(); applyMaterial(); applyScene(); applyFx(); applyAsh(); layout(); resize(); syncPlay(); applyCamLock();
   requestAnimationFrame(tick);

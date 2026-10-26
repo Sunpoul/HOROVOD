@@ -1,6 +1,6 @@
 """Собирает приложение из src/app.src.html и шрифтов.
 
-  index.html                              — веб-версия (библиотеки с CDN)
+  index.html                              — веб-версия, библиотеки из vendor/ встроены в файл (работает без CDN)
   ios/TextCircle3D/Resources/Web/*        — офлайн-версия для iOS-приложения (библиотеки из vendor/)
 """
 import base64, json, pathlib, re, shutil, subprocess
@@ -25,9 +25,29 @@ for sid, label in STICKER_LABELS.items():
     if f.exists():
         stickers.append({'id': sid, 'label': label, 'src': 'data:image/png;base64,' + base64.b64encode(f.read_bytes()).decode()})
 app = app.replace("'__STICKERS__'", json.dumps(stickers, ensure_ascii=False))
-(root / 'index.html').write_text(app, encoding='utf-8')
 
-print('Собрано: index.html')
+# Библиотеки с CDN — источник правды для обеих сборок (iOS заменяет их на файлы из бандла)
+VENDOR = [
+    ('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', 'three.min.js'),
+    ('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js', 'OrbitControls.js'),
+    ('https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js', 'opentype.min.js'),
+]
+
+# Веб: встраиваем библиотеки прямо в index.html, чтобы редактор не зависел от CDN
+# (в том числе внутри Telegram) и открывался без интернета.
+web = app
+for cdn, local in VENDOR:
+    tag = f'<script src="{cdn}"></script>'
+    assert tag in web, cdn
+    code = (root / 'vendor' / local).read_text(encoding='utf-8')
+    code = re.sub(r'</(script)', r'<\\/\1', code, flags=re.I)  # не закрыть <script> раньше времени
+    web = web.replace(tag, f'<script>/* {local} */\n{code}\n</script>')
+# Google Fonts интерфейса не блокируют отрисовку: при недоступности сервиса остаётся system-ui
+web = re.sub(r'<link rel="stylesheet" (href="https://fonts\.googleapis\.com/[^"]+")>',
+             lambda m: f'<link rel="stylesheet" {m.group(1)} media="print" onload="this.media=\'all\'">', web)
+(root / 'index.html').write_text(web, encoding='utf-8')
+
+print('Собрано: index.html (библиотеки встроены)')
 
 # iOS-часть собирается только если рядом лежит папка ios/
 if not (root / 'ios' / 'genspec.js').exists():
@@ -36,11 +56,7 @@ if not (root / 'ios' / 'genspec.js').exists():
 
 # iOS: свой каркас страницы, библиотеки из бандла, без Google Fonts
 ios = re.sub(r'<link rel="(preconnect|stylesheet)"[^>]*>\n?', '', app)
-for cdn, local in [
-    ('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', 'three.min.js'),
-    ('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js', 'OrbitControls.js'),
-    ('https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js', 'opentype.min.js'),
-]:
+for cdn, local in VENDOR:
     assert cdn in ios, cdn
     ios = ios.replace(cdn, local)
 head = ('<!doctype html><html lang="ru"><head><meta charset="utf-8">'
