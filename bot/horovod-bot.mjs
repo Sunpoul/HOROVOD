@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const TOKEN = process.env.BOT_TOKEN;
-const APP_URL = process.env.APP_URL || 'https://sunpoul.github.io/HOROVOD/';
+const APP_URL = process.env.APP_URL || 'https://horovod.su/';
 const API = process.env.TG_API || 'https://api.telegram.org'; // свой адрес нужен только для проверки на поддельном API
 const here = path.dirname(fileURLToPath(import.meta.url));
 const COVER = path.join(here, '..', 'brand', 'telegram', 'welcome-1280x720.png');

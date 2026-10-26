@@ -1,0 +1,5 @@
+// Telegram Serverless: бот HOROVOD (@gethorovod_bot).
+// Код бота — в папке tgcloud/. Mini App раздаётся GitHub Pages с https://horovod.su/,
+// поэтому ключ "static" здесь не задан.
+{
+}
