@@ -71,6 +71,10 @@ async function welcome(chatId) {
   coverId = msg.photo && msg.photo.at(-1) && msg.photo.at(-1).file_id;
 }
 
+async function nudge(chatId) {
+  await call('sendMessage', { chat_id: chatId, text: 'Редактор HOROVOD открывается кнопкой «Начать». Если приветствие потерялось, отправьте /start.', reply_markup: keyboard });
+}
+
 async function setup() {
   await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }] });
   await call('setMyShortDescription', { short_description: ABOUT });
@@ -88,7 +92,9 @@ async function main() {
       for (const u of updates) {
         offset = u.update_id + 1;
         const m = u.message; if (!m || m.chat.type !== 'private') continue;
-        await welcome(m.chat.id).catch(e => console.error('Не отправилось:', e.message));
+        // /start (так бот открывается впервые по кнопке START) получает полное приветствие, остальные сообщения — короткий ответ с той же кнопкой
+        const first = /^\/start(\s|$|@)/.test(m.text || '');
+        await (first ? welcome(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
       }
     } catch (e) {
       console.error('Связь с Telegram:', e.message);
