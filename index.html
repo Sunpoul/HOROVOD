@@ -4328,7 +4328,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   async function renderVideo() {
     if (renderJob || recorder) return;
     const withAudio = !!(MU.audio && MU.file);
-    if (!canRenderOffline() || (withAudio && !window.AudioEncoder)) { toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
+    const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
+    if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
     closeExport();
     const fps = exp.fps, [w, hh] = exportDims(exp.vlong), sr = withAudio ? MU.ctx.sampleRate : 48000;
     const total = exp.sec === 'track' ? (withAudio && isFinite(MU.audio.duration) ? clipEnd() - MU.clipStart : 15) : exp.sec;
@@ -4341,14 +4342,14 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       const r = await VideoEncoder.isConfigSupported(cfg).catch(() => null);
       if (r && r.supported) { vcfg = cfg; break; }
     }
-    if (withAudio) {
+    if (hasSound) {
       for (const [codec, mux] of [['mp4a.40.2', 'aac'], ['opus', 'opus']]) {
         const cfg = { codec, sampleRate: sr, numberOfChannels: 2, bitrate: 192000 };
         const r = await AudioEncoder.isConfigSupported(cfg).catch(() => null);
         if (r && r.supported) { acfg = Object.assign({ mux }, cfg); break; }
       }
     }
-    if (!vcfg || (withAudio && !acfg)) { toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
+    if (!vcfg || (hasSound && !acfg)) { toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
 
     const job = renderJob = { cancel: false };
     const badge = h('div', { class: 'rec', role: 'status' }, h('span', { class: 'dot' }), h('span', { id: 'recTime' }, 'Готовлю…'),
@@ -4366,14 +4367,14 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       const target = new ArrayBufferTarget();
       const muxer = new Muxer({ target, fastStart: 'in-memory', firstTimestampBehavior: 'offset',
         video: { codec: 'avc', width: w, height: hh },
-        ...(withAudio ? { audio: { codec: acfg.mux, numberOfChannels: 2, sampleRate: sr } } : {}) });
+        ...(hasSound ? { audio: { codec: acfg.mux, numberOfChannels: 2, sampleRate: sr } } : {}) });
       if (withAudio) MU.audio.pause();
       vids.forEach(x => x.v.pause());
 
       // --- звук: отрывок с отмеченного места по кругу на всю длину ролика + анализ спектра для каждого кадра
       let tl = null;
+      if (hasSound) info('Готовлю звук…');
       if (withAudio) {
-        info('Готовлю звук…');
         const src = await MU.ctx.decodeAudioData(await MU.file.arrayBuffer());
         const cs = Math.min(src.length - 1, Math.floor(MU.clipStart * sr)), ce = Math.min(src.length, Math.max(cs + 1, Math.floor(clipEnd() * sr))), cl = ce - cs;
         const N = Math.ceil(total * sr);
@@ -4396,6 +4397,23 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         }
         await off.startRendering();
         offAudio = data;
+      }
+      if (hasSound) {
+        const N = Math.ceil(total * sr);
+        // итоговая дорожка: трек (если есть) плюс звук каждого видео, которое в сцене включено со звуком
+        const mix = new AudioBuffer({ length: N, numberOfChannels: 2, sampleRate: sr });
+        if (tl) for (let ch = 0; ch < 2; ch++) mix.getChannelData(ch).set(tl.getChannelData(ch));
+        for (const vs of vsounds) {
+          try {
+            const dec = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await vs.file.arrayBuffer());
+            if (!dec.length) continue;
+            for (let ch = 0; ch < 2; ch++) {
+              const from = dec.getChannelData(Math.min(ch, dec.numberOfChannels - 1)), to = mix.getChannelData(ch);
+              for (let i = 0; i < N; i++) to[i] = Math.max(-1, Math.min(1, to[i] + from[i % dec.length]));
+            }
+          } catch (e) { toast('Не удалось прочитать звук видео «' + vs.name + '»: оно будет без звука.', true); }
+        }
+        tl = mix;
         // кодируем звук целиком, пока сцена ещё не рисуется
         aenc = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: e => { failure = e; } });
         aenc.configure(acfg);
@@ -4453,6 +4471,15 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     }
   }
 
+  // какие видео в сцене звучат: их звук тоже попадает в ролик
+  const soundingVideos = () => [...shapes.filter(S => S.video && S.videoSound && S.file).map(S => ({ file: S.file, name: S.file.name })),
+    ...(bgVideo && bgSound && bgFile ? [{ file: bgFile, name: bgFile.name }] : [])];
+  function soundNote() {
+    const vs = soundingVideos().length;
+    if (MU.audio && MU.file) return vs ? 'Видео пишется со звуком трека и со звуком видео из сцены.' : 'Видео пишется со звуком трека.';
+    if (vs) return 'Видео пишется со звуком видео из сцены.';
+    return 'В ролике не будет звука: добавьте музыку на вкладке «Музыка» или включите «Звук видео» у фигуры с видео.';
+  }
   function renderExport() {
     const pop = $('exportPop'); pop.innerHTML = '';
     const sizes = [[1080, 'HD'], [2160, '2K'], [3840, '4K']];
@@ -4474,7 +4501,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       ], null, { plain: true }),
       canSave() ? section('Видео', [
         seg('Длительность', [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']].concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
-        MU.audio ? h('p', { class: 'hint' }, 'Видео пишется со звуком трека.') : null,
+        h('p', { class: 'hint' }, soundNote()),
         ...(canRenderOffline() ? [
           seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
           seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
