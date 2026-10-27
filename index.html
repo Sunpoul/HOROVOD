@@ -350,6 +350,11 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .lock-card { width: min(360px, 100%); display: grid; gap: 14px; justify-items: stretch; text-align: center; }
 .lock-card .avatar { justify-self: center; }
 .lock-title { font: 500 20px var(--font-display); letter-spacing: -.01em; }
+#gate { z-index: 90; }
+.gate-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
+.gate-brand .logo { width: 34px; height: 34px; }
+.gate-brand b { font: 500 26px 'Onest', var(--font-display); letter-spacing: .14em; }
+.gate-form { display: grid; gap: 12px; }
 .lock.shake .lock-card { animation: shake .35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
 @media (prefers-reduced-motion: reduce) { .lock.shake .lock-card { animation: none; } }
@@ -600,6 +605,7 @@ body.ios .frame { box-shadow: none; }
   </div>
 </section>
 <div class="lock" id="lock" hidden role="dialog" aria-modal="true" aria-label="Вход в HOROVOD"></div>
+<div class="lock" id="gate" hidden role="dialog" aria-modal="true" aria-label="Вход"></div>
 <div class="modal" id="modal" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle"></div></div>
 <div class="busy" id="busy" hidden><span></span></div>
 <div class="popover" id="exportPop" role="dialog" aria-label="Экспорт" hidden></div>
@@ -5683,9 +5689,51 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       drawMain();
     });
   }
-  // при запуске, если пароль задан, экран блокировки появляется сразу, а проекты показываются после ввода
-  let unlockP = Promise.resolve();
-  if (!IOS && hasPwd() && canPwd()) unlockP = showLock();
+  /* =================== ВХОД НА САЙТ =================== */
+  // Экран входа перед приложением: логин и пароль проверяются в самом браузере, в коде лежат только их отпечатки.
+  // Это заслонка от случайных гостей, а не защита данных: тот, кто откроет код страницы, может её обойти.
+  // Настоящую защиту даёт сервер (пароль на папку сайта). Чтобы убрать вход совсем, поставьте GATE.on = false.
+  const GATE = { on: true, key: 'hrvd.gate', login: 4613217356935179, pass: 148297637267412 };
+  const gateHash = str => {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  };
+  const gateKnown = () => { try { return sessionStorage.getItem(GATE.key) === '1'; } catch (_) { return false; } };
+  function showGate() {
+    return new Promise(resolve => {
+      if (!GATE.on || gateKnown()) { resolve(); return; }
+      const box = $('gate'); box.hidden = false;
+      const lockables = [...document.querySelectorAll('.app, .tabbar, .home, .profile')]; lockables.forEach(e => { e.inert = true; });
+      const login = h('input', { class: 'text-input', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', placeholder: 'Логин', 'aria-label': 'Логин' });
+      const pass = h('input', { class: 'text-input', type: 'password', autocomplete: 'current-password', placeholder: 'Пароль', 'aria-label': 'Пароль' });
+      const brand = h('div', { class: 'gate-brand' });
+      brand.innerHTML = '<svg class="logo" viewBox="0 0 297 297" aria-hidden="true"><use href="#i-logo"/></svg><b>HRVD</b>';
+      const err = h('p', { class: 'pf-err', role: 'alert' });
+      const form = h('form', { class: 'gate-form', novalidate: '' }, login, pass, err, h('button', { class: 'btn primary block', type: 'submit' }, 'Войти'));
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        if (gateHash('hrvd:' + login.value.trim().toLowerCase()) === GATE.login && gateHash('hrvd:' + pass.value) === GATE.pass) {
+          try { sessionStorage.setItem(GATE.key, '1'); } catch (_) {}
+          box.hidden = true; box.innerHTML = ''; lockables.forEach(x => { x.inert = false; });
+          document.querySelector('.app').inert = homeOpen || profileOpen;
+          resolve(); return;
+        }
+        err.textContent = 'Неверный логин или пароль'; pass.value = ''; pass.focus();
+        box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+      });
+      box.append(h('div', { class: 'lock-card' },
+        brand,
+        h('p', { class: 'hint' }, 'Введите логин и пароль, чтобы открыть редактор'), form));
+      login.focus();
+    });
+  }
+  // при запуске сначала экран входа на сайт, затем, если задан пароль профиля, экран блокировки
+  const gateP = IOS ? Promise.resolve() : showGate();
+  let unlockP = gateP;
+  if (!IOS && hasPwd() && canPwd()) unlockP = gateP.then(() => showLock());
 
   if (!IOS) {
     $('avatarBtn').onclick = () => toggleAvatarMenu($('avatarBtn')); $('avatarBtnHome').onclick = () => toggleAvatarMenu($('avatarBtnHome'));
