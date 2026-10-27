@@ -401,6 +401,14 @@ html.gate-ok #gate { display: none; }
 #gate.gate-kb .gate-brand .logo { width: 64px; height: 64px; }
 #gate.gate-kb .hint { display: none; }
 #gate.gate-kb .gate-form { margin-top: 18px; }
+/* глазик в поле пароля: показать и скрыть пароль */
+.gate-pass { position: relative; }
+.gate-pass .text-input { padding-right: 44px; }
+.gate-eye { position: absolute; right: 2px; top: 0; width: 40px; height: 100%; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; }
+.gate-eye:hover, .gate-eye[aria-pressed="true"] { color: var(--fg); }
+.gate-eye:focus-visible { outline: 1px solid var(--fg); }
+.gate-eye .slash { display: block; }
+.gate-eye[aria-pressed="true"] .slash { display: none; }
 #gate .pf-err { min-height: 16px; margin: 7px 0 0; font-size: 12px; text-align: center; }
 .lock.shake .lock-card { animation: shake .35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
@@ -551,7 +559,10 @@ body.ios .frame { box-shadow: none; }
     <p class="hint">Войдите, чтобы открыть редактор</p>
     <form class="gate-form" novalidate>
       <input class="text-input" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Логин" aria-label="Логин">
-      <input class="text-input" type="password" name="password" autocomplete="current-password" enterkeyhint="go" placeholder="Пароль" aria-label="Пароль">
+      <div class="gate-pass">
+        <input class="text-input" type="password" name="password" autocomplete="current-password" enterkeyhint="go" placeholder="Пароль" aria-label="Пароль">
+        <button class="gate-eye" type="button" aria-label="Показать пароль" aria-pressed="false" title="Показать пароль"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/><path class="slash" d="M4 4l16 16"/></svg></button>
+      </div>
       <button class="btn primary block" type="submit">Войти</button>
       <p class="pf-err" role="alert"></p>
     </form>
@@ -594,6 +605,13 @@ body.ios .frame { box-shadow: none; }
     else kbTimer = setTimeout(function () { var a = document.activeElement; if (!a || (a !== login && a !== pass)) box.classList.remove('gate-kb'); }, 150);
   }
   [login, pass].forEach(function (i) { i.addEventListener('focus', function () { compact(true); }); i.addEventListener('blur', function () { compact(false); }); });
+  var eye = box.querySelector('.gate-eye');
+  eye.addEventListener('pointerdown', function (e) { e.preventDefault(); }); // фокус остаётся в поле, клавиатура не закрывается
+  eye.addEventListener('click', function () {
+    var show = pass.type === 'password', t = show ? 'Скрыть пароль' : 'Показать пароль';
+    pass.type = show ? 'text' : 'password';
+    eye.setAttribute('aria-pressed', String(show)); eye.setAttribute('aria-label', t); eye.title = t;
+  });
   login.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !pass.value) { e.preventDefault(); pass.focus(); } });
   if (!touch) login.focus();
 })();
