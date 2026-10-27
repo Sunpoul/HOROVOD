@@ -2907,6 +2907,10 @@ const STICKERS = '__STICKERS__';
       const o = {}; resetKeys.forEach(k => o[k] = (S[k] || COLORS[k] || TOGGLES[k]).v); setMany(o);
     } }, 'Сбросить');
     if (opts && opts.plain) return h('section', { class: 'sec plain' }, h('div', { class: 'sec-head' }, h('h3', {}, title), reset), ...kids);
+    // группа без сворачивания: всегда развёрнута (шеврона нет)
+    if (opts && opts.always) return h('section', { class: 'sec' }, h('div', { class: 'sec-head' },
+      h('h3', {}, h('span', { class: 'sec-toggle static' }, h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title))), reset),
+      h('div', { class: 'sec-body' }, ...kids));
     // группа-эффект: тогл справа от названия; включён — ниже настройки и кнопка «Сбросить», выключен — только заголовок
     if (opts && opts.toggle) {
       const on = !!opts.toggle.get();
@@ -3068,7 +3072,16 @@ const STICKERS = '__STICKERS__';
         section('Слои', [list,
           h('button', { class: 'btn block', type: 'button', onclick: () => { addTextBlock(); renderPanel(); toast('Слой добавлен — плоский текст. Форму можно поменять ниже.'); } }, icon('plus'), 'Добавить текст'),
           h('p', { class: 'hint' }, 'У каждого текста своя форма, место, вращение, шрифт и пропорции. Объём и материал букв — общие.')]),
-        section(B.main ? 'Текст' : 'Текст ' + (texts.indexOf(B) + (st.mainOff ? 1 : 2)), [ta, h('p', { class: 'hint' }, (plain ? 'Каждая строка — отдельная строка текста.' : 'Каждая строка — отдельное кольцо: первая снаружи, следующие внутри.') + ' Можно писать иероглифами (音楽, 东京) и вставлять эмодзи ✨🔥.')]),
+        // «Текст» всегда развёрнут; вставка эмодзи и их размер лежат здесь же
+        section(B.main ? 'Текст' : 'Текст ' + (texts.indexOf(B) + (st.mainOff ? 1 : 2)), [ta, h('p', { class: 'hint' }, (plain ? 'Каждая строка — отдельная строка текста.' : 'Каждая строка — отдельное кольцо: первая снаружи, следующие внутри.') + ' Можно писать иероглифами (音楽, 东京) и вставлять эмодзи ✨🔥.'),
+          emojiRow, slider('emojiScale'),
+          h('p', { class: 'hint' }, 'Нажмите на эмодзи, чтобы вставить в текст. Любые другие — с системной панели: Win + . или Ctrl + Cmd + Пробел на Mac.')], null, { always: true }),
+        section('Цвет', [
+          color(B.main ? 'matColor' : 'bColor', COLORS.matColor, () => B.color, v => setBlock(B, 'color', v)),
+          toggle(TOGGLES.matGrad.label, () => !!B.grad, v => { setBlock(B, 'grad', v); renderPanel(); }, 'f-grad'),
+          ...(B.grad ? [color(B.main ? 'matColor2' : 'bColor2', COLORS.matColor2, () => B.color2, v => setBlock(B, 'color2', v)),
+            seg('Направление', [[0, 'Сверху вниз'], [1, 'Слева направо'], [2, 'Вокруг круга']], () => B.gradMode, v => setBlock(B, 'gradMode', v))] : []),
+        ], B.main ? ['matColor', 'matColor2', 'matGrad'] : () => { setBlock(B, 'color', P.matColor); B.grad = false; applyBlockMaterial(B); }),
         section('Форма', [
           seg('', [['flat', 'Круг', 'Круг', MODE_ICONS.flat], ['square', 'Квадрат', 'Квадрат', MODE_ICONS.square], ['cyl', 'Цилиндр', 'Цилиндр', MODE_ICONS.cyl], ['plain', 'Плоский текст', 'Плоский текст: обычные строки без круга', MODE_ICONS.plain]], () => B.mode, v => { setBlock(B, 'mode', v); renderPanel(); }),
           ...(B.mode === 'square' ? [ts('boxW'), ts('boxH'), ts('corner')] : []),
@@ -3076,15 +3089,7 @@ const STICKERS = '__STICKERS__';
           seg('Заполнение ' + MODE_NAMES[B.mode].gen, [['none', 'Как есть', 'Текст занимает свою длину'], ['stretch', 'Растянуть', 'Буквы распределяются по всему контуру'], ['repeat', 'Повторить', 'Текст повторяется, пока не заполнит контур']], () => B.fit, v => setBlock(B, 'fit', v)),
           seg('Сторона', [['out', 'Снаружи'], ['in', 'Внутри']], () => B.side, v => setBlock(B, 'side', v))]),
         ], B.mode === 'square' ? rk(['boxW', 'boxH', 'corner']) : undefined),
-        section('Цвет', [
-          color(B.main ? 'matColor' : 'bColor', COLORS.matColor, () => B.color, v => setBlock(B, 'color', v)),
-          toggle(TOGGLES.matGrad.label, () => !!B.grad, v => { setBlock(B, 'grad', v); renderPanel(); }, 'f-grad'),
-          ...(B.grad ? [color(B.main ? 'matColor2' : 'bColor2', COLORS.matColor2, () => B.color2, v => setBlock(B, 'color2', v)),
-            seg('Направление', [[0, 'Сверху вниз'], [1, 'Слева направо'], [2, 'Вокруг круга']], () => B.gradMode, v => setBlock(B, 'gradMode', v))] : []),
-        ], B.main ? ['matColor', 'matColor2', 'matGrad'] : () => { setBlock(B, 'color', P.matColor); B.grad = false; applyBlockMaterial(B); }),
         pixelSection(B, 'этом тексте'),
-        section('Эмодзи', [emojiRow, slider('emojiScale'),
-          h('p', { class: 'hint' }, 'Нажмите, чтобы вставить в текст. Любые другие — с системной панели: Win + . или Ctrl + Cmd + Пробел на Mac.')], ['emojiScale']),
         section('Положение', plain
           ? [ts('posY'), ts('posX'), ts('gap', Object.assign({}, S.gap, { label: 'Межстрочный интервал' })), ts('angle', Object.assign({}, S.angle, { label: 'Наклон текста' }))]
           : [ts('posY'), ts('posX'), ...(B.mode === 'square' ? [] : [ts('radius')]), ts('gap'), ts('angle')], rk(['posY', 'posX', 'radius', 'gap', 'angle'])),
