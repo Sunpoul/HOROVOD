@@ -1,8 +1,52 @@
 <meta charset="utf-8">
-<title>HOROVOD</title>
+<title>HRVD — редактор объёмной типографики</title>
+<meta name="description" content="Живые постеры и афиши прямо в Telegram.
+
+🌀 объёмный текст по кругу, квадрату и цилиндру
+🎨 свои шрифты, картинки, фигуры и музыка
+✨ свет, эффекты, готовое видео или PNG
+
+Нажмите «Начать», чтобы открыть редактор.">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="canonical" href="https://horovod.su/">
+<!-- превью ссылки в Telegram, соцсетях и мессенджерах -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HRVD">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:url" content="https://horovod.su/">
+<meta property="og:title" content="HRVD — редактор объёмной типографики">
+<meta property="og:description" content="Живые постеры и афиши прямо в Telegram.
+
+🌀 объёмный текст по кругу, квадрату и цилиндру
+🎨 свои шрифты, картинки, фигуры и музыка
+✨ свет, эффекты, готовое видео или PNG
+
+Нажмите «Начать», чтобы открыть редактор.">
+<meta property="og:image" content="https://horovod.su/og-image.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="HRVD: логотип и название редактора на тёмном фоне">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HRVD — редактор объёмной типографики">
+<meta name="twitter:description" content="Живые постеры и афиши прямо в Telegram.
+
+🌀 объёмный текст по кругу, квадрату и цилиндру
+🎨 свои шрифты, картинки, фигуры и музыка
+✨ свет, эффекты, готовое видео или PNG
+
+Нажмите «Начать», чтобы открыть редактор.">
+<meta name="twitter:image" content="https://horovod.su/og-image.jpg">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20297%20297%22%3E%3Cstyle%3Erect%7Bfill:%23000%7D%40media%20(prefers-color-scheme:dark)%7Brect%7Bfill:%23d9d9d9%7D%7D%3C/style%3E%3Crect%20x=%22250.053%22%20y=%22143.981%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(90%20250.053%20143.981)%22/%3E%3Crect%20x=%22235.747%22%20y=%22197.699%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(122.234%20235.747%20197.699)%22/%3E%3Crect%20x=%22198.594%22%20y=%22233.397%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(152.145%20198.594%20233.397)%22/%3E%3Crect%20x=%22148.114%22%20y=%22245.714%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(-177.484%20148.114%20245.714)%22/%3E%3Crect%20x=%2298.7573%22%20y=%22231.191%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(-147.554%2098.7573%20231.191)%22/%3E%3Crect%20x=%2263.2725%22%20y=%22193.986%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(-117.644%2063.2725%20193.986)%22/%3E%3Crect%20x=%2251.1279%22%20y=%22143.399%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(-87.2623%2051.1279%20143.399)%22/%3E%3Crect%20x=%2265.7019%22%20y=%2294.3145%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(-57.3435%2065.7019%2094.3145)%22/%3E%3Crect%20x=%22102.979%22%20y=%2258.8701%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(-27.4326%20102.979%2058.8701)%22/%3E%3Crect%20x=%22153.818%22%20y=%2246.8164%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(2.95882%20153.818%2046.8164)%22/%3E%3Crect%20x=%22202.757%22%20y=%2261.5215%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(32.8674%20202.757%2061.5215)%22/%3E%3Crect%20x=%22238.158%22%20y=%2299.0186%22%20width=%227.65171%22%20height=%2226.781%22%20transform=%22rotate(62.7786%20238.158%2099.0186)%22/%3E%3Crect%20x=%22236.402%22%20y=%22168.174%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(105%20236.402%20168.174)%22/%3E%3Crect%20x=%22213.64%22%20y=%22208.276%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(135.15%20213.64%20208.276)%22/%3E%3Crect%20x=%22174.043%22%20y=%22231.453%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(165.061%20174.043%20231.453)%22/%3E%3Crect%20x=%22127.343%22%20y=%22231.521%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(-164.336%20127.343%20231.521)%22/%3E%3Crect%20x=%2287.5315%22%20y=%22208.312%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(-134.217%2087.5315%20208.312)%22/%3E%3Crect%20x=%2264.7434%22%20y=%22168.238%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(-104.094%2064.7434%20168.238)%22/%3E%3Crect%20x=%2265.2717%22%20y=%22121.735%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(-73.6731%2065.2717%20121.735)%22/%3E%3Crect%20x=%2288.8452%22%20y=%2282.2861%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(-43.5849%2088.8452%2082.2861)%22/%3E%3Crect%20x=%22129.192%22%20y=%2259.8994%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(-13.4593%20129.192%2059.8994)%22/%3E%3Crect%20x=%22175.767%22%20y=%2260.9414%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(16.9902%20175.767%2060.9414)%22/%3E%3Crect%20x=%22214.875%22%20y=%2284.9023%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(47.0466%20214.875%2084.9023)%22/%3E%3Crect%20x=%22236.855%22%20y=%22125.54%22%20width=%228.86016%22%20height=%2217.7203%22%20transform=%22rotate(77.1761%20236.855%20125.54)%22/%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>try{window.__boot0=Date.now();var __i=/[?&]embed=ios/.test(location.search)||!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.krug);
+/* Mini App в Telegram: вход не нужен, пока грузится редактор, виден загрузчик с логотипом */
+var __tg=/tgWebApp(Data|Platform|Version)=/.test(location.hash+location.search);try{__tg=__tg||!!sessionStorage.getItem('__telegram__initParams')}catch(e){}
+if(__tg){document.documentElement.classList.add('tg-boot');
+/* тема клиента Telegram видна уже в параметрах запуска: загрузчик сразу рисуется в нужных цветах (если тему не выбирали вручную) */
+try{var __sv=localStorage.getItem('horovod.theme');if(__sv!=='light'&&__sv!=='dark'){var __p=new URLSearchParams(location.hash.slice(1)).get('tgWebAppThemeParams');if(__p){var __c=(JSON.parse(__p).bg_color||'').replace('#','');if(__c.length===6)document.documentElement.setAttribute('data-theme',(parseInt(__c.slice(0,2),16)*299+parseInt(__c.slice(2,4),16)*587+parseInt(__c.slice(4,6),16)*114)/1000>140?'light':'dark')}}}catch(e){}}
+if(__i||__tg||sessionStorage.getItem('hrvd.gate')==='1')document.documentElement.classList.add('gate-ok')}catch(e){}</script>
 <script>try{var __t=localStorage.getItem('horovod.theme');if(__t==='light'||__t==='dark')document.documentElement.setAttribute('data-theme',__t)}catch(e){}</script>
 <script>
 /* Telegram Mini App: официальный SDK подключается только внутри Telegram — параметры запуска приходят в хэше адреса */
@@ -14,7 +58,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&family=Onest:wght@500&display=swap">
 <style>
 /* Layout: редактор — верхняя панель, слева рейка вкладок + инспектор, в центре холст выбранного формата; на телефоне холст сверху, вкладки и инспектор снизу */
 :root {
@@ -262,6 +306,14 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .frame { position: relative; box-shadow: 0 0 0 1px var(--line); background: #000; touch-action: none; }
 .frame canvas { display: block; width: 100% !important; height: 100% !important; cursor: grab; }
 .frame canvas:active { cursor: grabbing; }
+/* рамка выделенного объекта: лежит поверх холста и в экспорт не попадает */
+.sel-frame { position: absolute; z-index: 3; pointer-events: none; box-sizing: border-box; border: 1px solid rgba(190,190,190,.85); }
+.sel-frame[hidden] { display: none; }
+.sel-frame i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #8c8c8c; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; }
+.sel-frame i::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; } /* зона касания шире самого маркера */
+.sel-frame i:nth-child(1) { left: -6px; top: -6px; } .sel-frame i:nth-child(2) { right: -6px; top: -6px; }
+.sel-frame i:nth-child(3) { left: -6px; bottom: -6px; } .sel-frame i:nth-child(4) { right: -6px; bottom: -6px; }
+.sel-frame i:nth-child(1), .sel-frame i:nth-child(4) { cursor: nwse-resize; } .sel-frame i:nth-child(2), .sel-frame i:nth-child(3) { cursor: nesw-resize; }
 .cam-locked .frame canvas, .cam-locked .frame canvas:active { cursor: default; }
 .player { --well: var(--well-in); display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 8px; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-lg); box-sizing: border-box; min-width: 0; }
 .player img, .player .nocover { width: 44px; height: 44px; border-radius: var(--r-md); object-fit: cover; flex: none; background: var(--raised); display: grid; place-items: center; color: var(--muted); }
@@ -342,6 +394,50 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .lock-card { width: min(360px, 100%); display: grid; gap: 14px; justify-items: stretch; text-align: center; }
 .lock-card .avatar { justify-self: center; }
 .lock-title { font: 500 20px var(--font-display); letter-spacing: -.01em; }
+#gate { z-index: 90; overflow: hidden; place-items: start center; transition: padding-top .25s;
+  padding-top: calc(clamp(32px, 21vh, 210px) + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
+/* зерно на фоне: шум из SVG, лёгкое дрожание шагами, как у плёнки */
+#gate::before, #boot::before { content: ''; position: absolute; inset: -60px; pointer-events: none; opacity: .09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 220px 220px; animation: gate-grain .6s steps(6) infinite; }
+@keyframes gate-grain { 0% { transform: translate(0, 0); } 17% { transform: translate(-32px, 18px); } 33% { transform: translate(24px, -40px); } 50% { transform: translate(-48px, -12px); } 67% { transform: translate(40px, 30px); } 83% { transform: translate(-16px, 46px); } 100% { transform: translate(0, 0); } }
+#gate .lock-card, #boot .gate-brand { position: relative; z-index: 1; }
+/* загрузчик Mini App: крутящийся логотип и название по центру, исчезает, когда редактор готов */
+#boot { z-index: 95; overflow: hidden; transition: opacity .4s; }
+html:not(.tg-boot) #boot { display: none; }
+#boot.out { opacity: 0; pointer-events: none; }
+#boot .gate-brand { margin: 0; }
+@media (prefers-reduced-motion: reduce) { #gate::before { animation: none; } }
+html:not(.gate-ok) body > :not(#gate):not(script):not(style) { visibility: hidden !important; }
+html.gate-ok #gate { display: none; }
+.gate-brand { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.gate-brand .logo { width: 120px; height: 120px; animation: gate-rot 18s linear infinite, gate-pulse 2.6s ease-in-out infinite; }
+@keyframes gate-rot { to { rotate: 360deg; } }
+@keyframes gate-pulse { 0%, 100% { scale: 1; opacity: .85; } 50% { scale: 1.08; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .gate-brand .logo { animation: none; } }
+.gate-brand b { font: 500 26px 'Onest', var(--font-display); letter-spacing: .14em; }
+#gate .lock-card { width: min(280px, 100%); }
+.gate-form { display: grid; gap: 7px; }
+/* пропорции как у примера: поля и кнопка одной высоты, зазоры между ними малы, а подпись и поля разделены заметнее */
+#gate .hint { margin: 13px 0 30px; font-size: 13px; }
+#gate .text-input, #gate .btn { height: 37px; }
+@media (max-width: 700px) { #gate .text-input { font-size: 16px; } } /* от 16 px iOS не приближает страницу при вводе */
+/* телефон: при вводе экран сжимается, и поля с кнопкой остаются над клавиатурой */
+#gate .gate-brand .logo { transition: width .25s, height .25s; }
+#gate.gate-kb { padding-top: calc(14px + var(--tg-safe-area-inset-top, 0px) + var(--tg-content-safe-area-inset-top, 0px)); }
+#gate.gate-kb .gate-brand { gap: 6px; }
+#gate.gate-kb .gate-brand .logo { width: 64px; height: 64px; }
+#gate.gate-kb .hint { display: none; }
+#gate.gate-kb .gate-form { margin-top: 18px; }
+/* глазик в поле пароля: показать и скрыть пароль */
+.gate-pass { position: relative; }
+.gate-pass .text-input { padding-right: 44px; }
+.gate-eye { position: absolute; right: 2px; top: 0; width: 40px; height: 100%; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px; }
+.gate-eye:hover, .gate-eye[aria-pressed="true"] { color: var(--fg); }
+.gate-eye:focus-visible { outline: 1px solid var(--fg); }
+.gate-eye .slash { display: block; }
+.gate-eye[aria-pressed="true"] .slash { display: none; }
+#gate .pf-err { min-height: 16px; margin: 7px 0 0; font-size: 12px; text-align: center; }
 .lock.shake .lock-card { animation: shake .35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
 @media (prefers-reduced-motion: reduce) { .lock.shake .lock-card { animation: none; } }
@@ -359,7 +455,7 @@ textarea:focus { border-color: var(--accent); outline: none; }
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .home-top { justify-content: space-between; }
 .home-brand { display: flex; align-items: center; gap: 10px; }
-.home-brand b { font: 500 15px var(--font-display); letter-spacing: .14em; }
+.home-brand b { font: 500 15px 'Onest', var(--font-display); letter-spacing: .14em; }
 .home-body { max-width: 1180px; margin: 0 auto; padding-block: 32px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
 .home-head h1 { margin: 0 0 8px; font: 500 36px/44px var(--font-display); letter-spacing: -.02em; text-wrap: balance; }
 .home-head p { margin: 0; color: var(--muted); }
@@ -484,6 +580,73 @@ body.ios .frame { box-shadow: none; }
 }
 </style>
 
+<div class="lock" id="gate" role="dialog" aria-modal="true" aria-label="Вход">
+  <div class="lock-card">
+    <div class="gate-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true" fill="currentColor"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" /><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" /><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" /><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" /><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" /><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" /><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" /><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" /><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" /><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" /><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" /><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" /><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" /><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" /><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" /><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" /><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" /><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" /><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" /><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" /><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" /><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" /><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" /><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" /></svg><b>HRVD</b></div>
+    <p class="hint">Войдите, чтобы открыть редактор</p>
+    <form class="gate-form" novalidate>
+      <input class="text-input" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Логин" aria-label="Логин">
+      <div class="gate-pass">
+        <input class="text-input" type="password" name="password" autocomplete="current-password" enterkeyhint="go" placeholder="Пароль" aria-label="Пароль">
+        <button class="gate-eye" type="button" aria-label="Показать пароль" aria-pressed="false" title="Показать пароль"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/><path class="slash" d="M4 4l16 16"/></svg></button>
+      </div>
+      <button class="btn primary block" type="submit">Войти</button>
+      <p class="pf-err" role="alert"></p>
+    </form>
+  </div>
+</div>
+<div class="lock" id="boot" role="status" aria-label="Загрузка">
+  <div class="gate-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true" fill="currentColor"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" /><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" /><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" /><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" /><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" /><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" /><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" /><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" /><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" /><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" /><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" /><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" /><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" /><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" /><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" /><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" /><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" /><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" /><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" /><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" /><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" /><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" /><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" /><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" /></svg><b>HRVD</b></div>
+</div>
+<script>
+/* Вход на сайт. Страница сразу показывает только этот экран, а приложение скрыто, пока не введены логин и пароль.
+   Проверка идёт в браузере, в коде лежат только отпечатки. Это заслонка от случайных гостей, а не защита данных:
+   настоящую защиту даёт сервер (пароль на папку сайта). Чтобы убрать вход, поставьте on: false и соберите python3 build.py. */
+(function () {
+  var GATE = { on: true, key: 'hrvd.gate', login: 4613217356935179, pass: 148297637267412 };
+  var root = document.documentElement, box = document.getElementById('gate');
+  window.HRVD_GATE = GATE; // «Выйти» в профиле сбрасывает вход по этим данным
+  function open() { root.classList.add('gate-ok'); if (box.parentNode) box.parentNode.removeChild(box); window.dispatchEvent(new Event('hrvd-gate')); }
+  if (root.classList.contains('gate-ok')) { box.parentNode.removeChild(box); return; }
+  if (!GATE.on) { open(); return; }
+  function hash(str) {
+    var h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (var i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  }
+  var form = box.querySelector('form'), login = form.querySelector('input[type=text]'), pass = form.querySelector('input[type=password]'), err = form.querySelector('.pf-err');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (hash('hrvd:' + login.value.trim().toLowerCase()) === GATE.login && hash('hrvd:' + pass.value) === GATE.pass) {
+      try { sessionStorage.setItem(GATE.key, '1'); } catch (_) {}
+      open(); return;
+    }
+    err.textContent = 'Неверный логин или пароль'; pass.value = ''; pass.focus();
+    box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+  });
+  // телефон: клавиатура сама не выскакивает, при вводе экран сжимается; Enter в логине переходит к паролю
+  var touch = window.matchMedia && matchMedia('(pointer: coarse)').matches, kbTimer;
+  function compact(on) {
+    clearTimeout(kbTimer);
+    if (!touch) return;
+    if (on) { box.classList.add('gate-kb'); setTimeout(function () { window.scrollTo(0, 0); }, 300); }
+    else kbTimer = setTimeout(function () { var a = document.activeElement; if (!a || (a !== login && a !== pass)) box.classList.remove('gate-kb'); }, 150);
+  }
+  [login, pass].forEach(function (i) { i.addEventListener('focus', function () { compact(true); }); i.addEventListener('blur', function () { compact(false); }); });
+  var eye = box.querySelector('.gate-eye');
+  eye.addEventListener('pointerdown', function (e) { e.preventDefault(); }); // фокус остаётся в поле, клавиатура не закрывается
+  eye.addEventListener('click', function () {
+    var show = pass.type === 'password', t = show ? 'Скрыть пароль' : 'Показать пароль';
+    pass.type = show ? 'text' : 'password';
+    eye.setAttribute('aria-pressed', String(show)); eye.setAttribute('aria-label', t); eye.title = t;
+  });
+  login.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !pass.value) { e.preventDefault(); pass.focus(); } });
+  if (!touch) login.focus();
+})();
+</script>
+
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></symbol>
   <symbol id="i-font" viewBox="0 0 24 24"><path d="M4 20 10 4h1l6 16M6.5 14h8"/><path d="M17 11.5a2.5 2.5 0 1 1 0 5v-5Zm0 0V20"/></symbol>
@@ -572,12 +735,12 @@ body.ios .frame { box-shadow: none; }
       </div>
       <div class="frame-meta"><span id="metaFormat"></span><span id="metaSize"></span></div>
     </div>
-    <div class="stage-hint">Тяните — вращать · правая кнопка — двигать · колесо — приблизить · перетащите шрифт или PNG в окно</div>
+    <div class="stage-hint">Тяните — вращать · правая кнопка — двигать · колесо — приблизить · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно</div>
   </main>
 </div>
 
 <section class="home" id="home" hidden aria-labelledby="homeTitle">
-  <header class="home-top"><div class="home-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true"><use href="#i-logo"/></svg><b>HOROVOD</b></div>
+  <header class="home-top"><div class="home-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true"><use href="#i-logo"/></svg><b>HRVD</b></div>
     <button class="avatar" id="avatarBtnHome" type="button" title="Профиль и настройки" aria-label="Меню профиля" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-user"/></svg><span class="av-letter"></span></button></header>
   <div class="home-body">
     <div class="home-head"><h1 id="homeTitle">Проекты</h1><p id="homeSub"></p></div>
@@ -698,7 +861,13 @@ const STICKERS = '__STICKERS__';
     petrol:     { label: 'Сила перелива', min: 0, max: 100, step: 1, v: 0, unit: '%', grp: 'fx' },
     petrolScale:{ label: 'Масштаб разводов', min: 0.05, max: 2, step: 0.01, v: 0.45, dec: 2, grp: 'fx' },
     petrolSpeed:{ label: 'Течение', min: 0, max: 2, step: 0.01, v: 0.3, dec: 2, grp: 'fx' },
-    ashCount:   { label: 'Количество частиц', min: 50, max: 5000, step: 50, v: 900, grp: 'ash' },
+    pixel:      { label: 'Сила', min: 0, max: 100, step: 1, v: 0, unit: '%', grp: 'fx' },
+    pixelSize:  { label: 'Размер пикселя', min: 0.4, max: 8, step: 0.1, v: 1.4, dec: 1, unit: '%', grp: 'fx' },
+    pixelGap:   { label: 'Зазор между пикселями', min: 0, max: 60, step: 1, v: 16, unit: '%', grp: 'fx' },
+    pixelRound: { label: 'Скругление', min: 0, max: 100, step: 1, v: 0, unit: '%', grp: 'fx' },
+    pixelLevels:{ label: 'Градации яркости', min: 2, max: 32, step: 1, v: 10, grp: 'fx' },
+    pixelMono:  { label: 'Один цвет', min: 0, max: 100, step: 1, v: 100, unit: '%', grp: 'fx' },
+    ashCount:  { label: 'Количество частиц', min: 50, max: 5000, step: 50, v: 900, grp: 'ash' },
     ashSpeed:   { label: 'Скорость падения', min: 0, max: 6, step: 0.05, v: 1, dec: 2, grp: 'ash' },
     ashSize:    { label: 'Размер частиц', min: 0.2, max: 4, step: 0.05, v: 1, dec: 2, grp: 'ash' },
     ashWind:    { label: 'Ветер', min: -3, max: 3, step: 0.05, v: 0.3, dec: 2, grp: 'ash' },
@@ -732,6 +901,8 @@ const STICKERS = '__STICKERS__';
     bgColor:  { label: 'Цвет фона', v: '#000000', grp: 'scene' },
     specColor:{ label: 'Цвет спектра', v: '#3fc2ad', grp: 'music' },
     ashColor: { label: 'Цвет пепла', v: '#d8d2ca', grp: 'ash' },
+    pixelTint:{ label: 'Цвет света', v: '#cfd8f4', grp: 'fx' },
+    pixelBack:{ label: 'Цвет теней', v: '#05050b', grp: 'fx' },
   };
   const TOGGLES = {
     keyShadow: { label: 'Отбрасывать тени', v: true, grp: 'light' },
@@ -851,7 +1022,9 @@ const STICKERS = '__STICKERS__';
   rt.texture.encoding = THREE.sRGBEncoding;
   const FX = {
     tDiffuse: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uScale: { value: 1 }, uTime: PU.uTime,
-    uNoise: { value: 0 }, uGrain: { value: 1.5 }, uVhs: { value: 0 }, uGlitch: { value: 0 }, uAberr: { value: 0 }, uScan: { value: 0 }
+    uNoise: { value: 0 }, uGrain: { value: 1.5 }, uVhs: { value: 0 }, uGlitch: { value: 0 }, uAberr: { value: 0 }, uScan: { value: 0 },
+    uPix: { value: 0 }, uPixSize: { value: 0.014 }, uPixGap: { value: 0.16 }, uPixRound: { value: 0 }, uPixLevels: { value: 10 }, uPixMono: { value: 1 },
+    uPixTint: { value: new THREE.Color('#cfd8f4') }, uPixBack: { value: new THREE.Color('#05050b') }
   };
   const fxMat = new THREE.ShaderMaterial({
     uniforms: FX, depthTest: false, depthWrite: false,
@@ -859,6 +1032,7 @@ const STICKERS = '__STICKERS__';
     fragmentShader: `
       varying vec2 vUv;
       uniform sampler2D tDiffuse; uniform vec2 uRes; uniform float uScale, uTime, uNoise, uGrain, uVhs, uGlitch, uAberr, uScan;
+      uniform float uPix, uPixSize, uPixGap, uPixRound, uPixLevels, uPixMono; uniform vec3 uPixTint, uPixBack;
       float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
       vec3 tex(vec2 uv){ return texture2D(tDiffuse, clamp(uv, 0.001, 0.999)).rgb; }
       void main(){
@@ -878,6 +1052,24 @@ const STICKERS = '__STICKERS__';
         col.r = tex(uv + vec2(ab, 0.0)).r;
         col.g = tex(uv).g;
         col.b = tex(uv - vec2(ab, 0.0)).b;
+        if (uPix > 0.0) {
+          // сетка квадратных ячеек: размер — доля ширины кадра, поэтому в видео и PNG вид тот же, что в превью
+          float cell = max(2.0, uRes.x * uPixSize);
+          vec2 p = gl_FragCoord.xy / cell;
+          vec2 id = floor(p), f = fract(p) - 0.5;
+          vec2 cuv = (id + 0.5) * cell / uRes + (uv - vUv);
+          vec2 o = vec2(0.22 * cell) / uRes;
+          vec3 s = (tex(cuv) * 2.0 + tex(cuv + o) + tex(cuv - o) + tex(cuv + vec2(o.x, -o.y)) + tex(cuv + vec2(-o.x, o.y))) / 6.0;
+          float lv = max(uPixLevels - 1.0, 1.0);
+          float yq = floor(dot(s, vec3(0.299, 0.587, 0.114)) * lv + 0.5) / lv;
+          vec3 cellCol = mix(floor(s * lv + 0.5) / lv, mix(uPixBack, uPixTint, yq), uPixMono);
+          float hs = 0.5 * (1.0 - uPixGap);
+          float rr = uPixRound * hs;
+          vec2 d2 = abs(f) - (hs - rr);
+          float dd = length(max(d2, 0.0)) + min(max(d2.x, d2.y), 0.0) - rr;
+          float aa = 0.75 / cell;
+          col = mix(col, mix(uPixBack * 0.5, cellCol, smoothstep(aa, -aa, dd)), uPix);
+        }
         if (uVhs > 0.0) {
           vec2 px = vec2(1.0 / uRes.x, 0.0) * 3.0 * uScale;
           vec3 bleed = (tex(uv - px * 2.0) + tex(uv - px) + col + tex(uv + px)) * 0.25;
@@ -903,7 +1095,104 @@ const STICKERS = '__STICKERS__';
   const fxQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), fxMat);
   fxQuad.frustumCulled = false; fxScene.add(fxQuad);
   const fxCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  const fxActive = () => FX.uNoise.value > 0 || FX.uVhs.value > 0 || FX.uGlitch.value > 0 || FX.uAberr.value > 0 || FX.uScan.value > 0;
+  const fxActive = () => FX.uNoise.value > 0 || FX.uVhs.value > 0 || FX.uGlitch.value > 0 || FX.uAberr.value > 0 || FX.uScan.value > 0 || FX.uPix.value > 0;
+  /* пиксели у отдельных объектов: объект рисуется в свою текстуру (канал слоя 31), превращается в сетку ячеек
+     и накладывается поверх уже нарисованного слоя. Остальные объекты слоя его не перекрывают */
+  const rt2 = new RT(4, 4, { encoding: THREE.sRGBEncoding });
+  if (rt2.samples !== undefined) rt2.samples = 4;
+  rt2.texture.encoding = THREE.sRGBEncoding;
+  const PXU = {
+    tSrc: { value: rt2.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uPx: { value: 1 }, uGl: { value: 0 }, uTime: PU.uTime, uSize: { value: 0.014 }, uGap: { value: 0.16 }, uRound: { value: 0 },
+    uLevels: { value: 10 }, uMono: { value: 1 }, uTint: { value: new THREE.Color() }, uBack: { value: new THREE.Color() }
+  };
+  const pxMat = new THREE.ShaderMaterial({
+    uniforms: PXU, depthTest: false, depthWrite: false, transparent: true, blending: THREE.CustomBlending,
+    blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+    blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform sampler2D tSrc; uniform vec2 uRes; uniform float uPx, uGl, uTime, uSize, uGap, uRound, uLevels, uMono; uniform vec3 uTint, uBack;
+      float hh(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+      vec4 T(vec2 uv){ return texture2D(tSrc, clamp(uv, 0.0005, 0.9995)); }
+      void main(){
+        // глитч под бит: горизонтальные полосы сдвигаются, цвета разъезжаются; сила uGl идёт от удара
+        float tick = floor(uTime * 14.0);
+        float band = floor(vUv.y * (16.0 + 40.0 * hh(vec2(tick, 3.1))));
+        float on = step(1.0 - 0.3 * uGl, hh(vec2(band, tick)));
+        float gs = on * (hh(vec2(band, tick + 1.0)) - 0.5) * 0.22 * uGl;
+        if (uPx > 0.5) {
+          float cell = max(2.0, uRes.x * uSize);
+          vec2 p = gl_FragCoord.xy / cell;
+          vec2 id = floor(p), f = fract(p) - 0.5;
+          vec2 cuv = (id + 0.5) * cell / uRes + vec2(gs, 0.0);
+          vec2 o = vec2(0.22 * cell) / uRes;
+          vec4 s = (T(cuv) * 2.0 + T(cuv + o) + T(cuv - o) + T(cuv + vec2(o.x, -o.y)) + T(cuv + vec2(-o.x, o.y))) / 6.0;
+          if (s.a < 0.02) discard;
+          vec3 c = s.rgb / s.a;
+          float lv = max(uLevels - 1.0, 1.0);
+          float yq = floor(dot(c, vec3(0.299, 0.587, 0.114)) * lv + 0.5) / lv;
+          vec3 col = mix(floor(c * lv + 0.5) / lv, mix(uBack, uTint, yq), uMono);
+          float hs = 0.5 * (1.0 - uGap);
+          float rr = uRound * hs;
+          vec2 d2 = abs(f) - (hs - rr);
+          float dd = length(max(d2, 0.0)) + min(max(d2.x, d2.y), 0.0) - rr;
+          float aa = 0.75 / cell;
+          float a = min(1.0, s.a * 1.25) * smoothstep(aa, -aa, dd);
+          gl_FragColor = vec4(col * a, a);
+        } else {
+          float ab = uGl * 0.012 * (1.0 + abs(gs) * 25.0);
+          vec2 u = vUv + vec2(gs, 0.0);
+          vec4 sr = T(u + vec2(ab, 0.0)), sg = T(u), sb = T(u - vec2(ab, 0.0));
+          float a = max(sg.a, max(sr.a, sb.a));
+          if (a < 0.004) discard;
+          gl_FragColor = vec4(sr.r, sg.g, sb.b, a);
+        }
+      }`
+  });
+  const pxScene = new THREE.Scene();
+  const pxQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), pxMat);
+  pxQuad.frustumCulled = false; pxScene.add(pxQuad);
+  const PXREG = { list: () => [], items: [], tmp: new THREE.Color(), sz: new THREE.Vector2() };
+  // перед кадром: объекты с пикселями убираем из обычных проходов (маска слоёв = 0)
+  function pxBegin() {
+    PXREG.items = PXREG.list();
+    PXREG.items.forEach(it => { it.saved = []; it.roots.forEach(r => r.traverse(o => { it.saved.push([o, o.layers.mask]); o.layers.mask = 0; })); });
+  }
+  function pxEnd() { PXREG.items.forEach(it => { it.saved.forEach(([o, m]) => { o.layers.mask = m; }); it.saved = []; }); PXREG.items = []; }
+  // бит на отдельных объектах: пульс размера — временный масштаб на время кадра (меши самой фигуры или копий картинки)
+  const BTREG = { list: () => [], saved: [] };
+  function btBegin() {
+    BTREG.saved = [];
+    if (MU.pulse < 0.004) return;
+    BTREG.list().forEach(({ o, nodes }) => {
+      if (!(o.btPulse > 0)) return;
+      const k = 1 + MU.pulse * o.btPulse / 100;
+      nodes.forEach(n => { BTREG.saved.push([n, n.scale.x, n.scale.y, n.scale.z]); n.scale.multiplyScalar(k); });
+    });
+  }
+  function btEnd() { BTREG.saved.forEach(([n, x, y, z]) => n.scale.set(x, y, z)); BTREG.saved = []; }
+  // после прохода слоя n: каждый такой объект отдельно в текстуру, затем сеткой поверх
+  function pxFlush(n) {
+    for (const it of PXREG.items) {
+      if (it.layer !== n) continue;
+      const cur = renderer.getRenderTarget(), bg = scene.background, ca = renderer.getClearAlpha(); renderer.getClearColor(PXREG.tmp);
+      it.saved.forEach(([o]) => { o.layers.mask = -2147483648; });
+      scene.background = null;
+      renderer.setRenderTarget(rt2); renderer.setClearColor(0x000000, 0); renderer.clear();
+      camera.layers.set(31); renderer.shadowMap.needsUpdate = true; renderer.render(scene, camera);
+      renderer.setClearColor(PXREG.tmp, ca);
+      it.saved.forEach(([o]) => { o.layers.mask = 0; });
+      renderer.setRenderTarget(cur);
+      if (cur) PXU.uRes.value.set(cur.width, cur.height); else { renderer.getDrawingBufferSize(PXREG.sz); PXU.uRes.value.copy(PXREG.sz); }
+      const o = it.o;
+      PXU.uSize.value = o.pxSize / 100; PXU.uGap.value = o.pxGap / 100; PXU.uRound.value = o.pxRound / 100; PXU.uLevels.value = o.pxLevels; PXU.uMono.value = o.pxMono / 100;
+      PXU.uTint.value.set(o.pxTint); PXU.uBack.value.set(o.pxBack);
+      PXU.uPx.value = o.pxOn ? 1 : 0; PXU.uGl.value = it.gl || 0;
+      renderer.render(pxScene, fxCam);
+      scene.background = bg;
+    }
+  }
   /* слои глубины: 1 — картинки за текстом, 0 — текст и 3D, 2 — картинки перед текстом */
   renderer.autoClear = false;
   renderer.shadowMap.autoUpdate = false;
@@ -914,6 +1203,10 @@ const STICKERS = '__STICKERS__';
   const renderLayerOf = o => o.order === 'back' ? 1 : o.order === 'front' ? 2 + Math.min(28, o.stack || 0) : 0;
   function syncFront() { frontSeq = Math.max(0, ...shapes.map(o => o.stack || 0), ...layers.map(o => o.stack || 0), ...texts.map(o => o.stack || 0)); }
   function drawScene() {
+    btBegin(); pxBegin();
+    try { drawLayers(); } finally { pxEnd(); btEnd(); camera.layers.set(0); }
+  }
+  function drawLayers() {
     renderer.clear();
     const bg = scene.background;
     if (specVisible()) {                                            // фон, поверх него спектр
@@ -922,14 +1215,16 @@ const STICKERS = '__STICKERS__';
       renderer.render(specScene, fxCam);
     }
     camera.layers.set(1); renderer.render(scene, camera);          // фон + картинки за текстом
+    pxFlush(1);
     scene.background = null;
     renderer.shadowMap.needsUpdate = true; // тени считаются по объектам основного слоя
     renderer.clearDepth(); camera.layers.set(0); renderer.render(scene, camera);  // текст
+    pxFlush(0);
     // «перед текстом»: у каждой новой фигуры, картинки и текста свой слой выше предыдущего, между проходами глубина сбрасывается,
     // поэтому новое всегда целиком поверх старого
     const tops = new Set([2]);
     for (const list of [shapes, layers, texts]) for (const o of list) if (o.order === 'front') tops.add(renderLayerOf(o));
-    [...tops].sort((a, b) => a - b).forEach(n => { renderer.clearDepth(); camera.layers.set(n); renderer.render(scene, camera); });
+    [...tops].sort((a, b) => a - b).forEach(n => { renderer.clearDepth(); camera.layers.set(n); renderer.render(scene, camera); pxFlush(n); });
     if (cardVisible()) { placeCard(); renderer.render(cardScene, fxCam); }        // карточка трека
     scene.background = bg; camera.layers.set(0);
   }
@@ -1358,11 +1653,19 @@ const STICKERS = '__STICKERS__';
   /* дополнительные тексты: у каждого своя форма, место, вращение, шрифт и пропорции; объём и материал общие */
   const BLOCK_KEYS = ['size', 'stretchY', 'width', 'tracking', 'posX', 'posY', 'radius', 'boxW', 'boxH', 'corner', 'gap', 'angle', 'spin'];
   const BLOCK_ST = ['mode', 'fit', 'side', 'align'];
+  // пиксели отдельного объекта (текст, фигура, картинка); у основного текста лежат в P под именами mpx…
+  const PX_DEF = { pxOn: false, pxSize: 1.4, pxGap: 16, pxRound: 0, pxLevels: 10, pxMono: 100, pxTint: '#cfd8f4', pxBack: '#05050b' };
+  const PX_KEYS = Object.keys(PX_DEF);
+  // реакция на бит (фигуры и картинки): пульс размера и глитч только у этого объекта
+  const BT_DEF = { btOn: false, btPulse: 12, btGlitch: 70 };
+  const BT_KEYS = Object.keys(BT_DEF);
+  PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
   const MAIN = { id: 'main', main: true,
     get text() { return TEXT; }, set text(v) { TEXT = v; },
     get font() { return current; }, get fontId() { return current && current.id; },
     get spinner() { return spinner; }, get group() { return textGroup; } };
   BLOCK_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P[k] }));
+  PX_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P['m' + k], set: v => { P['m' + k] = v; } }));
   BLOCK_ST.forEach(k => Object.defineProperty(MAIN, k, { get: () => st[k] }));
   // цвет у каждого текста свой; у основного — общие настройки «Цвет букв»
   const BLOCK_LOOK = ['color', 'color2', 'grad', 'gradMode'];
@@ -1393,7 +1696,7 @@ const STICKERS = '__STICKERS__';
   }
   const texts = [];
   let selText = MAIN;
-  const TEXT_DEF = { color: '#e9e9e6', color2: '#3fc2ad', grad: false, gradMode: 0, mode: 'plain', fit: 'stretch', side: 'out', align: 'center', size: 1.1, stretchY: 100, width: 100, tracking: 4, posX: 0, posY: 0, radius: 6.5, boxW: 13, boxH: 13, corner: 30, gap: 1.7, angle: 0, spin: 0, order: 'space', stack: 0 };
+  const TEXT_DEF = { color: '#e9e9e6', color2: '#3fc2ad', grad: false, gradMode: 0, mode: 'plain', fit: 'stretch', side: 'out', align: 'center', size: 1.1, stretchY: 100, width: 100, tracking: 4, posX: 0, posY: 0, radius: 6.5, boxW: 13, boxH: 13, corner: 30, gap: 1.7, angle: 0, spin: 0, order: 'space', stack: 0, ...PX_DEF };
   function addTextBlock(props, fresh = !props) {
     const B = Object.assign({ id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), text: 'ВТОРОЙ ТЕКСТ', fontId: current.id }, TEXT_DEF, props || {});
     Object.defineProperty(B, 'font', { get: () => fonts.find(f => f.id === B.fontId) || fonts[0] });
@@ -1455,7 +1758,7 @@ const STICKERS = '__STICKERS__';
   const layers = [];
   let selLayer = null;
   const texLoader = new THREE.TextureLoader();
-  const LAYER_DEF = { mode: 'center', size: 4, x: 0, y: 0, z: 0, rot: 0, opacity: 100, count: 12, ringR: 9, lit: true, billboard: false, spins: false, visible: true, order: 'space', stack: 0 };
+  const LAYER_DEF = { mode: 'center', size: 4, x: 0, y: 0, z: 0, rot: 0, opacity: 100, count: 12, ringR: 9, lit: true, billboard: false, spins: false, visible: true, order: 'space', stack: 0, ...PX_DEF, ...BT_DEF };
   const LS = {
     size:    { label: 'Размер', min: 0.2, max: 50, step: 0.2, dec: 1 },
     x:       { label: 'По горизонтали', min: -15, max: 15, step: 0.1, dec: 1 },
@@ -1691,7 +1994,7 @@ const STICKERS = '__STICKERS__';
   };
   const SHAPE_DEF = { x: 0, y: 0, z: 0, size: 4, w: 100, h: 100, d: 100, rotX: 0, rotY: 0, rotZ: 0, corner: 0,
     color: '#ffffff', opacity: 100, metal: 0, rough: 0.5, lit: false, fit: 'cover', tiles: 3, open: false,
-    order: 'space', stack: 0, fixed: true, visible: true, videoSound: false };
+    order: 'space', stack: 0, fixed: true, visible: true, videoSound: false, ...PX_DEF, ...BT_DEF };
   const SS = {
     x:        { label: 'По горизонтали', min: -15, max: 15, step: 0.1, dec: 1, v: 0 },
     y:        { label: 'По вертикали', min: -15, max: 15, step: 0.1, dec: 1, v: 0 },
@@ -2023,6 +2326,8 @@ const STICKERS = '__STICKERS__';
   function applyFx() {
     FX.uNoise.value = P.noise / 100; FX.uGrain.value = P.grain; FX.uVhs.value = P.vhs / 100;
     FX.uGlitch.value = P.glitch / 100; FX.uAberr.value = P.aberr / 100; FX.uScan.value = P.scan / 100;
+    FX.uPix.value = P.pixel / 100; FX.uPixSize.value = P.pixelSize / 100; FX.uPixGap.value = P.pixelGap / 100; FX.uPixRound.value = P.pixelRound / 100;
+    FX.uPixLevels.value = P.pixelLevels; FX.uPixMono.value = P.pixelMono / 100; FX.uPixTint.value.set(P.pixelTint); FX.uPixBack.value.set(P.pixelBack);
     PU.uPetrol.value = P.petrol / 100; PU.uPetrolScale.value = P.petrolScale; PU.uPetrolSpeed.value = P.petrolSpeed;
   }
   function applyCam() { updateCamera(); }
@@ -2505,11 +2810,12 @@ const STICKERS = '__STICKERS__';
     'Драма':  { keyColor: '#fff1dc', keyInt: 3, keyAz: 90, keyEl: 5, rimColor: '#ffffff', rimInt: 0, rimAz: -90, rimEl: 0, ambColor: '#ffffff', ambInt: 0.03, env: 0.15, exposure: 1, matColor: '#efefef', bgColor: '#0b0b0c', metal: 0, rough: 0.6 },
   };
   const FX_PRESETS = {
-    'Чисто': { noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0 },
-    'Плёночный шум': { noise: 22, grain: 2, vhs: 0, glitch: 0, aberr: 10, scan: 0, petrol: 0 },
-    'VHS': { noise: 12, grain: 1.5, vhs: 75, glitch: 35, aberr: 35, scan: 45, petrol: 0 },
-    'Бензин': { noise: 5, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 90, petrolScale: 0.45, petrolSpeed: 0.3, metal: 0.85, rough: 0.2, matColor: '#2a2c30' },
-    'Всё сразу': { noise: 15, grain: 1.5, vhs: 60, glitch: 50, aberr: 45, scan: 35, petrol: 85, petrolScale: 0.6, petrolSpeed: 0.5, metal: 0.8, rough: 0.22, matColor: '#2a2c30' },
+    'Чисто': { noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0, pixel: 0 },
+    'Плёночный шум': { noise: 22, grain: 2, vhs: 0, glitch: 0, aberr: 10, scan: 0, petrol: 0, pixel: 0 },
+    'VHS': { noise: 12, grain: 1.5, vhs: 75, glitch: 35, aberr: 35, scan: 45, petrol: 0, pixel: 0 },
+    'Бензин': { noise: 5, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 90, pixel: 0, petrolScale: 0.45, petrolSpeed: 0.3, metal: 0.85, rough: 0.2, matColor: '#2a2c30' },
+    'Всё сразу': { noise: 15, grain: 1.5, vhs: 60, glitch: 50, aberr: 45, scan: 35, petrol: 85, pixel: 0, petrolScale: 0.6, petrolSpeed: 0.5, metal: 0.8, rough: 0.22, matColor: '#2a2c30' },
+    'Пиксели': { pixel: 100, pixelSize: 1.4, pixelGap: 16, pixelRound: 0, pixelLevels: 10, pixelMono: 100, pixelTint: '#cfd8f4', pixelBack: '#05050b', noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0 },
   };
   let activeLightPreset = 'Студия', activeFxPreset = 'Чисто';
 
@@ -2607,7 +2913,7 @@ const STICKERS = '__STICKERS__';
   const SEC_ICONS = { 'Тексты': 'text', 'Текст': 'font', 'Шрифт': 'font', 'Эмодзи': 'smile', 'Цвет': 'palette', 'Заливка': 'palette', 'Форма': 'shape', 'Положение': 'move', 'Позиция': 'move',
     'Размещение': 'move', 'Масштаб': 'move', 'Поворот': 'cam', 'Анимация': 'play', 'Пропорции': 'sliders', 'Объём': 'sliders', 'Материал': 'sliders', 'Отображение': 'sliders',
     'Стикеры': 'image', 'Слой': 'image', 'Слои': 'image', 'Видео': 'video', 'Пресеты': 'light', 'Основной свет': 'light', 'Контровой свет': 'light', 'Общий свет': 'light',
-    'Шум': 'fx', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
+    'Шум': 'fx', 'Пиксели': 'grid', 'Бит': 'music', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
     'Фон': 'scene', 'Тени': 'scene', 'Камера': 'cam', 'Добавить фигуру': 'shape' };
   const secIcon = title => (title === 'Пресеты' && st.tab === 'fx' ? 'fx' : title === 'Слои' && st.tab === 'text' ? 'scene' : SEC_ICONS[title]) || (/^Фигура/.test(title) ? 'shape' : (TABS.find(t => t[0] === st.tab) || [])[2] || 'dots');
   function section(title, kids, resetKeys, opts) {
@@ -2676,6 +2982,7 @@ const STICKERS = '__STICKERS__';
     noise: { keys: ['noise', 'grain'], main: ['noise'], on: { noise: 25, grain: 1.5 } },
     vhs: { keys: ['vhs', 'glitch', 'aberr', 'scan'], main: ['vhs', 'glitch', 'aberr', 'scan'], on: { vhs: 60, glitch: 35, aberr: 30, scan: 40 } },
     petrol: { keys: ['petrol', 'petrolScale', 'petrolSpeed'], main: ['petrol'], on: { petrol: 85, petrolScale: 0.45, petrolSpeed: 0.3 } },
+    pixel: { keys: ['pixel', 'pixelSize', 'pixelGap', 'pixelRound', 'pixelLevels', 'pixelMono', 'pixelTint', 'pixelBack'], main: ['pixel'], on: { pixel: 100, pixelSize: 1.4, pixelGap: 16, pixelRound: 0, pixelLevels: 10, pixelMono: 100, pixelTint: '#cfd8f4', pixelBack: '#05050b' } },
   };
   const FX_MEM = {};
   const fxOn = u => FX_UNITS[u].main.some(k => P[k] > 0);
@@ -2686,6 +2993,36 @@ const STICKERS = '__STICKERS__';
   }
   const fxReset = u => { delete FX_MEM[u]; setMany(FX_UNITS[u].on); };
   const fxToggle = u => ({ get: () => fxOn(u), set: v => fxSet(u, v) });
+  // пиксели только у выбранного объекта (текст, картинка или фигура); остальная сцена остаётся как есть
+  const PXS = {
+    pxSize:   { label: 'Размер пикселя', min: 0.4, max: 8, step: 0.1, dec: 1, unit: '%' },
+    pxGap:    { label: 'Зазор между пикселями', min: 0, max: 60, step: 1, unit: '%' },
+    pxRound:  { label: 'Скругление', min: 0, max: 100, step: 1, unit: '%' },
+    pxLevels: { label: 'Градации яркости', min: 2, max: 32, step: 1 },
+    pxMono:   { label: 'Один цвет', min: 0, max: 100, step: 1, unit: '%' },
+  };
+  function pixelSection(o, what) {
+    const sl = k => slider(k, PXS[k], () => o[k], v => { o[k] = v; });
+    return section('Пиксели', [
+      h('p', { class: 'hint' }, `Пиксельная сетка только на ${what}: остальная сцена не меняется. Размер задан долей ширины кадра, поэтому в видео и PNG вид тот же. Объект с пикселями рисуется поверх других объектов своего слоя.`),
+      sl('pxSize'), sl('pxGap'), sl('pxRound'), sl('pxLevels'), sl('pxMono'),
+      color('pxTint', { label: 'Цвет света' }, () => o.pxTint, v => { o.pxTint = v; }),
+      color('pxBack', { label: 'Цвет теней' }, () => o.pxBack, v => { o.pxBack = v; }),
+    ], () => { PX_KEYS.forEach(k => { o[k] = PX_DEF[k]; }); o.pxOn = true; }, { toggle: { get: () => o.pxOn, set: v => { o.pxOn = v; } } });
+  }
+  // реакция на бит только у выбранной фигуры или картинки
+  const BTS = {
+    btPulse:  { label: 'Пульс размера', min: 0, max: 60, step: 1, unit: '%' },
+    btGlitch: { label: 'Сила глитча', min: 0, max: 100, step: 1, unit: '%' },
+  };
+  function beatSection(o, what) {
+    const sl = k => slider(k, BTS[k], () => o[k], v => { o[k] = v; });
+    return section('Бит', [
+      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар трека: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Работает, пока играет музыка. Чтобы дёргался только он, поставьте общий «Глитч под бит» на вкладке «Музыка» в 0. В момент глитча объект рисуется поверх других объектов своего слоя.`),
+      sl('btPulse'), sl('btGlitch'),
+      h('button', { class: 'btn small block', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'),
+    ], () => { BT_KEYS.forEach(k => { o[k] = BT_DEF[k]; }); o.btOn = true; }, { toggle: { get: () => o.btOn, set: v => { o.btOn = v; } } });
+  }
   // выбор эмодзи для пепла: строка с эмодзи (до 8) и быстрые кнопки; нажатие добавляет эмодзи или убирает, если оно уже выбрано
   function ashEmojiPicker() {
     const input = h('input', { class: 'text-input', type: 'text', value: st.ashEmoji, placeholder: 'Вставьте эмодзи, до 8 штук', 'aria-label': 'Эмодзи для пепла', spellcheck: 'false' });
@@ -2740,7 +3077,7 @@ const STICKERS = '__STICKERS__';
             h('button', { class: 'icon-btn', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash'))));
         });
       }
-      const pick2 = T => Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS].map(k => [k, T[k]]));
+      const pick2 = T => Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS].map(k => [k, T[k]]));
       renderTextList();
       return [
         section('Слои', [list,
@@ -2760,6 +3097,7 @@ const STICKERS = '__STICKERS__';
           ...(B.grad ? [color(B.main ? 'matColor2' : 'bColor2', COLORS.matColor2, () => B.color2, v => setBlock(B, 'color2', v)),
             seg('Направление', [[0, 'Сверху вниз'], [1, 'Слева направо'], [2, 'Вокруг круга']], () => B.gradMode, v => setBlock(B, 'gradMode', v))] : []),
         ], B.main ? ['matColor', 'matColor2', 'matGrad'] : () => { setBlock(B, 'color', P.matColor); B.grad = false; applyBlockMaterial(B); }),
+        pixelSection(B, 'этом тексте'),
         section('Эмодзи', [emojiRow, slider('emojiScale'),
           h('p', { class: 'hint' }, 'Нажмите, чтобы вставить в текст. Любые другие — с системной панели: Win + . или Ctrl + Cmd + Пробел на Mac.')], ['emojiScale']),
         section('Положение', plain
@@ -2831,6 +3169,8 @@ const STICKERS = '__STICKERS__';
 
           L.mode === 'center' ? toggle('Всегда смотрит в камеру', () => L.billboard, v => { L.billboard = v; upd(); }, 'l-bb') : null,
         ]));
+        out.push(beatSection(L, 'картинка'));
+        out.push(pixelSection(L, 'этой картинке'));
       }
       return out;
     },
@@ -2890,6 +3230,8 @@ const STICKERS = '__STICKERS__';
         toggle('Реагирует на свет', () => S.lit, v => { setShape(S, 'lit', v); renderPanel(); }, 'sh-lit'),
         ...(S.lit ? [ss('metal'), ss('rough')] : [h('p', { class: 'hint' }, 'Без света фото и видео показываются в исходных цветах, как экран.')]),
       ]));
+      out.push(beatSection(S, 'фигура'));
+      out.push(pixelSection(S, 'этой фигуре'));
       return out;
     },
     light() {
@@ -2905,6 +3247,8 @@ const STICKERS = '__STICKERS__';
       return [
         section('Пресеты', [presetChips(FX_PRESETS, activeFxPreset, n => { activeFxPreset = n; setMany(FX_PRESETS[n]); })]),
         section('Шум', [slider('noise'), slider('grain')], () => fxReset('noise'), { toggle: fxToggle('noise') }),
+        section('Пиксели', [h('p', { class: 'hint' }, 'Картинка из квадратных ячеек с зазорами, как на светодиодном экране. Размер задан долей ширины кадра, поэтому в видео и PNG вид тот же, что в превью.'),
+          slider('pixel'), slider('pixelSize'), slider('pixelGap'), slider('pixelRound'), slider('pixelLevels'), slider('pixelMono'), color('pixelTint'), color('pixelBack')], () => fxReset('pixel'), { toggle: fxToggle('pixel') }),
         section('Глитч VHS', [slider('vhs'), slider('glitch'), slider('aberr'), slider('scan')], () => fxReset('vhs'), { toggle: fxToggle('vhs') }),
         section('Бензин', [h('p', { class: 'hint' }, 'Радужная плёнка на буквах. Лучше всего на тёмном металле.'), slider('petrol'), slider('petrolScale'), slider('petrolSpeed')], () => fxReset('petrol'), { toggle: fxToggle('petrol') }),
         section('Летающий пепел', [
@@ -3069,7 +3413,7 @@ const STICKERS = '__STICKERS__';
   function setBuffer(w, hh, pr) {
     renderer.setPixelRatio(pr); renderer.setSize(w, hh, false);
     const pw = Math.round(w * pr), ph = Math.round(hh * pr);
-    rt.setSize(pw, ph); FX.uRes.value.set(pw, ph); FX.uScale.value = pw / cssW; // пикселей буфера на 1 px превью
+    rt.setSize(pw, ph); rt2.setSize(pw, ph); FX.uRes.value.set(pw, ph); FX.uScale.value = pw / cssW; // пикселей буфера на 1 px превью
   }
   function resize() {
     if (exporting) return;
@@ -3108,7 +3452,7 @@ const STICKERS = '__STICKERS__';
     b.setAttribute('aria-label', on ? 'Разблокировать камеру' : 'Заблокировать камеру');
     document.body.classList.toggle('cam-locked', on);
     const hint = document.querySelector('.stage-hint');
-    if (hint) { if (!hint.dataset.free) hint.dataset.free = hint.textContent; hint.textContent = on ? 'Камера заблокирована — нажмите замок вверху, чтобы вращать и масштабировать · перетащите шрифт или PNG в окно' : hint.dataset.free; }
+    if (hint) { if (!hint.dataset.free) hint.dataset.free = hint.textContent; hint.textContent = on ? 'Камера заблокирована — нажмите замок вверху, чтобы вращать и масштабировать · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно' : hint.dataset.free; }
   }
   function syncPlay() {
     const on = P.spin !== 0 && canSpin(st.mode);
@@ -3202,8 +3546,11 @@ const STICKERS = '__STICKERS__';
     vids.forEach(x => { if (x.play) x.v.play().catch(() => {}); });
     if (withAudio) MU.audio.play().catch(() => {});
   }
+  // iPhone разрешает включить звук только прямо в касании кнопки; после ожидания контекст остаётся «спящим» и запись выходит немой
+  const wakeAudio = () => { try { if (MU.ctx && MU.ctx.state !== 'running') MU.ctx.resume().catch(() => {}); } catch (e) {} };
   async function recordVideo() {
     if (recorder) return; // запись уже идёт или готовится
+    wakeAudio();
     if (!window.MediaRecorder || !renderer.domElement.captureStream) { toast('Этот браузер не умеет записывать видео с холста.', true); return; }
     const withAudio = !!(MU.audio && MU.dest);
     const types = withAudio
@@ -3238,6 +3585,7 @@ const STICKERS = '__STICKERS__';
       clearInterval(timer); badge.remove(); exporting = false; resize(); recorder = null;
       post({ type: 'rec', recording: false });
       const blob = new Blob(chunks, { type: type.split(';')[0] });
+      lastExport = { path: 'запись в реальном времени (' + type.split(';')[0] + ')', audio: withAudio ? 'дорожка трека подключена к записи' : 'без звука (трек не загружен)', why: lastExport.why };
       saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}.${ext}`, blob);
     };
     if (!MU.audio && (P.spin === 0 || !canSpin(st.mode)) && P.rimOrbit === 0 && P.petrol === 0 && P.vhs === 0 && P.glitch === 0 && P.noise === 0) toast('Сцена неподвижна. Включите вращение пробелом, чтобы видео ожило.');
@@ -3250,6 +3598,7 @@ const STICKERS = '__STICKERS__';
   // и пишется в MP4 с постоянной частотой кадров. Кадры не пропадают на слабом компьютере, ролик готовится быстрее реального времени.
   // Звук трека режется по отметке начала и анализируется заранее (OfflineAudioContext), поэтому биты и спектр совпадают с музыкой.
   let renderJob = null, muxerMod = null;
+  let lastExport = { path: '', audio: '', why: '' }; // как собрано последнее видео: показываем в окне «Видео готово», чтобы было видно, что со звуком
   const yieldNow = () => new Promise(r => { const c = new MessageChannel(); c.port1.onmessage = () => { c.port1.close(); r(); }; c.port2.postMessage(0); });
   const canRenderOffline = () => !!(window.VideoEncoder && window.VideoFrame && window.OfflineAudioContext);
   async function loadMuxer() {
@@ -3267,10 +3616,14 @@ const STICKERS = '__STICKERS__';
     v.addEventListener('seeked', fin);
     v.currentTime = t;
   });
+  // описание AAC-LC (AudioSpecificConfig) для MP4: нужно плееру iPhone; не все кодировщики отдают его сами
+  const aacConfig = (rate, ch) => { const i = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350].indexOf(rate), f = i < 0 ? 4 : i; return new Uint8Array([(2 << 3) | (f >> 1), ((f & 1) << 7) | (ch << 3)]); };
   async function renderVideo() {
     if (renderJob || recorder) return;
+    wakeAudio();
     const withAudio = !!(MU.audio && MU.file);
-    if (!canRenderOffline() || (withAudio && !window.AudioEncoder)) { toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
+    const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
+    if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { lastExport.why = !window.AudioEncoder && hasSound ? 'нет кодировщика звука (AudioEncoder)' : 'нет покадрового рендера (WebCodecs)'; toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
     closeExport();
     const fps = exp.fps, [w, hh] = exportDims(exp.vlong), sr = withAudio ? MU.ctx.sampleRate : 48000;
     const total = exp.sec === 'track' ? (withAudio && isFinite(MU.audio.duration) ? clipEnd() - MU.clipStart : 15) : exp.sec;
@@ -3283,14 +3636,14 @@ const STICKERS = '__STICKERS__';
       const r = await VideoEncoder.isConfigSupported(cfg).catch(() => null);
       if (r && r.supported) { vcfg = cfg; break; }
     }
-    if (withAudio) {
+    if (hasSound) {
       for (const [codec, mux] of [['mp4a.40.2', 'aac'], ['opus', 'opus']]) {
         const cfg = { codec, sampleRate: sr, numberOfChannels: 2, bitrate: 192000 };
         const r = await AudioEncoder.isConfigSupported(cfg).catch(() => null);
         if (r && r.supported) { acfg = Object.assign({ mux }, cfg); break; }
       }
     }
-    if (!vcfg || (withAudio && !acfg)) { toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
+    if (!vcfg || (hasSound && !acfg)) { lastExport.why = !vcfg ? 'кодировщик видео не принял размер' : 'кодировщик звука не принял формат'; toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
 
     const job = renderJob = { cancel: false };
     const badge = h('div', { class: 'rec', role: 'status' }, h('span', { class: 'dot' }), h('span', { id: 'recTime' }, 'Готовлю…'),
@@ -3302,20 +3655,21 @@ const STICKERS = '__STICKERS__';
     const vids = [...shapes.filter(S => S.video).map(S => ({ v: S.video, tex: S.tex, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, tex: bgTex, hold: false }] : [])]
       .map(x => Object.assign(x, { wasPlaying: !x.v.paused }));
     let venc = null, aenc = null, failure = null;
+    const audioDiag = { adts: false, desc: true };
     offlineRun = true; exporting = true;
     try {
       const { Muxer, ArrayBufferTarget } = await loadMuxer();
       const target = new ArrayBufferTarget();
       const muxer = new Muxer({ target, fastStart: 'in-memory', firstTimestampBehavior: 'offset',
         video: { codec: 'avc', width: w, height: hh },
-        ...(withAudio ? { audio: { codec: acfg.mux, numberOfChannels: 2, sampleRate: sr } } : {}) });
+        ...(hasSound ? { audio: { codec: acfg.mux, numberOfChannels: 2, sampleRate: sr } } : {}) });
       if (withAudio) MU.audio.pause();
       vids.forEach(x => x.v.pause());
 
       // --- звук: отрывок с отмеченного места по кругу на всю длину ролика + анализ спектра для каждого кадра
       let tl = null;
+      if (hasSound) info('Готовлю звук…');
       if (withAudio) {
-        info('Готовлю звук…');
         const src = await MU.ctx.decodeAudioData(await MU.file.arrayBuffer());
         const cs = Math.min(src.length - 1, Math.floor(MU.clipStart * sr)), ce = Math.min(src.length, Math.max(cs + 1, Math.floor(clipEnd() * sr))), cl = ce - cs;
         const N = Math.ceil(total * sr);
@@ -3338,8 +3692,43 @@ const STICKERS = '__STICKERS__';
         }
         await off.startRendering();
         offAudio = data;
+      }
+      if (hasSound) {
+        const N = Math.ceil(total * sr);
+        // итоговая дорожка: трек (если есть) плюс звук каждого видео, которое в сцене включено со звуком
+        const mix = new AudioBuffer({ length: N, numberOfChannels: 2, sampleRate: sr });
+        if (tl) for (let ch = 0; ch < 2; ch++) mix.getChannelData(ch).set(tl.getChannelData(ch));
+        for (const vs of vsounds) {
+          try {
+            const dec = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await vs.file.arrayBuffer());
+            if (!dec.length) continue;
+            for (let ch = 0; ch < 2; ch++) {
+              const from = dec.getChannelData(Math.min(ch, dec.numberOfChannels - 1)), to = mix.getChannelData(ch);
+              for (let i = 0; i < N; i++) to[i] = Math.max(-1, Math.min(1, to[i] + from[i % dec.length]));
+            }
+          } catch (e) { toast('Не удалось прочитать звук видео «' + vs.name + '»: оно будет без звука.', true); }
+        }
+        let peak = 0; for (let ch = 0; ch < 2; ch++) { const d = mix.getChannelData(ch); for (let i = 0; i < N; i += 7) peak = Math.max(peak, Math.abs(d[i])); }
+        if (peak < 0.0005) toast('В выбранном участке звука нет, в ролике будет тишина. Проверьте отметку начала и длину отрывка на вкладке «Музыка».', true);
+        tl = mix;
         // кодируем звук целиком, пока сцена ещё не рисуется
-        aenc = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: e => { failure = e; } });
+        // Safari/iPhone может отдавать AAC в обёртке ADTS или без описания — приводим к тому, что ждёт MP4
+        let firstAudio = true;
+        aenc = new AudioEncoder({ error: e => { failure = e; }, output: (c, m) => {
+          let chunk = c, meta = m;
+          if (acfg.mux === 'aac') {
+            const d = new Uint8Array(c.byteLength); c.copyTo(d);
+            if (d.length > 7 && d[0] === 0xFF && (d[1] & 0xF0) === 0xF0 && (((d[3] & 3) << 11) | (d[4] << 3) | (d[5] >> 5)) === d.length) {
+              audioDiag.adts = true; chunk = new EncodedAudioChunk({ type: c.type, timestamp: c.timestamp, duration: c.duration, data: d.subarray((d[1] & 1) ? 7 : 9) });
+            }
+            if (firstAudio) {
+              const dc = m && m.decoderConfig; audioDiag.desc = !!(dc && dc.description && dc.description.byteLength);
+              if (!audioDiag.desc) meta = { decoderConfig: Object.assign({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: 2 }, dc || {}, { description: aacConfig(sr, 2) }) };
+            }
+          }
+          firstAudio = false;
+          muxer.addAudioChunk(chunk, meta);
+        } });
         aenc.configure(acfg);
         for (let o = 0; o < N && !job.cancel; o += 4096) {
           const n = Math.min(4096, N - o), planar = new Float32Array(n * 2);
@@ -3383,7 +3772,21 @@ const STICKERS = '__STICKERS__';
         await venc.flush(); venc.close(); venc = null;
         if (failure) throw failure;
         muxer.finalize();
-        saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, new Blob([target.buffer], { type: 'video/mp4' }));
+        const outBlob = new Blob([target.buffer], { type: 'video/mp4' });
+        if (hasSound) {
+          // проверяем готовый файл: читается ли звук и не тишина ли это; результат показываем, чтобы было видно, что записалось
+          let check = 'проверить не удалось';
+          try {
+            const dec = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await outBlob.arrayBuffer().then(b => b.slice(0)));
+            let peak = 0; const x = dec.getChannelData(0); for (let i = 0; i < x.length; i += 11) peak = Math.max(peak, Math.abs(x[i]));
+            check = peak > 0.0005 ? `звук читается, пик ${peak.toFixed(2)}` : 'дорожка есть, но тихая';
+          } catch (e) {}
+          toast(`Звук: ${acfg.mux.toUpperCase()} ${sr} Гц${audioDiag.adts ? ', ADTS' : ''}${audioDiag.desc ? '' : ', описание добавлено'}; ${check}.`);
+          lastExport = { path: 'покадровый рендер', audio: `${acfg.mux.toUpperCase()} ${sr} Гц; ${check}`, why: '' };
+          if (acfg.mux === 'opus') toast('На этом устройстве звук закодирован в Opus. Часть плееров (iPhone, галерея) такое видео играет без звука. Откройте приложение в браузере: ⋯ → «Открыть в браузере».', true);
+        }
+        if (!hasSound) lastExport = { path: 'покадровый рендер', audio: 'в ролике нет звука: нет трека и звука видео', why: '' };
+        saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, outBlob);
       } else toast('Рендер отменён');
     } catch (e) {
       console.error(e); toast('Не получилось отрендерить видео: ' + (e && e.message ? e.message : e), true);
@@ -3395,6 +3798,15 @@ const STICKERS = '__STICKERS__';
     }
   }
 
+  // какие видео в сцене звучат: их звук тоже попадает в ролик
+  const soundingVideos = () => [...shapes.filter(S => S.video && S.videoSound && S.file).map(S => ({ file: S.file, name: S.file.name })),
+    ...(bgVideo && bgSound && bgFile ? [{ file: bgFile, name: bgFile.name }] : [])];
+  function soundNote() {
+    const vs = soundingVideos().length;
+    if (MU.audio && MU.file) return vs ? 'Видео пишется со звуком трека и со звуком видео из сцены.' : 'Видео пишется со звуком трека.';
+    if (vs) return 'Видео пишется со звуком видео из сцены.';
+    return 'В ролике не будет звука: добавьте музыку на вкладке «Музыка» или включите «Звук видео» у фигуры с видео.';
+  }
   function renderExport() {
     const pop = $('exportPop'); pop.innerHTML = '';
     const sizes = [[1080, 'HD'], [2160, '2K'], [3840, '4K']];
@@ -3416,7 +3828,7 @@ const STICKERS = '__STICKERS__';
       ], null, { plain: true }),
       canSave() ? section('Видео', [
         seg('Длительность', [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']].concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
-        MU.audio ? h('p', { class: 'hint' }, 'Видео пишется со звуком трека.') : null,
+        h('p', { class: 'hint' }, soundNote()),
         ...(canRenderOffline() ? [
           seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
           seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
@@ -3483,6 +3895,196 @@ const STICKERS = '__STICKERS__';
     else if (/^[1-5]$/.test(e.key)) setFormat(Object.keys(FORMATS)[+e.key - 1]);
   });
 
+  /* =================== ВЫБОР И ПЕРЕТАСКИВАНИЕ ОБЪЕКТОВ =================== */
+  // Клик по тексту, картинке или фигуре на холсте выделяет его рамкой; если тянуть, объект едет по X и Y в плоскости кадра.
+  // Работает мышью и пальцем на вкладках «Текст», «Картинки» и «Фигуры»; значения те же, что у ползунков, и входят в отмену.
+  const PK = { on: false, pid: null, drag: null, pend: null, hoverAt: 0 };
+  const pkRay = new THREE.Raycaster(); pkRay.layers.enableAll();
+  const pkPlane = new THREE.Plane(), pkBox = new THREE.Box3(), pkV = new THREE.Vector3(), pkW = new THREE.Vector3(), pkN = new THREE.Vector3();
+  const pkTabs = ['text', 'images', 'shapes'];
+  const pkFrame = document.createElement('div');
+  pkFrame.className = 'sel-frame'; pkFrame.hidden = true; pkFrame.innerHTML = '<i></i><i></i><i></i><i></i>';
+  frame.append(pkFrame);
+  function pkItems() {
+    const out = [];
+    if (!st.mainOff) out.push({ kind: 'text', o: MAIN, root: textGroup });
+    texts.forEach(B => out.push({ kind: 'text', o: B, root: B.group }));
+    shapes.forEach(S => { if (S.mesh && S.visible) out.push({ kind: 'shapes', o: S, root: S.mesh }); });
+    layers.forEach(L => { if (L.visible && L.group.children.length) out.push({ kind: 'images', o: L, root: L.group }); });
+    return out;
+  }
+  // что рисуется выше: картинки «за текстом» ниже всех, «перед текстом» выше всех
+  const pkRank = o => { const n = renderLayerOf(o); return n === 1 ? -1 : n; };
+  const pkNdc = e => { const r = renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height * 2 - 1)); };
+  // прямоугольник объекта на экране в координатах -1…1
+  function pkRect(it) {
+    pkBox.setFromObject(it.root);
+    if (pkBox.isEmpty()) return null;
+    const a = pkBox.min, b = pkBox.max; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (let i = 0; i < 8; i++) {
+      pkV.set(i & 1 ? b.x : a.x, i & 2 ? b.y : a.y, i & 4 ? b.z : a.z).project(camera);
+      x0 = Math.min(x0, pkV.x); x1 = Math.max(x1, pkV.x); y0 = Math.min(y0, pkV.y); y1 = Math.max(y1, pkV.y);
+    }
+    return isFinite(x0 + x1 + y0 + y1) ? { x0, y0, x1, y1 } : null;
+  }
+  // объект под курсором: сначала точное попадание в букву или картинку, иначе — внутри рамки; выигрывает тот, что рисуется выше
+  function pkPick(e) {
+    const nd = pkNdc(e); pkRay.setFromCamera(nd, camera);
+    let best = null;
+    const better = (c, d) => !best || c.rank > best.rank || (c.rank === best.rank && (c.exact ? !best.exact || d < best.d : !best.exact && d < best.d));
+    for (const it of pkItems()) {
+      const hit = pkRay.intersectObject(it.root, true)[0];
+      const c = { it, rank: pkRank(it.o), exact: !!hit, d: 0 };
+      if (hit) c.d = hit.distance;
+      else {
+        const r = pkRect(it);
+        if (!r || nd.x < r.x0 || nd.x > r.x1 || nd.y < r.y0 || nd.y > r.y1) continue;
+        c.d = (r.x1 - r.x0) * (r.y1 - r.y0);
+      }
+      if (better(c, c.d)) best = c;
+    }
+    return best && best.it;
+  }
+  // у чего менять координаты: узел сцены и родитель, в системе которого записаны x и y
+  function pkNode(it) {
+    const o = it.o;
+    if (it.kind === 'text') return o.spinner;
+    if (it.kind === 'shapes') return o.mesh;
+    return o.mode === 'center' ? o.group.children[0] : o.group;
+  }
+  const pkClamp = (v, lim) => Math.round(Math.max(-lim, Math.min(lim, v)) * 100) / 100;
+  function pkApply(it, x, y, final) {
+    const o = it.o;
+    if (it.kind === 'shapes') { o.x = pkClamp(x, 15); o.y = pkClamp(y, 15); placeShape(o); }
+    else if (it.kind === 'images') {
+      const ring = o.mode === 'ring';
+      o.x = pkClamp(x, 15); if (!(ring && st.mode === 'cyl')) o.y = pkClamp(y, 15);
+      if (ring) o.group.position.set(o.x, st.mode !== 'cyl' ? o.y : 0, 0); else o.group.children[0].position.set(o.x, o.y, o.z);
+    } else {
+      const px = pkClamp(x, 12), py = pkClamp(y, 20);
+      if (o.main) { P.posX = px; P.posY = py; } else { o.posX = px; o.posY = py; }
+      o.spinner.position.set(px, py, 0);
+      if (final) { if (o.main) layout(); else layoutBlock(o); } // градиент, пол и квадрат подстраиваются один раз, когда отпустили
+    }
+  }
+  // масштаб за угловой маркер: меняем размеры объекта пропорционально, центр остаётся на месте
+  function pkScaleKeys(it) {
+    const o = it.o; let ks;
+    if (it.kind === 'shapes') ks = [['size', SS.size]];
+    else if (it.kind === 'images') ks = [['size', LS.size], ...(o.mode === 'ring' && st.mode !== 'cyl' ? [['ringR', LS.ringR]] : [])];
+    else ks = [['size', S.size], ['gap', S.gap], ...(o.mode === 'plain' ? [] : o.mode === 'square' ? [['boxW', S.boxW], ['boxH', S.boxH]] : [['radius', S.radius]])];
+    return ks.map(([k, def]) => ({ k, v0: o[k], min: def.min, max: def.max })).filter(x => x.v0 > 0);
+  }
+  const pkRound = v => Math.round(v * 100) / 100;
+  // пока тянем: дёшево масштабируем сам объект; значения записываются, когда отпустили
+  function pkScalePreview(it, k, keys) {
+    const o = it.o;
+    if (it.kind === 'shapes') { o.size = pkRound(keys[0].v0 * k); placeShape(o); }
+    else if (it.kind === 'images') {
+      if (o.mode === 'center') { if (o.group.children[0]) o.group.children[0].scale.setScalar(k); }
+      else if (st.mode !== 'cyl') o.group.scale.setScalar(k);
+      else o.group.traverse(n => { if (n.isMesh) n.scale.setScalar(k); });
+    } else o.group.scale.setScalar(k);
+  }
+  function pkScaleFinish(d) {
+    const o = d.it.o;
+    d.keys.forEach(x => {
+      const v = pkRound(Math.max(x.min, Math.min(x.max, x.v0 * d.k)));
+      if (d.it.kind === 'text' && o.main) P[x.k] = v; else o[x.k] = v;
+    });
+    if (d.it.kind === 'shapes') placeShape(o);
+    else if (d.it.kind === 'images') { o.group.scale.setScalar(1); buildLayer(o); }
+    else { o.group.scale.setScalar(1); if (o.main) layout(); else layoutBlock(o); }
+    renderPanel();
+  }
+  function pkSelect(it) {
+    if (it.kind === 'text') selText = it.o; else if (it.kind === 'shapes') selShape = it.o; else selLayer = it.o;
+    PK.on = true; PK.pid = PJ.id;
+    if (st.tab !== it.kind) selectTab(it.kind); else renderPanel();
+  }
+  function pkCurrent() {
+    if (!PK.on || PK.pid !== PJ.id || homeOpen || profileOpen || exporting) return null;
+    const o = st.tab === 'text' ? selText : st.tab === 'shapes' ? selShape : st.tab === 'images' ? selLayer : null;
+    return o ? pkItems().find(it => it.o === o) || null : null;
+  }
+  function updateSelFrame() {
+    const it = pkCurrent(), r = it && pkRect(it), W = frame.clientWidth, H = frame.clientHeight;
+    if (!r || !W || !H) { if (!pkFrame.hidden) pkFrame.hidden = true; return; }
+    const pad = 4, x0 = (r.x0 + 1) / 2 * W - pad, x1 = (r.x1 + 1) / 2 * W + pad, y0 = (1 - r.y1) / 2 * H - pad, y1 = (1 - r.y0) / 2 * H + pad;
+    pkFrame.hidden = false;
+    pkFrame.style.cssText = `left:${x0}px;top:${y0}px;width:${Math.max(8, x1 - x0)}px;height:${Math.max(8, y1 - y0)}px`;
+  }
+  frame.addEventListener('pointerdown', e => {
+    if (e.button > 0 || PK.drag || homeOpen || exporting || !pkTabs.includes(st.tab)) return;
+    const handle = e.target.closest && e.target.closest('.sel-frame i'), cur = handle && pkCurrent();
+    if (cur) { // угловой маркер выделенного объекта: масштаб
+      const keys = pkScaleKeys(cur); if (!keys.length) return;
+      const fr = pkFrame.getBoundingClientRect(), cx = fr.left + fr.width / 2, cy = fr.top + fr.height / 2;
+      PK.drag = { mode: 'scale', it: cur, keys, id: e.pointerId, cx, cy, d0: Math.max(10, Math.hypot(e.clientX - cx, e.clientY - cy)), k: 1, sx: e.clientX, sy: e.clientY, moved: false,
+        kmin: Math.max(...keys.map(x => x.min / x.v0)), kmax: Math.min(...keys.map(x => x.max / x.v0)) };
+      controls.enabled = false; e.stopPropagation(); e.preventDefault();
+      try { renderer.domElement.setPointerCapture(e.pointerId); } catch (_) {}
+      return;
+    }
+    const it = pkPick(e);
+    if (!it) { PK.pend = { x: e.clientX, y: e.clientY, id: e.pointerId }; return; } // пустое место: если это клик, рамка уйдёт
+    const node = pkNode(it); if (!node) return;
+    pkSelect(it);
+    camera.getWorldDirection(pkN); node.getWorldPosition(pkW);
+    pkPlane.setFromNormalAndCoplanarPoint(pkN, pkW);
+    pkRay.setFromCamera(pkNdc(e), camera);
+    const hit = pkRay.ray.intersectPlane(pkPlane, new THREE.Vector3());
+    if (!hit) return;
+    PK.drag = { it, node, id: e.pointerId, off: pkW.clone().sub(hit), plane: pkPlane.clone(), sx: e.clientX, sy: e.clientY, moved: false };
+    controls.enabled = false; e.stopPropagation();
+    try { renderer.domElement.setPointerCapture(e.pointerId); } catch (_) {}
+  }, true);
+  window.addEventListener('pointermove', e => {
+    const d = PK.drag;
+    if (!d) {
+      if (e.pointerType !== 'mouse' || !frame.contains(e.target) || !pkTabs.includes(st.tab) || e.timeStamp - PK.hoverAt < 60) return;
+      PK.hoverAt = e.timeStamp; renderer.domElement.style.cursor = pkPick(e) ? 'move' : '';
+      return;
+    }
+    if (e.pointerId !== d.id) return;
+    if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 4) return;
+    d.moved = true;
+    if (d.mode === 'scale') {
+      d.k = Math.max(d.kmin, Math.min(d.kmax, Math.hypot(e.clientX - d.cx, e.clientY - d.cy) / d.d0));
+      pkScalePreview(d.it, d.k, d.keys);
+      return;
+    }
+    pkRay.setFromCamera(pkNdc(e), camera);
+    if (!pkRay.ray.intersectPlane(d.plane, pkV)) return;
+    pkV.add(d.off);
+    if (d.node.parent) d.node.parent.worldToLocal(pkV);
+    pkApply(d.it, pkV.x, pkV.y, false);
+    renderer.domElement.style.cursor = 'move';
+  });
+  function pkEnd(e) {
+    const d = PK.drag, p = PK.pend;
+    if (p && e.pointerId === p.id) { if (e.type === 'pointerup' && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 5) PK.on = false; PK.pend = null; }
+    if (!d || e.pointerId !== d.id) return;
+    PK.drag = null; controls.enabled = true;
+    if (d.moved && d.mode === 'scale') pkScaleFinish(d);
+    else if (d.moved) {
+      const o = d.it.o, text = d.it.kind === 'text';
+      pkApply(d.it, text ? o.posX : o.x, text ? o.posY : o.y, true); renderPanel();
+    }
+  }
+  window.addEventListener('pointerup', pkEnd); window.addEventListener('pointercancel', pkEnd);
+  // Esc снимает выделение; Backspace или Delete удаляет выбранный объект (только в браузере: в Telegram и iOS клавиатуры для этого нет)
+  window.addEventListener('keydown', e => {
+    const t = e.target || {}, typing = t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName) || (t.tagName === 'INPUT' && !/^(range|checkbox|radio|button)$/.test(t.type));
+    if (typing || !PK.on) return;
+    if (e.key === 'Escape') { PK.on = false; return; }
+    if ((e.key !== 'Backspace' && e.key !== 'Delete') || TG || IOS || e.metaKey || e.ctrlKey || e.altKey || PK.drag) return;
+    const it = pkCurrent(); if (!it) return;
+    e.preventDefault(); PK.on = false;
+    if (it.kind === 'shapes') removeShape(it.o); else if (it.kind === 'images') removeLayer(it.o); else if (it.o.main) removeMainText(); else removeTextBlock(it.o);
+    renderPanel(); toast('Объект удалён. Вернуть его можно отменой действия');
+  });
+
   /* =================== ЦИКЛ =================== */
   let last = performance.now();
   // Шаг сцены на dt секунд; t — время в мс. Живой цикл берёт их из requestAnimationFrame, покадровый экспорт — с постоянным шагом
@@ -3515,6 +4117,7 @@ const STICKERS = '__STICKERS__';
     stepScene(dt, t);
     controls.update();
     renderFrame();
+    updateSelFrame();
     requestAnimationFrame(tick);
   }
 
@@ -3546,7 +4149,7 @@ const STICKERS = '__STICKERS__';
       fonts: fonts.filter(f => !f.builtin && f.file).map(f => ({ id: f.id, src: ref(f.file) })),
       layers: layers.filter(L => L.file).map(L => ({ props: pick(L, LAYER_KEYS), src: ref(L.file) })),
       shapes: shapes.map(S => ({ props: pick(S, SHAPE_KEYS), src: ref(S.file) })),
-      texts: texts.map(B => pick(B, ['text', 'fontId', 'lastSpin', 'order', 'stack', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS])),
+      texts: texts.map(B => pick(B, ['text', 'fontId', 'lastSpin', 'order', 'stack', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS])),
       bg: bgFile ? { src: ref(bgFile), sound: bgSound } : null,
       audio: MU.audio && MU.file ? { src: ref(MU.file), title: MU.title, artist: MU.artist, muted: MU.muted, cover: ref(MU.coverFile), clipStart: MU.clipStart, clipLen: MU.clipLen, link: MU.link } : null,
       cam: { p: camera.position.toArray().map(r3), t: controls.target.toArray().map(r3) },
@@ -3585,6 +4188,7 @@ const STICKERS = '__STICKERS__';
     Object.entries(S).forEach(([k, d]) => P[k] = d.v);
     Object.entries(COLORS).forEach(([k, d]) => P[k] = d.v);
     Object.entries(TOGGLES).forEach(([k, d]) => P[k] = d.v);
+    PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
     Object.assign(st, ST0);
     TEXT = TEXT0; selLayer = null; selShape = null;
     activeLightPreset = 'Студия'; activeFxPreset = 'Чисто';
@@ -4042,7 +4646,7 @@ const STICKERS = '__STICKERS__';
   }
   function removeAvatar() { try { localStorage.removeItem(AV_KEY); } catch (e) {} renderAvatar(); renderPhotoActions(); }
 
-  // Меню аватарки: «Настройки» открывает профиль, «Выйти» показывает экран входа (проекты остаются на месте)
+  // Меню аватарки: «Настройки» открывает профиль, «Выйти» возвращает на экран входа (проекты остаются на месте)
   // тема интерфейса: по умолчанию как в системе, после переключения запоминается в браузере
   const effectiveTheme = () => document.documentElement.getAttribute('data-theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   function toggleTheme() {
@@ -4060,7 +4664,13 @@ const STICKERS = '__STICKERS__';
       h('div', { class: 'pm-user' }, h('b', {}, pr.name || 'Профиль'), pr.email ? h('small', {}, pr.email) : null),
       item('Настройки', 'sliders', openProfile),
       item(effectiveTheme() === 'light' ? 'Тёмная тема' : 'Светлая тема', effectiveTheme() === 'light' ? 'moon' : 'light', toggleTheme),
-      item('Выйти', 'logout', async () => { closeProfile(); await flushSave(); showLock(); }));
+      item('Выйти', 'logout', async () => {
+        closeProfile(); await flushSave();
+        const g = window.HRVD_GATE;
+        // с экраном входа на сайт выход возвращает на первый экран: логин и пароль вводятся заново
+        if (!IOS && !TG && g && g.on) { try { sessionStorage.removeItem(g.key); } catch (_) {} location.reload(); return; }
+        showLock();
+      }));
     const r = anchor.getBoundingClientRect();
     openMenu.style.top = Math.round(r.bottom + 8) + 'px'; openMenu.style.bottom = 'auto';
     if (r.left + r.width / 2 > innerWidth / 2) { openMenu.style.right = Math.max(8, Math.round(innerWidth - r.right)) + 'px'; openMenu.style.left = 'auto'; }
@@ -4181,9 +4791,12 @@ const STICKERS = '__STICKERS__';
       drawMain();
     });
   }
-  // при запуске, если пароль задан, экран блокировки появляется сразу, а проекты показываются после ввода
-  let unlockP = Promise.resolve();
-  if (!IOS && hasPwd() && canPwd()) unlockP = showLock();
+  /* =================== ВХОД НА САЙТ =================== */
+  // Сам экран входа лежит в начале страницы и работает до загрузки приложения; здесь мы только ждём, пока в него войдут
+  // при запуске сначала экран входа на сайт, затем, если задан пароль профиля, экран блокировки
+  const gateP = IOS || document.documentElement.classList.contains('gate-ok') ? Promise.resolve() : new Promise(r => window.addEventListener('hrvd-gate', r, { once: true }));
+  let unlockP = gateP;
+  if (!IOS && hasPwd() && canPwd()) unlockP = gateP.then(() => showLock());
 
   if (!IOS) {
     $('avatarBtn').onclick = () => toggleAvatarMenu($('avatarBtn')); $('avatarBtnHome').onclick = () => toggleAvatarMenu($('avatarBtnHome'));
@@ -4325,14 +4938,39 @@ const STICKERS = '__STICKERS__';
       TG.setHeaderColor(top); TG.setBackgroundColor(bg); if (TG.isVersionAtLeast('7.10')) TG.setBottomBarColor(bg);
     } catch (e) {}
   }
-  // чем делиться из Telegram: системное окно «Поделиться» с файлом (сохранить в «Файлы», отправить в чат), иначе обычная загрузка
-  async function tgSave(filename, blob) {
+  // Сохранение из Telegram. Системное «Поделиться» (сохранить в «Фото» или «Файлы», отправить в чат) iPhone разрешает только в самом касании кнопки,
+  // а рендер идёт долго, поэтому показываем окно «Готово» с предпросмотром и кнопкой: файл отдаётся системе уже из её нажатия.
+  function tgSave(filename, blob) {
     const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
-    try {
-      if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: filename }); toast('Файл готов'); return; }
-    } catch (e) { if (e && e.name === 'AbortError') return; }
-    const a = h('a', { href: URL.createObjectURL(blob), download: filename }); document.body.append(a); a.click(); a.remove();
-    toast('Если файл не появился, откройте приложение в браузере по кнопке ⋯ → «Открыть в браузере».');
+    const url = URL.createObjectURL(blob);
+    let canShare = false; try { canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) {}
+    const isVideo = /^video\//.test(file.type), isImage = /^image\//.test(file.type);
+    const mb = (blob.size / 1048576).toFixed(1);
+    const close = () => { closeModal(); setTimeout(() => URL.revokeObjectURL(url), 60000); };
+    // что реально записано и что умеет это устройство: по этой строке видно, почему в файле может не быть звука
+    const diag = h('p', { class: 'hint', style: 'font-size:11px;opacity:.8' });
+    if (isVideo) {
+      const le = lastExport, base = `Способ: ${le.path || '—'}${le.why ? ' (причина: ' + le.why + ')' : ''}. Звук: ${le.audio || '—'}. Telegram ${TG && TG.platform || '?'} ${TG && TG.version || ''}.`;
+      diag.textContent = base;
+      (async () => {
+        if (!window.AudioEncoder) { diag.textContent = base + ' Кодировщик звука: нет.'; return; }
+        const q = async codec => { try { const r = await AudioEncoder.isConfigSupported({ codec, sampleRate: 48000, numberOfChannels: 2, bitrate: 192000 }); return r.supported ? 'да' : 'нет'; } catch (e) { return 'нет'; } };
+        diag.textContent = base + ` Кодировщик звука: AAC ${await q('mp4a.40.2')}, Opus ${await q('opus')}.`;
+      })();
+    }
+    const save = async () => {
+      try { if (canShare) { await navigator.share({ files: [file], title: filename }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+      const a = h('a', { href: url, download: filename }); document.body.append(a); a.click(); a.remove(); // запасной путь: обычная загрузка
+      toast('Если файл не сохранился, откройте приложение в браузере: ⋯ → «Открыть в браузере».');
+    };
+    modal(d => d.append(...[
+      h('h3', { id: 'dlgTitle' }, isVideo ? 'Видео готово' : 'Картинка готова'),
+      isVideo ? h('video', { src: url, controls: '', playsinline: '', preload: 'metadata', style: 'width:100%;max-height:48vh;border-radius:12px;background:#000' }) : null,
+      isImage ? h('img', { src: url, alt: filename, style: 'width:100%;max-height:48vh;object-fit:contain;border-radius:12px;background:#000' }) : null,
+      h('p', { class: 'hint' }, `${filename} · ${mb} МБ` + (isVideo ? '. Если в предпросмотре нет звука, значит, его нет и в файле.' : '')),
+      isVideo ? diag : null,
+      h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Закрыть'),
+        h('button', { class: 'btn primary', type: 'button', onclick: save }, canShare ? 'Сохранить или отправить' : 'Скачать'))].filter(Boolean)));
   }
   function initTelegram() {
     document.documentElement.classList.add('tg'); document.body.classList.add('tg');
@@ -4355,6 +4993,13 @@ const STICKERS = '__STICKERS__';
     const snaps = () => [0, .4, Math.max(.4, Math.min(.66, (stageH() - 290) / stageH()))];
     const setSheet = (f, i) => { f = Math.max(0, Math.min(snaps()[2], f)); SH.f = f; if (i != null) SH.i = i; root.style.setProperty('--sheet-f', f.toFixed(3)); };
     const snapTo = i => { setSheet(snaps()[i], i); try { TG.HapticFeedback.selectionChanged(); } catch (e) {} };
+    // полный экран (Bot API 8.0): на телефоне приложение раскрывается само; если свернули через шапку Telegram, в следующий раз не раскрываем
+    if (at('8.0') && typeof TG.requestFullscreen === 'function') {
+      const FS_KEY = 'horovod.fs';
+      TG.onEvent('fullscreenChanged', () => { try { TG.isFullscreen ? localStorage.removeItem(FS_KEY) : localStorage.setItem(FS_KEY, '0'); } catch (e) {} resize(); });
+      let off = false; try { off = localStorage.getItem(FS_KEY) === '0'; } catch (e) {}
+      if (/^(ios|android)$/.test(TG.platform || '') && !off && !TG.isFullscreen) { try { TG.requestFullscreen(); } catch (e) {} }
+    }
     const mq = matchMedia('(max-width: 700px)');
     const layoutMode = () => {
       root.classList.toggle('tg-m', mq.matches);
@@ -4423,8 +5068,31 @@ const STICKERS = '__STICKERS__';
   try { const w = window.Telegram && window.Telegram.WebApp; if (w && w.platform && w.platform !== 'unknown') { TG = w; initTelegram(); } } catch (e) { console.error(e); TG = null; }
   renderRail(); renderPanel(); renderFormats();
   applyLights(); applyMaterial(); applyScene(); applyFx(); applyAsh(); layout(); resize(); syncPlay(); applyCamLock();
+  // в проход через текстуру объект попадает, пока включены пиксели или идёт глитч от удара
+  PXREG.list = () => {
+    const out = [], add = (o, roots, layer) => {
+      const gl = o.btOn ? MU.pulse * o.btGlitch / 100 : 0;
+      if ((o.pxOn || gl > 0.02) && roots.length) out.push({ o, roots, layer, gl });
+    };
+    if (!st.mainOff) add(MAIN, [textGroup], 0);
+    texts.forEach(B => add(B, [B.group], renderLayerOf(B)));
+    shapes.forEach(S => { if (S.mesh && S.visible) add(S, [S.mesh], renderLayerOf(S)); });
+    layers.forEach(L => { if (L.visible) add(L, [L.group], renderLayerOf(L)); });
+    return out;
+  };
+  BTREG.list = () => {
+    const out = [];
+    shapes.forEach(S => { if (S.btOn && S.mesh && S.visible) out.push({ o: S, nodes: [S.mesh] }); });
+    layers.forEach(L => { if (L.btOn && L.visible) { const nodes = []; L.group.traverse(n => { if (n.isMesh) nodes.push(n); }); out.push({ o: L, nodes }); } });
+    return out;
+  };
   requestAnimationFrame(tick);
-  if (!IOS) Store.init().then(async () => { await initTabs(); await unlockP; showHome(true); });
+  const hideBoot = () => {
+    const b = document.getElementById('boot'); if (!b) return;
+    setTimeout(() => { b.classList.add('out'); setTimeout(() => b.remove(), 450); }, Math.max(0, 800 - (Date.now() - (window.__boot0 || 0))));
+  };
+  setTimeout(hideBoot, 10000); // на случай, если загрузка зависла
+  if (!IOS) Store.init().then(async () => { await initTabs(); await unlockP; showHome(true); }).finally(hideBoot);
   if (IOS) { post({ type: 'ready' }); emitState(); postTrack(); }
 })();
 </script>

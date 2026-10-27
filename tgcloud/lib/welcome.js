@@ -1,6 +1,6 @@
 import { api } from 'sdk';
 import { getSetting, setSetting } from './store.js';
-import { APP_URL, COVER_URL, BUTTON, CAPTION, ABOUT, DESCRIPTION, COMMANDS, SETUP_VERSION } from './texts.js';
+import { APP_URL, COVER_URL, BUTTON, CAPTION, ABOUT, DESCRIPTION, NUDGE, COMMANDS, SETUP_VERSION } from './texts.js';
 
 const keyboard = { inline_keyboard: [[{ text: BUTTON, web_app: { url: APP_URL } }]] };
 
@@ -11,7 +11,7 @@ export async function ensureSetup() {
   await api.setMyCommands({ commands: COMMANDS });
   await api.setMyShortDescription({ short_description: ABOUT });
   await api.setMyDescription({ description: DESCRIPTION });
-  await api.setChatMenuButton({ menu_button: { type: 'web_app', text: 'HOROVOD', web_app: { url: APP_URL } } });
+  await api.setChatMenuButton({ menu_button: { type: 'web_app', text: 'HRVD', web_app: { url: APP_URL } } });
   await setSetting('cover_file_id', '');            // новая версия — картинку загрузим заново
   await setSetting('setup_version', SETUP_VERSION);
 }
@@ -29,4 +29,9 @@ export async function sendWelcome(chatId) {
     if (cached) await setSetting('cover_file_id', '');
     await api.sendMessage({ chat_id: chatId, text: CAPTION, parse_mode: 'HTML', reply_markup: keyboard });
   }
+}
+
+// Короткое напоминание с кнопкой «Начать» в ответ на любое сообщение, кроме /start.
+export async function sendNudge(chatId) {
+  await api.sendMessage({ chat_id: chatId, text: NUDGE, reply_markup: keyboard });
 }

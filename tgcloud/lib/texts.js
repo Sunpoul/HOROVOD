@@ -26,9 +26,12 @@ export const ABOUT = 'Живые постеры, где музыка меняе�
 
 export const DESCRIPTION = 'HRVD — живые постеры, где музыка меняет форму.\n\nНапиши название трека — буквы встанут в 3D-кольцо. Загрузи музыку — постер оживёт в её ритме. Добавь свет, глитч и плёнку и скачай видео до 4K.\n\nПостер к релизу, афиша или сторис за 5 минут. Без After Effects и бесплатно.';
 
+// Ответ на любое сообщение, кроме /start: коротко и с той же кнопкой.
+export const NUDGE = 'Редактор HRVD открывается кнопкой «Начать». Если приветствие потерялось, отправьте /start.';
+
 export const COMMANDS = [
   { command: 'start', description: 'Открыть редактор' },
-  { command: 'help', description: 'Что умеет HOROVOD' },
+  { command: 'help', description: 'Что умеет HRVD' },
 ];
 
 // Увеличьте число, если поменяли ABOUT, DESCRIPTION, COMMANDS или APP_URL:

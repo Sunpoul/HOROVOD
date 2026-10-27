@@ -1,13 +1,14 @@
-// Любое личное сообщение боту (в том числе /start и /help) получает приветственный пост
-// с кнопкой «Начать», которая открывает Mini App. Групповые чаты бот игнорирует.
-import { ensureSetup, sendWelcome } from '../lib/welcome.js';
+// /start (так бот открывается впервые по кнопке START) получает приветственный пост с кнопкой «Начать»,
+// остальные личные сообщения — короткое напоминание с той же кнопкой. Групповые чаты бот игнорирует.
+import { ensureSetup, sendWelcome, sendNudge } from '../lib/welcome.js';
 
 export default async function (message) {
   if (!message.chat || message.chat.type !== 'private') return;
   try {
     await ensureSetup();
   } catch (e) {
-    console.error('Настройка бота не выполнена:', e.description || e.message); // приветствие всё равно отправим
+    console.error('Настройка бота не выполнена:', e.description || e.message); // ответ всё равно отправим
   }
-  await sendWelcome(message.chat.id);
+  const isStart = /^\/start(\s|$|@)/.test(message.text || '');
+  await (isStart ? sendWelcome(message.chat.id) : sendNudge(message.chat.id));
 }

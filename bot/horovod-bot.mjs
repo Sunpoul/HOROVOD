@@ -1,35 +1,44 @@
 // Приветственный бот HOROVOD: на /start присылает картинку, описание и кнопку «Начать», которая открывает Mini App.
 // Без зависимостей, нужен Node 18 или новее.
 //
-//   BOT_TOKEN=<токен из @BotFather> node bot/horovod-bot.mjs
+//   node bot/horovod-bot.mjs
 //
-// Токен берётся только из переменной окружения и нигде не сохраняется и не печатается.
+// Токен из @BotFather скрипт берёт из BOT_TOKEN, затем из файла bot/.token, иначе спросит в терминале.
+// Токен нигде не сохраняется и не печатается.
 import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const TOKEN = process.env.BOT_TOKEN;
+const here = path.dirname(fileURLToPath(import.meta.url));
+// скрытый ввод токена в терминале
+function askToken() {
+  return new Promise(resolve => {
+    const stdin = process.stdin; let buf = '';
+    process.stdout.write('Вставьте токен бота и нажмите Return (символы не показываются): ');
+    stdin.setRawMode(true); stdin.resume(); stdin.setEncoding('utf8');
+    const onData = chunk => {
+      for (const c of chunk) {
+        if (c === '\r' || c === '\n') { stdin.setRawMode(false); stdin.pause(); stdin.off('data', onData); process.stdout.write('\n'); resolve(buf.trim()); return; }
+        if (c === '\u0003') process.exit(130);
+        if (c === '\u007f' || c === '\b') buf = buf.slice(0, -1);
+        else if (c >= ' ') buf += c;
+      }
+    };
+    stdin.on('data', onData);
+  });
+}
+// токен: переменная окружения, затем файл bot/.token (в git не попадает), затем скрытый запрос в терминале
+const fileToken = () => { try { return readFileSync(path.join(here, '.token'), 'utf8').trim(); } catch (e) { return ''; } };
+const TOKEN = process.env.BOT_TOKEN || fileToken() || (process.stdin.isTTY ? await askToken() : '');
 const APP_URL = process.env.APP_URL || 'https://horovod.su/';
 const API = process.env.TG_API || 'https://api.telegram.org'; // свой адрес нужен только для проверки на поддельном API
-const here = path.dirname(fileURLToPath(import.meta.url));
 const COVER = path.join(here, '..', 'brand', 'telegram', 'welcome-1280x720.png');
 
-if (!TOKEN) { console.error('Задайте токен: BOT_TOKEN=... node bot/horovod-bot.mjs'); process.exit(1); }
+if (!TOKEN) { console.error('Токен не введён. Запустите в терминале: node bot/horovod-bot.mjs'); process.exit(1); }
 
-const BUTTON = 'Начать';
-const CAPTION = [
-  '<b>HOROVOD</b>',
-  '',
-  'Редактор объёмной типографики прямо в Telegram.',
-  '',
-  '• текст по кругу, квадрату и цилиндру в 3D',
-  '• свои шрифты, картинки, фигуры и музыка',
-  '• свет, эффекты, готовое видео или PNG',
-  '',
-  'Нажмите «Начать», чтобы открыть редактор.',
-].join('\n');
-const ABOUT = 'Текст по кругу в 3D: редактор типографики, видео и PNG прямо в Telegram';
-const DESCRIPTION = 'HOROVOD — редактор объёмной типографики. Пишите текст по кругу, квадрату или цилиндру в 3D, добавляйте свои шрифты, картинки, музыку и эффекты. Сохраняйте результат как PNG или видео. Всё работает прямо в Telegram.';
+// Тексты общие с serverless-ботом: tgcloud/lib/texts.js
+import { BUTTON, CAPTION, ABOUT, DESCRIPTION, NUDGE, COMMANDS } from '../tgcloud/lib/texts.js';
 
 const call = async (method, body, form) => {
   const res = await fetch(`${API}/bot${TOKEN}/${method}`, form ? { method: 'POST', body: form }
@@ -50,11 +59,15 @@ async function welcome(chatId) {
   coverId = msg.photo && msg.photo.at(-1) && msg.photo.at(-1).file_id;
 }
 
+async function nudge(chatId) {
+  await call('sendMessage', { chat_id: chatId, text: NUDGE, reply_markup: keyboard });
+}
+
 async function setup() {
-  await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }] });
+  await call('setMyCommands', { commands: COMMANDS });
   await call('setMyShortDescription', { short_description: ABOUT });
   await call('setMyDescription', { description: DESCRIPTION });
-  await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HOROVOD', web_app: { url: APP_URL } } });
+  await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HRVD', web_app: { url: APP_URL } } });
 }
 
 async function main() {
@@ -67,7 +80,9 @@ async function main() {
       for (const u of updates) {
         offset = u.update_id + 1;
         const m = u.message; if (!m || m.chat.type !== 'private') continue;
-        await welcome(m.chat.id).catch(e => console.error('Не отправилось:', e.message));
+        // /start (так бот открывается впервые по кнопке START) получает полное приветствие, остальные сообщения — короткий ответ с той же кнопкой
+        const first = /^\/start(\s|$|@)/.test(m.text || '');
+        await (first ? welcome(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
       }
     } catch (e) {
       console.error('Связь с Telegram:', e.message);
