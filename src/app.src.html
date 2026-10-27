@@ -519,6 +519,7 @@ body.ios .frame { box-shadow: none; }
 (function () {
   var GATE = { on: true, key: 'hrvd.gate', login: 4613217356935179, pass: 148297637267412 };
   var root = document.documentElement, box = document.getElementById('gate');
+  window.HRVD_GATE = GATE; // «Выйти» в профиле сбрасывает вход по этим данным
   function open() { root.classList.add('gate-ok'); if (box.parentNode) box.parentNode.removeChild(box); window.dispatchEvent(new Event('hrvd-gate')); }
   if (root.classList.contains('gate-ok')) { box.parentNode.removeChild(box); return; }
   if (!GATE.on) { open(); return; }
@@ -4537,7 +4538,7 @@ const STICKERS = '__STICKERS__';
   }
   function removeAvatar() { try { localStorage.removeItem(AV_KEY); } catch (e) {} renderAvatar(); renderPhotoActions(); }
 
-  // Меню аватарки: «Настройки» открывает профиль, «Выйти» показывает экран входа (проекты остаются на месте)
+  // Меню аватарки: «Настройки» открывает профиль, «Выйти» возвращает на экран входа (проекты остаются на месте)
   // тема интерфейса: по умолчанию как в системе, после переключения запоминается в браузере
   const effectiveTheme = () => document.documentElement.getAttribute('data-theme') || (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   function toggleTheme() {
@@ -4555,7 +4556,13 @@ const STICKERS = '__STICKERS__';
       h('div', { class: 'pm-user' }, h('b', {}, pr.name || 'Профиль'), pr.email ? h('small', {}, pr.email) : null),
       item('Настройки', 'sliders', openProfile),
       item(effectiveTheme() === 'light' ? 'Тёмная тема' : 'Светлая тема', effectiveTheme() === 'light' ? 'moon' : 'light', toggleTheme),
-      item('Выйти', 'logout', async () => { closeProfile(); await flushSave(); showLock(); }));
+      item('Выйти', 'logout', async () => {
+        closeProfile(); await flushSave();
+        const g = window.HRVD_GATE;
+        // с экраном входа на сайт выход возвращает на первый экран: логин и пароль вводятся заново
+        if (!IOS && g && g.on) { try { sessionStorage.removeItem(g.key); } catch (_) {} location.reload(); return; }
+        showLock();
+      }));
     const r = anchor.getBoundingClientRect();
     openMenu.style.top = Math.round(r.bottom + 8) + 'px'; openMenu.style.bottom = 'auto';
     if (r.left + r.width / 2 > innerWidth / 2) { openMenu.style.right = Math.max(8, Math.round(innerWidth - r.right)) + 'px'; openMenu.style.left = 'auto'; }
