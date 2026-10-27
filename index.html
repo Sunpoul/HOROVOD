@@ -360,7 +360,10 @@ html.gate-ok #gate { display: none; }
 @keyframes gate-pulse { 0%, 100% { scale: 1; opacity: .85; } 50% { scale: 1.08; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .gate-brand .logo { animation: none; } }
 .gate-brand b { font: 500 26px 'Onest', var(--font-display); letter-spacing: .14em; }
-.gate-form { display: grid; gap: 12px; }
+#gate .lock-card { width: min(280px, 100%); }
+.gate-form { display: grid; gap: 10px; }
+#gate .hint { margin: 0 0 6px; }
+#gate .pf-err { min-height: 12px; text-align: center; }
 .lock.shake .lock-card { animation: shake .35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
 @media (prefers-reduced-motion: reduce) { .lock.shake .lock-card { animation: none; } }
