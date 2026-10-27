@@ -1756,7 +1756,13 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     petrol:     { label: 'Сила перелива', min: 0, max: 100, step: 1, v: 0, unit: '%', grp: 'fx' },
     petrolScale:{ label: 'Масштаб разводов', min: 0.05, max: 2, step: 0.01, v: 0.45, dec: 2, grp: 'fx' },
     petrolSpeed:{ label: 'Течение', min: 0, max: 2, step: 0.01, v: 0.3, dec: 2, grp: 'fx' },
-    ashCount:   { label: 'Количество частиц', min: 50, max: 5000, step: 50, v: 900, grp: 'ash' },
+    pixel:      { label: 'Сила', min: 0, max: 100, step: 1, v: 0, unit: '%', grp: 'fx' },
+    pixelSize:  { label: 'Размер пикселя', min: 0.4, max: 8, step: 0.1, v: 1.4, dec: 1, unit: '%', grp: 'fx' },
+    pixelGap:   { label: 'Зазор между пикселями', min: 0, max: 60, step: 1, v: 16, unit: '%', grp: 'fx' },
+    pixelRound: { label: 'Скругление', min: 0, max: 100, step: 1, v: 0, unit: '%', grp: 'fx' },
+    pixelLevels:{ label: 'Градации яркости', min: 2, max: 32, step: 1, v: 10, grp: 'fx' },
+    pixelMono:  { label: 'Один цвет', min: 0, max: 100, step: 1, v: 100, unit: '%', grp: 'fx' },
+    ashCount:  { label: 'Количество частиц', min: 50, max: 5000, step: 50, v: 900, grp: 'ash' },
     ashSpeed:   { label: 'Скорость падения', min: 0, max: 6, step: 0.05, v: 1, dec: 2, grp: 'ash' },
     ashSize:    { label: 'Размер частиц', min: 0.2, max: 4, step: 0.05, v: 1, dec: 2, grp: 'ash' },
     ashWind:    { label: 'Ветер', min: -3, max: 3, step: 0.05, v: 0.3, dec: 2, grp: 'ash' },
@@ -1790,6 +1796,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     bgColor:  { label: 'Цвет фона', v: '#000000', grp: 'scene' },
     specColor:{ label: 'Цвет спектра', v: '#3fc2ad', grp: 'music' },
     ashColor: { label: 'Цвет пепла', v: '#d8d2ca', grp: 'ash' },
+    pixelTint:{ label: 'Цвет света', v: '#cfd8f4', grp: 'fx' },
+    pixelBack:{ label: 'Цвет теней', v: '#05050b', grp: 'fx' },
   };
   const TOGGLES = {
     keyShadow: { label: 'Отбрасывать тени', v: true, grp: 'light' },
@@ -1909,7 +1917,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   rt.texture.encoding = THREE.sRGBEncoding;
   const FX = {
     tDiffuse: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uScale: { value: 1 }, uTime: PU.uTime,
-    uNoise: { value: 0 }, uGrain: { value: 1.5 }, uVhs: { value: 0 }, uGlitch: { value: 0 }, uAberr: { value: 0 }, uScan: { value: 0 }
+    uNoise: { value: 0 }, uGrain: { value: 1.5 }, uVhs: { value: 0 }, uGlitch: { value: 0 }, uAberr: { value: 0 }, uScan: { value: 0 },
+    uPix: { value: 0 }, uPixSize: { value: 0.014 }, uPixGap: { value: 0.16 }, uPixRound: { value: 0 }, uPixLevels: { value: 10 }, uPixMono: { value: 1 },
+    uPixTint: { value: new THREE.Color('#cfd8f4') }, uPixBack: { value: new THREE.Color('#05050b') }
   };
   const fxMat = new THREE.ShaderMaterial({
     uniforms: FX, depthTest: false, depthWrite: false,
@@ -1917,6 +1927,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     fragmentShader: `
       varying vec2 vUv;
       uniform sampler2D tDiffuse; uniform vec2 uRes; uniform float uScale, uTime, uNoise, uGrain, uVhs, uGlitch, uAberr, uScan;
+      uniform float uPix, uPixSize, uPixGap, uPixRound, uPixLevels, uPixMono; uniform vec3 uPixTint, uPixBack;
       float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
       vec3 tex(vec2 uv){ return texture2D(tDiffuse, clamp(uv, 0.001, 0.999)).rgb; }
       void main(){
@@ -1936,6 +1947,24 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         col.r = tex(uv + vec2(ab, 0.0)).r;
         col.g = tex(uv).g;
         col.b = tex(uv - vec2(ab, 0.0)).b;
+        if (uPix > 0.0) {
+          // сетка квадратных ячеек: размер — доля ширины кадра, поэтому в видео и PNG вид тот же, что в превью
+          float cell = max(2.0, uRes.x * uPixSize);
+          vec2 p = gl_FragCoord.xy / cell;
+          vec2 id = floor(p), f = fract(p) - 0.5;
+          vec2 cuv = (id + 0.5) * cell / uRes + (uv - vUv);
+          vec2 o = vec2(0.22 * cell) / uRes;
+          vec3 s = (tex(cuv) * 2.0 + tex(cuv + o) + tex(cuv - o) + tex(cuv + vec2(o.x, -o.y)) + tex(cuv + vec2(-o.x, o.y))) / 6.0;
+          float lv = max(uPixLevels - 1.0, 1.0);
+          float yq = floor(dot(s, vec3(0.299, 0.587, 0.114)) * lv + 0.5) / lv;
+          vec3 cellCol = mix(floor(s * lv + 0.5) / lv, mix(uPixBack, uPixTint, yq), uPixMono);
+          float hs = 0.5 * (1.0 - uPixGap);
+          float rr = uPixRound * hs;
+          vec2 d2 = abs(f) - (hs - rr);
+          float dd = length(max(d2, 0.0)) + min(max(d2.x, d2.y), 0.0) - rr;
+          float aa = 0.75 / cell;
+          col = mix(col, mix(uPixBack * 0.5, cellCol, smoothstep(aa, -aa, dd)), uPix);
+        }
         if (uVhs > 0.0) {
           vec2 px = vec2(1.0 / uRes.x, 0.0) * 3.0 * uScale;
           vec3 bleed = (tex(uv - px * 2.0) + tex(uv - px) + col + tex(uv + px)) * 0.25;
@@ -1961,7 +1990,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const fxQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), fxMat);
   fxQuad.frustumCulled = false; fxScene.add(fxQuad);
   const fxCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  const fxActive = () => FX.uNoise.value > 0 || FX.uVhs.value > 0 || FX.uGlitch.value > 0 || FX.uAberr.value > 0 || FX.uScan.value > 0;
+  const fxActive = () => FX.uNoise.value > 0 || FX.uVhs.value > 0 || FX.uGlitch.value > 0 || FX.uAberr.value > 0 || FX.uScan.value > 0 || FX.uPix.value > 0;
   /* слои глубины: 1 — картинки за текстом, 0 — текст и 3D, 2 — картинки перед текстом */
   renderer.autoClear = false;
   renderer.shadowMap.autoUpdate = false;
@@ -3081,6 +3110,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   function applyFx() {
     FX.uNoise.value = P.noise / 100; FX.uGrain.value = P.grain; FX.uVhs.value = P.vhs / 100;
     FX.uGlitch.value = P.glitch / 100; FX.uAberr.value = P.aberr / 100; FX.uScan.value = P.scan / 100;
+    FX.uPix.value = P.pixel / 100; FX.uPixSize.value = P.pixelSize / 100; FX.uPixGap.value = P.pixelGap / 100; FX.uPixRound.value = P.pixelRound / 100;
+    FX.uPixLevels.value = P.pixelLevels; FX.uPixMono.value = P.pixelMono / 100; FX.uPixTint.value.set(P.pixelTint); FX.uPixBack.value.set(P.pixelBack);
     PU.uPetrol.value = P.petrol / 100; PU.uPetrolScale.value = P.petrolScale; PU.uPetrolSpeed.value = P.petrolSpeed;
   }
   function applyCam() { updateCamera(); }
@@ -3563,11 +3594,12 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     'Драма':  { keyColor: '#fff1dc', keyInt: 3, keyAz: 90, keyEl: 5, rimColor: '#ffffff', rimInt: 0, rimAz: -90, rimEl: 0, ambColor: '#ffffff', ambInt: 0.03, env: 0.15, exposure: 1, matColor: '#efefef', bgColor: '#0b0b0c', metal: 0, rough: 0.6 },
   };
   const FX_PRESETS = {
-    'Чисто': { noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0 },
-    'Плёночный шум': { noise: 22, grain: 2, vhs: 0, glitch: 0, aberr: 10, scan: 0, petrol: 0 },
-    'VHS': { noise: 12, grain: 1.5, vhs: 75, glitch: 35, aberr: 35, scan: 45, petrol: 0 },
-    'Бензин': { noise: 5, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 90, petrolScale: 0.45, petrolSpeed: 0.3, metal: 0.85, rough: 0.2, matColor: '#2a2c30' },
-    'Всё сразу': { noise: 15, grain: 1.5, vhs: 60, glitch: 50, aberr: 45, scan: 35, petrol: 85, petrolScale: 0.6, petrolSpeed: 0.5, metal: 0.8, rough: 0.22, matColor: '#2a2c30' },
+    'Чисто': { noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0, pixel: 0 },
+    'Плёночный шум': { noise: 22, grain: 2, vhs: 0, glitch: 0, aberr: 10, scan: 0, petrol: 0, pixel: 0 },
+    'VHS': { noise: 12, grain: 1.5, vhs: 75, glitch: 35, aberr: 35, scan: 45, petrol: 0, pixel: 0 },
+    'Бензин': { noise: 5, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 90, pixel: 0, petrolScale: 0.45, petrolSpeed: 0.3, metal: 0.85, rough: 0.2, matColor: '#2a2c30' },
+    'Всё сразу': { noise: 15, grain: 1.5, vhs: 60, glitch: 50, aberr: 45, scan: 35, petrol: 85, pixel: 0, petrolScale: 0.6, petrolSpeed: 0.5, metal: 0.8, rough: 0.22, matColor: '#2a2c30' },
+    'Пиксели': { pixel: 100, pixelSize: 1.4, pixelGap: 16, pixelRound: 0, pixelLevels: 10, pixelMono: 100, pixelTint: '#cfd8f4', pixelBack: '#05050b', noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0 },
   };
   let activeLightPreset = 'Студия', activeFxPreset = 'Чисто';
 
@@ -3665,7 +3697,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const SEC_ICONS = { 'Тексты': 'text', 'Текст': 'font', 'Шрифт': 'font', 'Эмодзи': 'smile', 'Цвет': 'palette', 'Заливка': 'palette', 'Форма': 'shape', 'Положение': 'move', 'Позиция': 'move',
     'Размещение': 'move', 'Масштаб': 'move', 'Поворот': 'cam', 'Анимация': 'play', 'Пропорции': 'sliders', 'Объём': 'sliders', 'Материал': 'sliders', 'Отображение': 'sliders',
     'Стикеры': 'image', 'Слой': 'image', 'Слои': 'image', 'Видео': 'video', 'Пресеты': 'light', 'Основной свет': 'light', 'Контровой свет': 'light', 'Общий свет': 'light',
-    'Шум': 'fx', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
+    'Шум': 'fx', 'Пиксели': 'grid', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
     'Фон': 'scene', 'Тени': 'scene', 'Камера': 'cam', 'Добавить фигуру': 'shape' };
   const secIcon = title => (title === 'Пресеты' && st.tab === 'fx' ? 'fx' : title === 'Слои' && st.tab === 'text' ? 'scene' : SEC_ICONS[title]) || (/^Фигура/.test(title) ? 'shape' : (TABS.find(t => t[0] === st.tab) || [])[2] || 'dots');
   function section(title, kids, resetKeys, opts) {
@@ -3734,6 +3766,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     noise: { keys: ['noise', 'grain'], main: ['noise'], on: { noise: 25, grain: 1.5 } },
     vhs: { keys: ['vhs', 'glitch', 'aberr', 'scan'], main: ['vhs', 'glitch', 'aberr', 'scan'], on: { vhs: 60, glitch: 35, aberr: 30, scan: 40 } },
     petrol: { keys: ['petrol', 'petrolScale', 'petrolSpeed'], main: ['petrol'], on: { petrol: 85, petrolScale: 0.45, petrolSpeed: 0.3 } },
+    pixel: { keys: ['pixel', 'pixelSize', 'pixelGap', 'pixelRound', 'pixelLevels', 'pixelMono', 'pixelTint', 'pixelBack'], main: ['pixel'], on: { pixel: 100, pixelSize: 1.4, pixelGap: 16, pixelRound: 0, pixelLevels: 10, pixelMono: 100, pixelTint: '#cfd8f4', pixelBack: '#05050b' } },
   };
   const FX_MEM = {};
   const fxOn = u => FX_UNITS[u].main.some(k => P[k] > 0);
@@ -3963,6 +3996,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       return [
         section('Пресеты', [presetChips(FX_PRESETS, activeFxPreset, n => { activeFxPreset = n; setMany(FX_PRESETS[n]); })]),
         section('Шум', [slider('noise'), slider('grain')], () => fxReset('noise'), { toggle: fxToggle('noise') }),
+        section('Пиксели', [h('p', { class: 'hint' }, 'Картинка из квадратных ячеек с зазорами, как на светодиодном экране. Размер задан долей ширины кадра, поэтому в видео и PNG вид тот же, что в превью.'),
+          slider('pixel'), slider('pixelSize'), slider('pixelGap'), slider('pixelRound'), slider('pixelLevels'), slider('pixelMono'), color('pixelTint'), color('pixelBack')], () => fxReset('pixel'), { toggle: fxToggle('pixel') }),
         section('Глитч VHS', [slider('vhs'), slider('glitch'), slider('aberr'), slider('scan')], () => fxReset('vhs'), { toggle: fxToggle('vhs') }),
         section('Бензин', [h('p', { class: 'hint' }, 'Радужная плёнка на буквах. Лучше всего на тёмном металле.'), slider('petrol'), slider('petrolScale'), slider('petrolSpeed')], () => fxReset('petrol'), { toggle: fxToggle('petrol') }),
         section('Летающий пепел', [
