@@ -31,26 +31,14 @@ function askToken() {
 // токен: переменная окружения, затем файл bot/.token (в git не попадает), затем скрытый запрос в терминале
 const fileToken = () => { try { return readFileSync(path.join(here, '.token'), 'utf8').trim(); } catch (e) { return ''; } };
 const TOKEN = process.env.BOT_TOKEN || fileToken() || (process.stdin.isTTY ? await askToken() : '');
-const APP_URL = process.env.APP_URL || 'https://sunpoul.github.io/HOROVOD/';
+const APP_URL = process.env.APP_URL || 'https://horovod.su/';
 const API = process.env.TG_API || 'https://api.telegram.org'; // свой адрес нужен только для проверки на поддельном API
 const COVER = path.join(here, '..', 'brand', 'telegram', 'welcome-1280x720.png');
 
 if (!TOKEN) { console.error('Токен не введён. Запустите в терминале: node bot/horovod-bot.mjs'); process.exit(1); }
 
-const BUTTON = 'Начать';
-const CAPTION = [
-  '<b>HOROVOD</b>',
-  '',
-  'Живые постеры и афиши прямо в Telegram.',
-  '',
-  '🌀 объёмный текст по кругу, квадрату и цилиндру',
-  '🎨 свои шрифты, картинки, фигуры и музыка',
-  '✨ свет, эффекты, готовое видео или PNG',
-  '',
-  'Нажмите «Начать», чтобы открыть редактор.',
-].join('\n');
-const ABOUT = 'Живые постеры и афиши: объёмный текст, музыка и эффекты, видео и PNG прямо в Telegram';
-const DESCRIPTION = 'HOROVOD — редактор живых постеров и афиш. Собирайте объёмную типографику: текст по кругу, квадрату или цилиндру, свои шрифты, картинки, фигуры, музыку и эффекты. Сохраняйте результат как видео или PNG. Всё работает прямо в Telegram.';
+// Тексты общие с serverless-ботом: tgcloud/lib/texts.js
+import { BUTTON, CAPTION, ABOUT, DESCRIPTION, NUDGE, COMMANDS } from '../tgcloud/lib/texts.js';
 
 const call = async (method, body, form) => {
   const res = await fetch(`${API}/bot${TOKEN}/${method}`, form ? { method: 'POST', body: form }
@@ -72,14 +60,14 @@ async function welcome(chatId) {
 }
 
 async function nudge(chatId) {
-  await call('sendMessage', { chat_id: chatId, text: 'Редактор HOROVOD открывается кнопкой «Начать». Если приветствие потерялось, отправьте /start.', reply_markup: keyboard });
+  await call('sendMessage', { chat_id: chatId, text: NUDGE, reply_markup: keyboard });
 }
 
 async function setup() {
-  await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }] });
+  await call('setMyCommands', { commands: COMMANDS });
   await call('setMyShortDescription', { short_description: ABOUT });
   await call('setMyDescription', { description: DESCRIPTION });
-  await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HOROVOD', web_app: { url: APP_URL } } });
+  await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HRVD', web_app: { url: APP_URL } } });
 }
 
 async function main() {
@@ -93,7 +81,7 @@ async function main() {
         offset = u.update_id + 1;
         const m = u.message; if (!m || m.chat.type !== 'private') continue;
         // /start (так бот открывается впервые по кнопке START) получает полное приветствие, остальные сообщения — короткий ответ с той же кнопкой
-        const first = /^\/start(\s|$|@)/.test(m.text || '');
+        const first = /^\/(start|help)(\s|$|@)/.test(m.text || '');
         await (first ? welcome(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
       }
     } catch (e) {
