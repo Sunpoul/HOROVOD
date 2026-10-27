@@ -2892,9 +2892,9 @@ const STICKERS = '__STICKERS__';
     document.querySelectorAll('.dd-menu:not([hidden])').forEach(m => { if (!m.parentElement.contains(e.target)) { m.hidden = true; m.parentElement.querySelector('.dd-btn').setAttribute('aria-expanded', 'false'); } });
   });
   // resetKeys — список общих параметров или функция своего сброса
-  // Группа настроек: значок, название и шеврон сворачивают её; состояние запоминается. opts.plain — без сворачивания (окно экспорта)
-  let COLLAPSED = {};
-  try { COLLAPSED = JSON.parse(localStorage.getItem('horovod.collapsed') || '{}') || {}; } catch (e) { COLLAPSED = {}; }
+  // Группа настроек: значок, название и шеврон сворачивают её; по умолчанию все свёрнуты, развёрнутые запоминаются. opts.plain — без сворачивания (окно экспорта)
+  let OPENED = {}; // какие группы пользователь развернул (раньше хранили свёрнутые: ключ horovod.collapsed больше не читаем)
+  try { OPENED = JSON.parse(localStorage.getItem('horovod.opened') || '{}') || {}; } catch (e) { OPENED = {}; }
   const SEC_ICONS = { 'Тексты': 'text', 'Текст': 'font', 'Шрифт': 'font', 'Эмодзи': 'smile', 'Цвет': 'palette', 'Заливка': 'palette', 'Форма': 'shape', 'Положение': 'move', 'Позиция': 'move',
     'Размещение': 'move', 'Масштаб': 'move', 'Поворот': 'cam', 'Анимация': 'play', 'Пропорции': 'sliders', 'Объём': 'sliders', 'Материал': 'sliders', 'Отображение': 'sliders',
     'Стикеры': 'image', 'Слой': 'image', 'Слои': 'image', 'Видео': 'video', 'Пресеты': 'light', 'Основной свет': 'light', 'Контровой свет': 'light', 'Общий свет': 'light',
@@ -2918,7 +2918,7 @@ const STICKERS = '__STICKERS__';
         h('label', { class: 'toggle switch-only' }, sw)),
         ...(on ? [h('div', { class: 'sec-body' }, ...kids, resetKeys ? h('button', { class: 'btn small block', type: 'button', onclick: doReset }, 'Сбросить') : null)] : []));
     }
-    const key = st.tab + ':' + title, closed = !!COLLAPSED[key];
+    const key = st.tab + ':' + title, closed = !OPENED[key];
     const body = h('div', { class: 'sec-body' }, ...kids); body.hidden = closed;
     const btn = h('button', { class: 'sec-toggle', type: 'button', 'aria-expanded': String(!closed), title: closed ? 'Развернуть' : 'Свернуть' },
       h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title), icon('chev'));
@@ -2926,8 +2926,8 @@ const STICKERS = '__STICKERS__';
     btn.onclick = () => {
       const open = body.hidden; body.hidden = !open;
       btn.setAttribute('aria-expanded', String(open)); btn.title = open ? 'Свернуть' : 'Развернуть';
-      if (open) delete COLLAPSED[key]; else COLLAPSED[key] = 1;
-      try { localStorage.setItem('horovod.collapsed', JSON.stringify(COLLAPSED)); } catch (e) {}
+      if (open) OPENED[key] = 1; else delete OPENED[key];
+      try { localStorage.setItem('horovod.opened', JSON.stringify(OPENED)); } catch (e) {}
     };
     return h('section', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h3', {}, btn), reset), body);
   }
