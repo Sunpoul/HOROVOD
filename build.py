@@ -50,9 +50,21 @@ web = re.sub(r'<link rel="stylesheet" (href="https://fonts\.googleapis\.com/[^"]
 marker = '</style>\n\n<div class="lock" id="gate"'
 assert web.count(marker) == 1
 web = '<html lang="ru"><head>\n' + web.replace(marker, '</style>\n</head><body>\n\n<div class="lock" id="gate"', 1) + '\n</body></html>\n'
-(root / 'index.html').write_text(web, encoding='utf-8')
+(root / 'app.html').write_text(web, encoding='utf-8')
 
-print('Собрано: index.html (библиотеки встроены)')
+# index.html — лёгкая страница для превью ссылки (Telegram и соцсети не берут страницы на мегабайты, а JS не выполняют):
+# в ней только метатеги, а люди сразу переходят в редактор app.html, параметры запуска Telegram (?…#…) при этом сохраняются
+meta = re.findall(r'<title>.*?</title>|<link rel="(?:canonical|icon)"[^>]*>|<meta (?:name="(?:description|theme-color|twitter:[a-z_:]+)"|property="og:[a-z_:]+")[^>]*>', app, re.S)
+assert any('og:image' in m for m in meta) and any('<title>' in m for m in meta)
+index = ('<!doctype html>\n<html lang="ru"><head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
+         + '\n'.join(meta) + '\n'
+         "<script>location.replace('app.html' + location.search + location.hash);</script>\n"
+         '<style>html,body{margin:0;height:100%;background:#000;color:#9a9a9a;font:15px system-ui,sans-serif}'
+         'body{display:grid;place-items:center}a{color:#fff}</style>\n'
+         '</head><body><a href="app.html">Открыть редактор HRVD</a></body></html>\n')
+(root / 'index.html').write_text(index, encoding='utf-8')
+
+print('Собрано: app.html (редактор, библиотеки встроены) и index.html (лёгкая страница с превью и переходом)')
 
 # iOS-часть собирается только если рядом лежит папка ios/
 if not (root / 'ios' / 'genspec.js').exists():
