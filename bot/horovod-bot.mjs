@@ -81,7 +81,7 @@ async function main() {
         offset = u.update_id + 1;
         const m = u.message; if (!m || m.chat.type !== 'private') continue;
         // /start (так бот открывается впервые по кнопке START) получает полное приветствие, остальные сообщения — короткий ответ с той же кнопкой
-        const first = /^\/start(\s|$|@)/.test(m.text || '');
+        const first = /^\/(start|help)(\s|$|@)/.test(m.text || '');
         await (first ? welcome(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
       }
     } catch (e) {
