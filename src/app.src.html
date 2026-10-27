@@ -14,7 +14,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&family=Onest:wght@500&display=swap">
 <style>
 /* Layout: редактор — верхняя панель, слева рейка вкладок + инспектор, в центре холст выбранного формата; на телефоне холст сверху, вкладки и инспектор снизу */
 :root {
@@ -262,6 +262,14 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .frame { position: relative; box-shadow: 0 0 0 1px var(--line); background: #000; touch-action: none; }
 .frame canvas { display: block; width: 100% !important; height: 100% !important; cursor: grab; }
 .frame canvas:active { cursor: grabbing; }
+/* рамка выделенного объекта: лежит поверх холста и в экспорт не попадает */
+.sel-frame { position: absolute; z-index: 3; pointer-events: none; box-sizing: border-box; border: 1px solid rgba(190,190,190,.85); }
+.sel-frame[hidden] { display: none; }
+.sel-frame i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #8c8c8c; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; }
+.sel-frame i::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; } /* зона касания шире самого маркера */
+.sel-frame i:nth-child(1) { left: -6px; top: -6px; } .sel-frame i:nth-child(2) { right: -6px; top: -6px; }
+.sel-frame i:nth-child(3) { left: -6px; bottom: -6px; } .sel-frame i:nth-child(4) { right: -6px; bottom: -6px; }
+.sel-frame i:nth-child(1), .sel-frame i:nth-child(4) { cursor: nwse-resize; } .sel-frame i:nth-child(2), .sel-frame i:nth-child(3) { cursor: nesw-resize; }
 .cam-locked .frame canvas, .cam-locked .frame canvas:active { cursor: default; }
 .player { --well: var(--well-in); display: flex; align-items: center; gap: 12px; padding: 8px 10px 8px 8px; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-lg); box-sizing: border-box; min-width: 0; }
 .player img, .player .nocover { width: 44px; height: 44px; border-radius: var(--r-md); object-fit: cover; flex: none; background: var(--raised); display: grid; place-items: center; color: var(--muted); }
@@ -342,6 +350,11 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .lock-card { width: min(360px, 100%); display: grid; gap: 14px; justify-items: stretch; text-align: center; }
 .lock-card .avatar { justify-self: center; }
 .lock-title { font: 500 20px var(--font-display); letter-spacing: -.01em; }
+#gate { z-index: 90; }
+.gate-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
+.gate-brand .logo { width: 34px; height: 34px; }
+.gate-brand b { font: 500 26px 'Onest', var(--font-display); letter-spacing: .14em; }
+.gate-form { display: grid; gap: 12px; }
 .lock.shake .lock-card { animation: shake .35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
 @media (prefers-reduced-motion: reduce) { .lock.shake .lock-card { animation: none; } }
@@ -359,7 +372,7 @@ textarea:focus { border-color: var(--accent); outline: none; }
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .home-top { justify-content: space-between; }
 .home-brand { display: flex; align-items: center; gap: 10px; }
-.home-brand b { font: 500 15px var(--font-display); letter-spacing: .14em; }
+.home-brand b { font: 500 15px 'Onest', var(--font-display); letter-spacing: .14em; }
 .home-body { max-width: 1180px; margin: 0 auto; padding-block: 32px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; }
 .home-head h1 { margin: 0 0 8px; font: 500 36px/44px var(--font-display); letter-spacing: -.02em; text-wrap: balance; }
 .home-head p { margin: 0; color: var(--muted); }
@@ -572,12 +585,12 @@ body.ios .frame { box-shadow: none; }
       </div>
       <div class="frame-meta"><span id="metaFormat"></span><span id="metaSize"></span></div>
     </div>
-    <div class="stage-hint">Тяните — вращать · правая кнопка — двигать · колесо — приблизить · перетащите шрифт или PNG в окно</div>
+    <div class="stage-hint">Тяните — вращать · правая кнопка — двигать · колесо — приблизить · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно</div>
   </main>
 </div>
 
 <section class="home" id="home" hidden aria-labelledby="homeTitle">
-  <header class="home-top"><div class="home-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true"><use href="#i-logo"/></svg><b>HOROVOD</b></div>
+  <header class="home-top"><div class="home-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true"><use href="#i-logo"/></svg><b>HRVD</b></div>
     <button class="avatar" id="avatarBtnHome" type="button" title="Профиль и настройки" aria-label="Меню профиля" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-user"/></svg><span class="av-letter"></span></button></header>
   <div class="home-body">
     <div class="home-head"><h1 id="homeTitle">Проекты</h1><p id="homeSub"></p></div>
@@ -592,6 +605,7 @@ body.ios .frame { box-shadow: none; }
   </div>
 </section>
 <div class="lock" id="lock" hidden role="dialog" aria-modal="true" aria-label="Вход в HOROVOD"></div>
+<div class="lock" id="gate" hidden role="dialog" aria-modal="true" aria-label="Вход"></div>
 <div class="modal" id="modal" hidden><div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgTitle"></div></div>
 <div class="busy" id="busy" hidden><span></span></div>
 <div class="popover" id="exportPop" role="dialog" aria-label="Экспорт" hidden></div>
@@ -3289,7 +3303,7 @@ const STICKERS = '__STICKERS__';
     b.setAttribute('aria-label', on ? 'Разблокировать камеру' : 'Заблокировать камеру');
     document.body.classList.toggle('cam-locked', on);
     const hint = document.querySelector('.stage-hint');
-    if (hint) { if (!hint.dataset.free) hint.dataset.free = hint.textContent; hint.textContent = on ? 'Камера заблокирована — нажмите замок вверху, чтобы вращать и масштабировать · перетащите шрифт или PNG в окно' : hint.dataset.free; }
+    if (hint) { if (!hint.dataset.free) hint.dataset.free = hint.textContent; hint.textContent = on ? 'Камера заблокирована — нажмите замок вверху, чтобы вращать и масштабировать · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно' : hint.dataset.free; }
   }
   function syncPlay() {
     const on = P.spin !== 0 && canSpin(st.mode);
@@ -3727,6 +3741,196 @@ const STICKERS = '__STICKERS__';
     else if (/^[1-5]$/.test(e.key)) setFormat(Object.keys(FORMATS)[+e.key - 1]);
   });
 
+  /* =================== ВЫБОР И ПЕРЕТАСКИВАНИЕ ОБЪЕКТОВ =================== */
+  // Клик по тексту, картинке или фигуре на холсте выделяет его рамкой; если тянуть, объект едет по X и Y в плоскости кадра.
+  // Работает мышью и пальцем на вкладках «Текст», «Картинки» и «Фигуры»; значения те же, что у ползунков, и входят в отмену.
+  const PK = { on: false, pid: null, drag: null, pend: null, hoverAt: 0 };
+  const pkRay = new THREE.Raycaster(); pkRay.layers.enableAll();
+  const pkPlane = new THREE.Plane(), pkBox = new THREE.Box3(), pkV = new THREE.Vector3(), pkW = new THREE.Vector3(), pkN = new THREE.Vector3();
+  const pkTabs = ['text', 'images', 'shapes'];
+  const pkFrame = document.createElement('div');
+  pkFrame.className = 'sel-frame'; pkFrame.hidden = true; pkFrame.innerHTML = '<i></i><i></i><i></i><i></i>';
+  frame.append(pkFrame);
+  function pkItems() {
+    const out = [];
+    if (!st.mainOff) out.push({ kind: 'text', o: MAIN, root: textGroup });
+    texts.forEach(B => out.push({ kind: 'text', o: B, root: B.group }));
+    shapes.forEach(S => { if (S.mesh && S.visible) out.push({ kind: 'shapes', o: S, root: S.mesh }); });
+    layers.forEach(L => { if (L.visible && L.group.children.length) out.push({ kind: 'images', o: L, root: L.group }); });
+    return out;
+  }
+  // что рисуется выше: картинки «за текстом» ниже всех, «перед текстом» выше всех
+  const pkRank = o => { const n = renderLayerOf(o); return n === 1 ? -1 : n; };
+  const pkNdc = e => { const r = renderer.domElement.getBoundingClientRect(); return new THREE.Vector2((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height * 2 - 1)); };
+  // прямоугольник объекта на экране в координатах -1…1
+  function pkRect(it) {
+    pkBox.setFromObject(it.root);
+    if (pkBox.isEmpty()) return null;
+    const a = pkBox.min, b = pkBox.max; let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (let i = 0; i < 8; i++) {
+      pkV.set(i & 1 ? b.x : a.x, i & 2 ? b.y : a.y, i & 4 ? b.z : a.z).project(camera);
+      x0 = Math.min(x0, pkV.x); x1 = Math.max(x1, pkV.x); y0 = Math.min(y0, pkV.y); y1 = Math.max(y1, pkV.y);
+    }
+    return isFinite(x0 + x1 + y0 + y1) ? { x0, y0, x1, y1 } : null;
+  }
+  // объект под курсором: сначала точное попадание в букву или картинку, иначе — внутри рамки; выигрывает тот, что рисуется выше
+  function pkPick(e) {
+    const nd = pkNdc(e); pkRay.setFromCamera(nd, camera);
+    let best = null;
+    const better = (c, d) => !best || c.rank > best.rank || (c.rank === best.rank && (c.exact ? !best.exact || d < best.d : !best.exact && d < best.d));
+    for (const it of pkItems()) {
+      const hit = pkRay.intersectObject(it.root, true)[0];
+      const c = { it, rank: pkRank(it.o), exact: !!hit, d: 0 };
+      if (hit) c.d = hit.distance;
+      else {
+        const r = pkRect(it);
+        if (!r || nd.x < r.x0 || nd.x > r.x1 || nd.y < r.y0 || nd.y > r.y1) continue;
+        c.d = (r.x1 - r.x0) * (r.y1 - r.y0);
+      }
+      if (better(c, c.d)) best = c;
+    }
+    return best && best.it;
+  }
+  // у чего менять координаты: узел сцены и родитель, в системе которого записаны x и y
+  function pkNode(it) {
+    const o = it.o;
+    if (it.kind === 'text') return o.spinner;
+    if (it.kind === 'shapes') return o.mesh;
+    return o.mode === 'center' ? o.group.children[0] : o.group;
+  }
+  const pkClamp = (v, lim) => Math.round(Math.max(-lim, Math.min(lim, v)) * 100) / 100;
+  function pkApply(it, x, y, final) {
+    const o = it.o;
+    if (it.kind === 'shapes') { o.x = pkClamp(x, 15); o.y = pkClamp(y, 15); placeShape(o); }
+    else if (it.kind === 'images') {
+      const ring = o.mode === 'ring';
+      o.x = pkClamp(x, 15); if (!(ring && st.mode === 'cyl')) o.y = pkClamp(y, 15);
+      if (ring) o.group.position.set(o.x, st.mode !== 'cyl' ? o.y : 0, 0); else o.group.children[0].position.set(o.x, o.y, o.z);
+    } else {
+      const px = pkClamp(x, 12), py = pkClamp(y, 20);
+      if (o.main) { P.posX = px; P.posY = py; } else { o.posX = px; o.posY = py; }
+      o.spinner.position.set(px, py, 0);
+      if (final) { if (o.main) layout(); else layoutBlock(o); } // градиент, пол и квадрат подстраиваются один раз, когда отпустили
+    }
+  }
+  // масштаб за угловой маркер: меняем размеры объекта пропорционально, центр остаётся на месте
+  function pkScaleKeys(it) {
+    const o = it.o; let ks;
+    if (it.kind === 'shapes') ks = [['size', SS.size]];
+    else if (it.kind === 'images') ks = [['size', LS.size], ...(o.mode === 'ring' && st.mode !== 'cyl' ? [['ringR', LS.ringR]] : [])];
+    else ks = [['size', S.size], ['gap', S.gap], ...(o.mode === 'plain' ? [] : o.mode === 'square' ? [['boxW', S.boxW], ['boxH', S.boxH]] : [['radius', S.radius]])];
+    return ks.map(([k, def]) => ({ k, v0: o[k], min: def.min, max: def.max })).filter(x => x.v0 > 0);
+  }
+  const pkRound = v => Math.round(v * 100) / 100;
+  // пока тянем: дёшево масштабируем сам объект; значения записываются, когда отпустили
+  function pkScalePreview(it, k, keys) {
+    const o = it.o;
+    if (it.kind === 'shapes') { o.size = pkRound(keys[0].v0 * k); placeShape(o); }
+    else if (it.kind === 'images') {
+      if (o.mode === 'center') { if (o.group.children[0]) o.group.children[0].scale.setScalar(k); }
+      else if (st.mode !== 'cyl') o.group.scale.setScalar(k);
+      else o.group.traverse(n => { if (n.isMesh) n.scale.setScalar(k); });
+    } else o.group.scale.setScalar(k);
+  }
+  function pkScaleFinish(d) {
+    const o = d.it.o;
+    d.keys.forEach(x => {
+      const v = pkRound(Math.max(x.min, Math.min(x.max, x.v0 * d.k)));
+      if (d.it.kind === 'text' && o.main) P[x.k] = v; else o[x.k] = v;
+    });
+    if (d.it.kind === 'shapes') placeShape(o);
+    else if (d.it.kind === 'images') { o.group.scale.setScalar(1); buildLayer(o); }
+    else { o.group.scale.setScalar(1); if (o.main) layout(); else layoutBlock(o); }
+    renderPanel();
+  }
+  function pkSelect(it) {
+    if (it.kind === 'text') selText = it.o; else if (it.kind === 'shapes') selShape = it.o; else selLayer = it.o;
+    PK.on = true; PK.pid = PJ.id;
+    if (st.tab !== it.kind) selectTab(it.kind); else renderPanel();
+  }
+  function pkCurrent() {
+    if (!PK.on || PK.pid !== PJ.id || homeOpen || profileOpen || exporting) return null;
+    const o = st.tab === 'text' ? selText : st.tab === 'shapes' ? selShape : st.tab === 'images' ? selLayer : null;
+    return o ? pkItems().find(it => it.o === o) || null : null;
+  }
+  function updateSelFrame() {
+    const it = pkCurrent(), r = it && pkRect(it), W = frame.clientWidth, H = frame.clientHeight;
+    if (!r || !W || !H) { if (!pkFrame.hidden) pkFrame.hidden = true; return; }
+    const pad = 4, x0 = (r.x0 + 1) / 2 * W - pad, x1 = (r.x1 + 1) / 2 * W + pad, y0 = (1 - r.y1) / 2 * H - pad, y1 = (1 - r.y0) / 2 * H + pad;
+    pkFrame.hidden = false;
+    pkFrame.style.cssText = `left:${x0}px;top:${y0}px;width:${Math.max(8, x1 - x0)}px;height:${Math.max(8, y1 - y0)}px`;
+  }
+  frame.addEventListener('pointerdown', e => {
+    if (e.button > 0 || PK.drag || homeOpen || exporting || !pkTabs.includes(st.tab)) return;
+    const handle = e.target.closest && e.target.closest('.sel-frame i'), cur = handle && pkCurrent();
+    if (cur) { // угловой маркер выделенного объекта: масштаб
+      const keys = pkScaleKeys(cur); if (!keys.length) return;
+      const fr = pkFrame.getBoundingClientRect(), cx = fr.left + fr.width / 2, cy = fr.top + fr.height / 2;
+      PK.drag = { mode: 'scale', it: cur, keys, id: e.pointerId, cx, cy, d0: Math.max(10, Math.hypot(e.clientX - cx, e.clientY - cy)), k: 1, sx: e.clientX, sy: e.clientY, moved: false,
+        kmin: Math.max(...keys.map(x => x.min / x.v0)), kmax: Math.min(...keys.map(x => x.max / x.v0)) };
+      controls.enabled = false; e.stopPropagation(); e.preventDefault();
+      try { renderer.domElement.setPointerCapture(e.pointerId); } catch (_) {}
+      return;
+    }
+    const it = pkPick(e);
+    if (!it) { PK.pend = { x: e.clientX, y: e.clientY, id: e.pointerId }; return; } // пустое место: если это клик, рамка уйдёт
+    const node = pkNode(it); if (!node) return;
+    pkSelect(it);
+    camera.getWorldDirection(pkN); node.getWorldPosition(pkW);
+    pkPlane.setFromNormalAndCoplanarPoint(pkN, pkW);
+    pkRay.setFromCamera(pkNdc(e), camera);
+    const hit = pkRay.ray.intersectPlane(pkPlane, new THREE.Vector3());
+    if (!hit) return;
+    PK.drag = { it, node, id: e.pointerId, off: pkW.clone().sub(hit), plane: pkPlane.clone(), sx: e.clientX, sy: e.clientY, moved: false };
+    controls.enabled = false; e.stopPropagation();
+    try { renderer.domElement.setPointerCapture(e.pointerId); } catch (_) {}
+  }, true);
+  window.addEventListener('pointermove', e => {
+    const d = PK.drag;
+    if (!d) {
+      if (e.pointerType !== 'mouse' || !frame.contains(e.target) || !pkTabs.includes(st.tab) || e.timeStamp - PK.hoverAt < 60) return;
+      PK.hoverAt = e.timeStamp; renderer.domElement.style.cursor = pkPick(e) ? 'move' : '';
+      return;
+    }
+    if (e.pointerId !== d.id) return;
+    if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 4) return;
+    d.moved = true;
+    if (d.mode === 'scale') {
+      d.k = Math.max(d.kmin, Math.min(d.kmax, Math.hypot(e.clientX - d.cx, e.clientY - d.cy) / d.d0));
+      pkScalePreview(d.it, d.k, d.keys);
+      return;
+    }
+    pkRay.setFromCamera(pkNdc(e), camera);
+    if (!pkRay.ray.intersectPlane(d.plane, pkV)) return;
+    pkV.add(d.off);
+    if (d.node.parent) d.node.parent.worldToLocal(pkV);
+    pkApply(d.it, pkV.x, pkV.y, false);
+    renderer.domElement.style.cursor = 'move';
+  });
+  function pkEnd(e) {
+    const d = PK.drag, p = PK.pend;
+    if (p && e.pointerId === p.id) { if (e.type === 'pointerup' && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 5) PK.on = false; PK.pend = null; }
+    if (!d || e.pointerId !== d.id) return;
+    PK.drag = null; controls.enabled = true;
+    if (d.moved && d.mode === 'scale') pkScaleFinish(d);
+    else if (d.moved) {
+      const o = d.it.o, text = d.it.kind === 'text';
+      pkApply(d.it, text ? o.posX : o.x, text ? o.posY : o.y, true); renderPanel();
+    }
+  }
+  window.addEventListener('pointerup', pkEnd); window.addEventListener('pointercancel', pkEnd);
+  // Esc снимает выделение; Backspace или Delete удаляет выбранный объект (только в браузере: в Telegram и iOS клавиатуры для этого нет)
+  window.addEventListener('keydown', e => {
+    const t = e.target || {}, typing = t.isContentEditable || /^(TEXTAREA|SELECT)$/.test(t.tagName) || (t.tagName === 'INPUT' && !/^(range|checkbox|radio|button)$/.test(t.type));
+    if (typing || !PK.on) return;
+    if (e.key === 'Escape') { PK.on = false; return; }
+    if ((e.key !== 'Backspace' && e.key !== 'Delete') || TG || IOS || e.metaKey || e.ctrlKey || e.altKey || PK.drag) return;
+    const it = pkCurrent(); if (!it) return;
+    e.preventDefault(); PK.on = false;
+    if (it.kind === 'shapes') removeShape(it.o); else if (it.kind === 'images') removeLayer(it.o); else if (it.o.main) removeMainText(); else removeTextBlock(it.o);
+    renderPanel(); toast('Объект удалён. Вернуть его можно отменой действия');
+  });
+
   /* =================== ЦИКЛ =================== */
   let last = performance.now();
   // Шаг сцены на dt секунд; t — время в мс. Живой цикл берёт их из requestAnimationFrame, покадровый экспорт — с постоянным шагом
@@ -3759,6 +3963,7 @@ const STICKERS = '__STICKERS__';
     stepScene(dt, t);
     controls.update();
     renderFrame();
+    updateSelFrame();
     requestAnimationFrame(tick);
   }
 
@@ -4426,9 +4631,51 @@ const STICKERS = '__STICKERS__';
       drawMain();
     });
   }
-  // при запуске, если пароль задан, экран блокировки появляется сразу, а проекты показываются после ввода
-  let unlockP = Promise.resolve();
-  if (!IOS && hasPwd() && canPwd()) unlockP = showLock();
+  /* =================== ВХОД НА САЙТ =================== */
+  // Экран входа перед приложением: логин и пароль проверяются в самом браузере, в коде лежат только их отпечатки.
+  // Это заслонка от случайных гостей, а не защита данных: тот, кто откроет код страницы, может её обойти.
+  // Настоящую защиту даёт сервер (пароль на папку сайта). Чтобы убрать вход совсем, поставьте GATE.on = false.
+  const GATE = { on: true, key: 'hrvd.gate', login: 4613217356935179, pass: 148297637267412 };
+  const gateHash = str => {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0, ch; i < str.length; i++) { ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  };
+  const gateKnown = () => { try { return sessionStorage.getItem(GATE.key) === '1'; } catch (_) { return false; } };
+  function showGate() {
+    return new Promise(resolve => {
+      if (!GATE.on || gateKnown()) { resolve(); return; }
+      const box = $('gate'); box.hidden = false;
+      const lockables = [...document.querySelectorAll('.app, .tabbar, .home, .profile')]; lockables.forEach(e => { e.inert = true; });
+      const login = h('input', { class: 'text-input', type: 'text', autocomplete: 'username', autocapitalize: 'none', spellcheck: 'false', placeholder: 'Логин', 'aria-label': 'Логин' });
+      const pass = h('input', { class: 'text-input', type: 'password', autocomplete: 'current-password', placeholder: 'Пароль', 'aria-label': 'Пароль' });
+      const brand = h('div', { class: 'gate-brand' });
+      brand.innerHTML = '<svg class="logo" viewBox="0 0 297 297" aria-hidden="true"><use href="#i-logo"/></svg><b>HRVD</b>';
+      const err = h('p', { class: 'pf-err', role: 'alert' });
+      const form = h('form', { class: 'gate-form', novalidate: '' }, login, pass, err, h('button', { class: 'btn primary block', type: 'submit' }, 'Войти'));
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        if (gateHash('hrvd:' + login.value.trim().toLowerCase()) === GATE.login && gateHash('hrvd:' + pass.value) === GATE.pass) {
+          try { sessionStorage.setItem(GATE.key, '1'); } catch (_) {}
+          box.hidden = true; box.innerHTML = ''; lockables.forEach(x => { x.inert = false; });
+          document.querySelector('.app').inert = homeOpen || profileOpen;
+          resolve(); return;
+        }
+        err.textContent = 'Неверный логин или пароль'; pass.value = ''; pass.focus();
+        box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+      });
+      box.append(h('div', { class: 'lock-card' },
+        brand,
+        h('p', { class: 'hint' }, 'Введите логин и пароль, чтобы открыть редактор'), form));
+      login.focus();
+    });
+  }
+  // при запуске сначала экран входа на сайт, затем, если задан пароль профиля, экран блокировки
+  const gateP = IOS ? Promise.resolve() : showGate();
+  let unlockP = gateP;
+  if (!IOS && hasPwd() && canPwd()) unlockP = gateP.then(() => showLock());
 
   if (!IOS) {
     $('avatarBtn').onclick = () => toggleAvatarMenu($('avatarBtn')); $('avatarBtnHome').onclick = () => toggleAvatarMenu($('avatarBtnHome'));
