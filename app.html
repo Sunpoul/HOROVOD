@@ -4645,6 +4645,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       clearInterval(timer); badge.remove(); exporting = false; resize(); recorder = null;
       post({ type: 'rec', recording: false });
       const blob = new Blob(chunks, { type: type.split(';')[0] });
+      lastExport = { path: 'запись в реальном времени (' + type.split(';')[0] + ')', audio: withAudio ? 'дорожка трека подключена к записи' : 'без звука (трек не загружен)', why: lastExport.why };
       saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}.${ext}`, blob);
     };
     if (!MU.audio && (P.spin === 0 || !canSpin(st.mode)) && P.rimOrbit === 0 && P.petrol === 0 && P.vhs === 0 && P.glitch === 0 && P.noise === 0) toast('Сцена неподвижна. Включите вращение пробелом, чтобы видео ожило.');
@@ -4657,6 +4658,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   // и пишется в MP4 с постоянной частотой кадров. Кадры не пропадают на слабом компьютере, ролик готовится быстрее реального времени.
   // Звук трека режется по отметке начала и анализируется заранее (OfflineAudioContext), поэтому биты и спектр совпадают с музыкой.
   let renderJob = null, muxerMod = null;
+  let lastExport = { path: '', audio: '', why: '' }; // как собрано последнее видео: показываем в окне «Видео готово», чтобы было видно, что со звуком
   const yieldNow = () => new Promise(r => { const c = new MessageChannel(); c.port1.onmessage = () => { c.port1.close(); r(); }; c.port2.postMessage(0); });
   const canRenderOffline = () => !!(window.VideoEncoder && window.VideoFrame && window.OfflineAudioContext);
   async function loadMuxer() {
@@ -4681,7 +4683,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     wakeAudio();
     const withAudio = !!(MU.audio && MU.file);
     const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
-    if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
+    if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { lastExport.why = !window.AudioEncoder && hasSound ? 'нет кодировщика звука (AudioEncoder)' : 'нет покадрового рендера (WebCodecs)'; toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
     closeExport();
     const fps = exp.fps, [w, hh] = exportDims(exp.vlong), sr = withAudio ? MU.ctx.sampleRate : 48000;
     const total = exp.sec === 'track' ? (withAudio && isFinite(MU.audio.duration) ? clipEnd() - MU.clipStart : 15) : exp.sec;
@@ -4701,7 +4703,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         if (r && r.supported) { acfg = Object.assign({ mux }, cfg); break; }
       }
     }
-    if (!vcfg || (hasSound && !acfg)) { toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
+    if (!vcfg || (hasSound && !acfg)) { lastExport.why = !vcfg ? 'кодировщик видео не принял размер' : 'кодировщик звука не принял формат'; toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
 
     const job = renderJob = { cancel: false };
     const badge = h('div', { class: 'rec', role: 'status' }, h('span', { class: 'dot' }), h('span', { id: 'recTime' }, 'Готовлю…'),
@@ -4840,7 +4842,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
             check = peak > 0.0005 ? `звук читается, пик ${peak.toFixed(2)}` : 'дорожка есть, но тихая';
           } catch (e) {}
           toast(`Звук: ${acfg.mux.toUpperCase()} ${sr} Гц${audioDiag.adts ? ', ADTS' : ''}${audioDiag.desc ? '' : ', описание добавлено'}; ${check}.`);
+          lastExport = { path: 'покадровый рендер', audio: `${acfg.mux.toUpperCase()} ${sr} Гц; ${check}`, why: '' };
+          if (acfg.mux === 'opus') toast('На этом устройстве звук закодирован в Opus. Часть плееров (iPhone, галерея) такое видео играет без звука. Откройте приложение в браузере: ⋯ → «Открыть в браузере».', true);
         }
+        if (!hasSound) lastExport = { path: 'покадровый рендер', audio: 'в ролике нет звука: нет трека и звука видео', why: '' };
         saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, outBlob);
       } else toast('Рендер отменён');
     } catch (e) {
@@ -6002,6 +6007,17 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const isVideo = /^video\//.test(file.type), isImage = /^image\//.test(file.type);
     const mb = (blob.size / 1048576).toFixed(1);
     const close = () => { closeModal(); setTimeout(() => URL.revokeObjectURL(url), 60000); };
+    // что реально записано и что умеет это устройство: по этой строке видно, почему в файле может не быть звука
+    const diag = h('p', { class: 'hint', style: 'font-size:11px;opacity:.8' });
+    if (isVideo) {
+      const le = lastExport, base = `Способ: ${le.path || '—'}${le.why ? ' (причина: ' + le.why + ')' : ''}. Звук: ${le.audio || '—'}. Telegram ${TG && TG.platform || '?'} ${TG && TG.version || ''}.`;
+      diag.textContent = base;
+      (async () => {
+        if (!window.AudioEncoder) { diag.textContent = base + ' Кодировщик звука: нет.'; return; }
+        const q = async codec => { try { const r = await AudioEncoder.isConfigSupported({ codec, sampleRate: 48000, numberOfChannels: 2, bitrate: 192000 }); return r.supported ? 'да' : 'нет'; } catch (e) { return 'нет'; } };
+        diag.textContent = base + ` Кодировщик звука: AAC ${await q('mp4a.40.2')}, Opus ${await q('opus')}.`;
+      })();
+    }
     const save = async () => {
       try { if (canShare) { await navigator.share({ files: [file], title: filename }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
       const a = h('a', { href: url, download: filename }); document.body.append(a); a.click(); a.remove(); // запасной путь: обычная загрузка
@@ -6012,6 +6028,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       isVideo ? h('video', { src: url, controls: '', playsinline: '', preload: 'metadata', style: 'width:100%;max-height:48vh;border-radius:12px;background:#000' }) : null,
       isImage ? h('img', { src: url, alt: filename, style: 'width:100%;max-height:48vh;object-fit:contain;border-radius:12px;background:#000' }) : null,
       h('p', { class: 'hint' }, `${filename} · ${mb} МБ` + (isVideo ? '. Если в предпросмотре нет звука, значит, его нет и в файле.' : '')),
+      isVideo ? diag : null,
       h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Закрыть'),
         h('button', { class: 'btn primary', type: 'button', onclick: save }, canShare ? 'Сохранить или отправить' : 'Скачать'))].filter(Boolean)));
   }
