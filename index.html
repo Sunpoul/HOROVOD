@@ -606,6 +606,8 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5m0 0L7.5 9.5M12 5l4.5 4.5M5 19.5h14"/></symbol>
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11.2 12 4l8.5 7.2M5.8 9.6V20h12.4V9.6M10 20v-5.5h4V20"/></symbol>
   <symbol id="i-artboard" viewBox="0 0 24 24"><path d="M7.5 3v18M16.5 3v18M3 7.5h18M3 16.5h18"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  <symbol id="i-shrink" viewBox="0 0 24 24"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="m6.5 6.5 11 11m0-11-11 11"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></symbol>
   <symbol id="i-logo" viewBox="0 0 297 297"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" fill="currentColor"/><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" fill="currentColor"/><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" fill="currentColor"/><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" fill="currentColor"/><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" fill="currentColor"/><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" fill="currentColor"/><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" fill="currentColor"/><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" fill="currentColor"/><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" fill="currentColor"/><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" fill="currentColor"/><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" fill="currentColor"/><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" fill="currentColor"/><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" fill="currentColor"/><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" fill="currentColor"/><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" fill="currentColor"/><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" fill="currentColor"/><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" fill="currentColor"/><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" fill="currentColor"/><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" fill="currentColor"/><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" fill="currentColor"/><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" fill="currentColor"/><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" fill="currentColor"/><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" fill="currentColor"/><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" fill="currentColor"/></symbol>
@@ -5967,11 +5969,36 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const snaps = () => [0, .4, Math.max(.4, Math.min(.66, (stageH() - 290) / stageH()))];
     const setSheet = (f, i) => { f = Math.max(0, Math.min(snaps()[2], f)); SH.f = f; if (i != null) SH.i = i; root.style.setProperty('--sheet-f', f.toFixed(3)); };
     const snapTo = i => { setSheet(snaps()[i], i); try { TG.HapticFeedback.selectionChanged(); } catch (e) {} };
+    // полный экран (Bot API 8.0): кнопка среди инструментов камеры; на телефоне приложение раскрывается само, если до этого его не сворачивали
+    let fsBtn = null;
+    if (at('8.0') && typeof TG.requestFullscreen === 'function') {
+      const FS_KEY = 'horovod.fs';
+      fsBtn = h('button', { class: 'icon-btn', id: 'fsBtn', type: 'button' });
+      const fsSync = () => {
+        const on = !!TG.isFullscreen;
+        fsBtn.replaceChildren(icon(on ? 'shrink' : 'expand'));
+        fsBtn.title = on ? 'Свернуть из полного экрана' : 'На весь экран';
+        fsBtn.setAttribute('aria-label', fsBtn.title); fsBtn.setAttribute('aria-pressed', String(on));
+        resize();
+      };
+      fsBtn.addEventListener('click', () => {
+        const on = !!TG.isFullscreen;
+        try { on ? TG.exitFullscreen() : TG.requestFullscreen(); } catch (e) { toast('Полный экран недоступен на этом устройстве'); return; }
+        try { on ? localStorage.setItem(FS_KEY, '0') : localStorage.removeItem(FS_KEY); } catch (e) {} // свернули сами — в следующий раз не раскрываем
+        try { TG.HapticFeedback.selectionChanged(); } catch (e) {}
+      });
+      TG.onEvent('fullscreenChanged', fsSync);
+      TG.onEvent('fullscreenFailed', e => { if (!(e && e.error === 'ALREADY_FULLSCREEN')) toast('Полный экран недоступен на этом устройстве'); });
+      fsSync();
+      let off = false; try { off = localStorage.getItem(FS_KEY) === '0'; } catch (e) {}
+      if (/^(ios|android)$/.test(TG.platform || '') && !off && !TG.isFullscreen) { try { TG.requestFullscreen(); } catch (e) {} }
+    }
+    const camTools = () => [$('lockBtn'), $('camBtn'), $('playBtn'), ...(fsBtn ? [fsBtn] : [])];
     const mq = matchMedia('(max-width: 700px)');
     const layoutMode = () => {
       root.classList.toggle('tg-m', mq.matches);
-      if (mq.matches) tools.append($('lockBtn'), $('camBtn'), $('playBtn'));
-      else $('exportBtn').before($('lockBtn'), $('camBtn'), $('playBtn'));
+      if (mq.matches) tools.append(...camTools());
+      else $('exportBtn').before(...camTools());
       resize();
     };
     mq.addEventListener('change', layoutMode); layoutMode();
