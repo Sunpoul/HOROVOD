@@ -45,6 +45,11 @@ for cdn, local in VENDOR:
 # Google Fonts интерфейса не блокируют отрисовку: при недоступности сервиса остаётся system-ui
 web = re.sub(r'<link rel="stylesheet" (href="https://fonts\.googleapis\.com/[^"]+")>',
              lambda m: f'<link rel="stylesheet" {m.group(1)} media="print" onload="this.media=\'all\'">', web)
+# Явные <html><head><body>: браузеру они не нужны, а краулеры превью ссылок (Telegram) читают такую страницу надёжнее.
+# Doctype намеренно не добавляем, чтобы режим вёрстки остался прежним.
+marker = '</style>\n\n<div class="lock" id="gate"'
+assert web.count(marker) == 1
+web = '<html lang="ru"><head>\n' + web.replace(marker, '</style>\n</head><body>\n\n<div class="lock" id="gate"', 1) + '\n</body></html>\n'
 (root / 'index.html').write_text(web, encoding='utf-8')
 
 print('Собрано: index.html (библиотеки встроены)')
