@@ -4663,6 +4663,21 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   });
   // описание AAC-LC (AudioSpecificConfig) для MP4: нужно плееру iPhone; не все кодировщики отдают его сами
   const aacConfig = (rate, ch) => { const i = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350].indexOf(rate), f = i < 0 ? 4 : i; return new Uint8Array([(2 << 3) | (f >> 1), ((f & 1) << 7) | (ch << 3)]); };
+  // WebKit (iPhone, Telegram) отдаёт в description не 2 байта AudioSpecificConfig, а целиком описание ES_Descriptor (тег 0x03 со вложенным 0x05).
+  // Мультиплексор оборачивает его ещё раз, и плееры Apple выбрасывают такую звуковую дорожку: видео без звука. Достаём настоящий AudioSpecificConfig.
+  const aacAsc = desc => {
+    const b = desc instanceof Uint8Array ? desc : new Uint8Array(desc.buffer || desc, desc.byteOffset || 0, desc.byteLength);
+    if (b[0] !== 0x03) return b; // настоящий ASC у AAC-LC начинается с 0x10…0x17
+    const len = i => { let n = 0, k = 0, c; do { c = b[i++]; n = (n << 7) | (c & 0x7f); } while ((c & 0x80) && ++k < 4); return [n, i]; };
+    let i = 1, n; [n, i] = len(i); i += 3; // ES_ID и флаги
+    while (i < b.length) {
+      const tag = b[i++]; [n, i] = len(i);
+      if (tag === 0x04) { i += 13; continue; } // заголовок DecoderConfigDescriptor, внутри идут вложенные описания
+      if (tag === 0x05) return b.slice(i, i + n);
+      i += n;
+    }
+    return b;
+  };
   async function renderVideo() {
     if (renderJob || recorder) return;
     wakeAudio();
@@ -4700,7 +4715,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const vids = [...shapes.filter(S => S.video).map(S => ({ v: S.video, tex: S.tex, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, tex: bgTex, hold: false }] : [])]
       .map(x => Object.assign(x, { wasPlaying: !x.v.paused }));
     let venc = null, aenc = null, failure = null;
-    const audioDiag = { adts: false, desc: true };
+    const audioDiag = { adts: false, desc: true, fixed: false };
     offlineRun = true; exporting = true;
     try {
       const { Muxer, ArrayBufferTarget } = await loadMuxer();
@@ -4767,8 +4782,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
               audioDiag.adts = true; chunk = new EncodedAudioChunk({ type: c.type, timestamp: c.timestamp, duration: c.duration, data: d.subarray((d[1] & 1) ? 7 : 9) });
             }
             if (firstAudio) {
-              const dc = m && m.decoderConfig; audioDiag.desc = !!(dc && dc.description && dc.description.byteLength);
-              if (!audioDiag.desc) meta = { decoderConfig: Object.assign({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: 2 }, dc || {}, { description: aacConfig(sr, 2) }) };
+              const dc = m && m.decoderConfig, has = !!(dc && dc.description && dc.description.byteLength);
+              const asc = has ? aacAsc(dc.description) : null;
+              audioDiag.desc = has; audioDiag.fixed = has && asc.length !== dc.description.byteLength;
+              meta = { decoderConfig: Object.assign({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: 2 }, dc || {}, { description: asc || aacConfig(sr, 2) }) };
             }
           }
           firstAudio = false;
@@ -4826,7 +4843,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
             let peak = 0; const x = dec.getChannelData(0); for (let i = 0; i < x.length; i += 11) peak = Math.max(peak, Math.abs(x[i]));
             check = peak > 0.0005 ? `звук читается, пик ${peak.toFixed(2)}` : 'дорожка есть, но тихая';
           } catch (e) {}
-          toast(`Звук: ${acfg.mux.toUpperCase()} ${sr} Гц${audioDiag.adts ? ', ADTS' : ''}${audioDiag.desc ? '' : ', описание добавлено'}; ${check}.`);
+          toast(`Звук: ${acfg.mux.toUpperCase()} ${sr} Гц${audioDiag.adts ? ', ADTS' : ''}${audioDiag.desc ? '' : ', описание добавлено'}${audioDiag.fixed ? ', описание исправлено' : ''}; ${check}.`);
           lastExport = { path: 'покадровый рендер', audio: `${acfg.mux.toUpperCase()} ${sr} Гц; ${check}`, why: '' };
           if (acfg.mux === 'opus') toast('На этом устройстве звук закодирован в Opus. Часть плееров (iPhone, галерея) такое видео играет без звука. Откройте приложение в браузере: ⋯ → «Открыть в браузере».', true);
         }
