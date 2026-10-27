@@ -1991,6 +1991,103 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   fxQuad.frustumCulled = false; fxScene.add(fxQuad);
   const fxCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const fxActive = () => FX.uNoise.value > 0 || FX.uVhs.value > 0 || FX.uGlitch.value > 0 || FX.uAberr.value > 0 || FX.uScan.value > 0 || FX.uPix.value > 0;
+  /* пиксели у отдельных объектов: объект рисуется в свою текстуру (канал слоя 31), превращается в сетку ячеек
+     и накладывается поверх уже нарисованного слоя. Остальные объекты слоя его не перекрывают */
+  const rt2 = new RT(4, 4, { encoding: THREE.sRGBEncoding });
+  if (rt2.samples !== undefined) rt2.samples = 4;
+  rt2.texture.encoding = THREE.sRGBEncoding;
+  const PXU = {
+    tSrc: { value: rt2.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uPx: { value: 1 }, uGl: { value: 0 }, uTime: PU.uTime, uSize: { value: 0.014 }, uGap: { value: 0.16 }, uRound: { value: 0 },
+    uLevels: { value: 10 }, uMono: { value: 1 }, uTint: { value: new THREE.Color() }, uBack: { value: new THREE.Color() }
+  };
+  const pxMat = new THREE.ShaderMaterial({
+    uniforms: PXU, depthTest: false, depthWrite: false, transparent: true, blending: THREE.CustomBlending,
+    blendEquation: THREE.AddEquation, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+    blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+    vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: `
+      varying vec2 vUv;
+      uniform sampler2D tSrc; uniform vec2 uRes; uniform float uPx, uGl, uTime, uSize, uGap, uRound, uLevels, uMono; uniform vec3 uTint, uBack;
+      float hh(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+      vec4 T(vec2 uv){ return texture2D(tSrc, clamp(uv, 0.0005, 0.9995)); }
+      void main(){
+        // глитч под бит: горизонтальные полосы сдвигаются, цвета разъезжаются; сила uGl идёт от удара
+        float tick = floor(uTime * 14.0);
+        float band = floor(vUv.y * (16.0 + 40.0 * hh(vec2(tick, 3.1))));
+        float on = step(1.0 - 0.3 * uGl, hh(vec2(band, tick)));
+        float gs = on * (hh(vec2(band, tick + 1.0)) - 0.5) * 0.22 * uGl;
+        if (uPx > 0.5) {
+          float cell = max(2.0, uRes.x * uSize);
+          vec2 p = gl_FragCoord.xy / cell;
+          vec2 id = floor(p), f = fract(p) - 0.5;
+          vec2 cuv = (id + 0.5) * cell / uRes + vec2(gs, 0.0);
+          vec2 o = vec2(0.22 * cell) / uRes;
+          vec4 s = (T(cuv) * 2.0 + T(cuv + o) + T(cuv - o) + T(cuv + vec2(o.x, -o.y)) + T(cuv + vec2(-o.x, o.y))) / 6.0;
+          if (s.a < 0.02) discard;
+          vec3 c = s.rgb / s.a;
+          float lv = max(uLevels - 1.0, 1.0);
+          float yq = floor(dot(c, vec3(0.299, 0.587, 0.114)) * lv + 0.5) / lv;
+          vec3 col = mix(floor(c * lv + 0.5) / lv, mix(uBack, uTint, yq), uMono);
+          float hs = 0.5 * (1.0 - uGap);
+          float rr = uRound * hs;
+          vec2 d2 = abs(f) - (hs - rr);
+          float dd = length(max(d2, 0.0)) + min(max(d2.x, d2.y), 0.0) - rr;
+          float aa = 0.75 / cell;
+          float a = min(1.0, s.a * 1.25) * smoothstep(aa, -aa, dd);
+          gl_FragColor = vec4(col * a, a);
+        } else {
+          float ab = uGl * 0.012 * (1.0 + abs(gs) * 25.0);
+          vec2 u = vUv + vec2(gs, 0.0);
+          vec4 sr = T(u + vec2(ab, 0.0)), sg = T(u), sb = T(u - vec2(ab, 0.0));
+          float a = max(sg.a, max(sr.a, sb.a));
+          if (a < 0.004) discard;
+          gl_FragColor = vec4(sr.r, sg.g, sb.b, a);
+        }
+      }`
+  });
+  const pxScene = new THREE.Scene();
+  const pxQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), pxMat);
+  pxQuad.frustumCulled = false; pxScene.add(pxQuad);
+  const PXREG = { list: () => [], items: [], tmp: new THREE.Color(), sz: new THREE.Vector2() };
+  // перед кадром: объекты с пикселями убираем из обычных проходов (маска слоёв = 0)
+  function pxBegin() {
+    PXREG.items = PXREG.list();
+    PXREG.items.forEach(it => { it.saved = []; it.roots.forEach(r => r.traverse(o => { it.saved.push([o, o.layers.mask]); o.layers.mask = 0; })); });
+  }
+  function pxEnd() { PXREG.items.forEach(it => { it.saved.forEach(([o, m]) => { o.layers.mask = m; }); it.saved = []; }); PXREG.items = []; }
+  // бит на отдельных объектах: пульс размера — временный масштаб на время кадра (меши самой фигуры или копий картинки)
+  const BTREG = { list: () => [], saved: [] };
+  function btBegin() {
+    BTREG.saved = [];
+    if (MU.pulse < 0.004) return;
+    BTREG.list().forEach(({ o, nodes }) => {
+      if (!(o.btPulse > 0)) return;
+      const k = 1 + MU.pulse * o.btPulse / 100;
+      nodes.forEach(n => { BTREG.saved.push([n, n.scale.x, n.scale.y, n.scale.z]); n.scale.multiplyScalar(k); });
+    });
+  }
+  function btEnd() { BTREG.saved.forEach(([n, x, y, z]) => n.scale.set(x, y, z)); BTREG.saved = []; }
+  // после прохода слоя n: каждый такой объект отдельно в текстуру, затем сеткой поверх
+  function pxFlush(n) {
+    for (const it of PXREG.items) {
+      if (it.layer !== n) continue;
+      const cur = renderer.getRenderTarget(), bg = scene.background, ca = renderer.getClearAlpha(); renderer.getClearColor(PXREG.tmp);
+      it.saved.forEach(([o]) => { o.layers.mask = -2147483648; });
+      scene.background = null;
+      renderer.setRenderTarget(rt2); renderer.setClearColor(0x000000, 0); renderer.clear();
+      camera.layers.set(31); renderer.shadowMap.needsUpdate = true; renderer.render(scene, camera);
+      renderer.setClearColor(PXREG.tmp, ca);
+      it.saved.forEach(([o]) => { o.layers.mask = 0; });
+      renderer.setRenderTarget(cur);
+      if (cur) PXU.uRes.value.set(cur.width, cur.height); else { renderer.getDrawingBufferSize(PXREG.sz); PXU.uRes.value.copy(PXREG.sz); }
+      const o = it.o;
+      PXU.uSize.value = o.pxSize / 100; PXU.uGap.value = o.pxGap / 100; PXU.uRound.value = o.pxRound / 100; PXU.uLevels.value = o.pxLevels; PXU.uMono.value = o.pxMono / 100;
+      PXU.uTint.value.set(o.pxTint); PXU.uBack.value.set(o.pxBack);
+      PXU.uPx.value = o.pxOn ? 1 : 0; PXU.uGl.value = it.gl || 0;
+      renderer.render(pxScene, fxCam);
+      scene.background = bg;
+    }
+  }
   /* слои глубины: 1 — картинки за текстом, 0 — текст и 3D, 2 — картинки перед текстом */
   renderer.autoClear = false;
   renderer.shadowMap.autoUpdate = false;
@@ -2001,6 +2098,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const renderLayerOf = o => o.order === 'back' ? 1 : o.order === 'front' ? 2 + Math.min(28, o.stack || 0) : 0;
   function syncFront() { frontSeq = Math.max(0, ...shapes.map(o => o.stack || 0), ...layers.map(o => o.stack || 0), ...texts.map(o => o.stack || 0)); }
   function drawScene() {
+    btBegin(); pxBegin();
+    try { drawLayers(); } finally { pxEnd(); btEnd(); camera.layers.set(0); }
+  }
+  function drawLayers() {
     renderer.clear();
     const bg = scene.background;
     if (specVisible()) {                                            // фон, поверх него спектр
@@ -2009,14 +2110,16 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       renderer.render(specScene, fxCam);
     }
     camera.layers.set(1); renderer.render(scene, camera);          // фон + картинки за текстом
+    pxFlush(1);
     scene.background = null;
     renderer.shadowMap.needsUpdate = true; // тени считаются по объектам основного слоя
     renderer.clearDepth(); camera.layers.set(0); renderer.render(scene, camera);  // текст
+    pxFlush(0);
     // «перед текстом»: у каждой новой фигуры, картинки и текста свой слой выше предыдущего, между проходами глубина сбрасывается,
     // поэтому новое всегда целиком поверх старого
     const tops = new Set([2]);
     for (const list of [shapes, layers, texts]) for (const o of list) if (o.order === 'front') tops.add(renderLayerOf(o));
-    [...tops].sort((a, b) => a - b).forEach(n => { renderer.clearDepth(); camera.layers.set(n); renderer.render(scene, camera); });
+    [...tops].sort((a, b) => a - b).forEach(n => { renderer.clearDepth(); camera.layers.set(n); renderer.render(scene, camera); pxFlush(n); });
     if (cardVisible()) { placeCard(); renderer.render(cardScene, fxCam); }        // карточка трека
     scene.background = bg; camera.layers.set(0);
   }
@@ -2445,11 +2548,19 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   /* дополнительные тексты: у каждого своя форма, место, вращение, шрифт и пропорции; объём и материал общие */
   const BLOCK_KEYS = ['size', 'stretchY', 'width', 'tracking', 'posX', 'posY', 'radius', 'boxW', 'boxH', 'corner', 'gap', 'angle', 'spin'];
   const BLOCK_ST = ['mode', 'fit', 'side', 'align'];
+  // пиксели отдельного объекта (текст, фигура, картинка); у основного текста лежат в P под именами mpx…
+  const PX_DEF = { pxOn: false, pxSize: 1.4, pxGap: 16, pxRound: 0, pxLevels: 10, pxMono: 100, pxTint: '#cfd8f4', pxBack: '#05050b' };
+  const PX_KEYS = Object.keys(PX_DEF);
+  // реакция на бит (фигуры и картинки): пульс размера и глитч только у этого объекта
+  const BT_DEF = { btOn: false, btPulse: 12, btGlitch: 70 };
+  const BT_KEYS = Object.keys(BT_DEF);
+  PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
   const MAIN = { id: 'main', main: true,
     get text() { return TEXT; }, set text(v) { TEXT = v; },
     get font() { return current; }, get fontId() { return current && current.id; },
     get spinner() { return spinner; }, get group() { return textGroup; } };
   BLOCK_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P[k] }));
+  PX_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P['m' + k], set: v => { P['m' + k] = v; } }));
   BLOCK_ST.forEach(k => Object.defineProperty(MAIN, k, { get: () => st[k] }));
   // цвет у каждого текста свой; у основного — общие настройки «Цвет букв»
   const BLOCK_LOOK = ['color', 'color2', 'grad', 'gradMode'];
@@ -2480,7 +2591,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   }
   const texts = [];
   let selText = MAIN;
-  const TEXT_DEF = { color: '#e9e9e6', color2: '#3fc2ad', grad: false, gradMode: 0, mode: 'plain', fit: 'stretch', side: 'out', align: 'center', size: 1.1, stretchY: 100, width: 100, tracking: 4, posX: 0, posY: 0, radius: 6.5, boxW: 13, boxH: 13, corner: 30, gap: 1.7, angle: 0, spin: 0, order: 'space', stack: 0 };
+  const TEXT_DEF = { color: '#e9e9e6', color2: '#3fc2ad', grad: false, gradMode: 0, mode: 'plain', fit: 'stretch', side: 'out', align: 'center', size: 1.1, stretchY: 100, width: 100, tracking: 4, posX: 0, posY: 0, radius: 6.5, boxW: 13, boxH: 13, corner: 30, gap: 1.7, angle: 0, spin: 0, order: 'space', stack: 0, ...PX_DEF };
   function addTextBlock(props, fresh = !props) {
     const B = Object.assign({ id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), text: 'ВТОРОЙ ТЕКСТ', fontId: current.id }, TEXT_DEF, props || {});
     Object.defineProperty(B, 'font', { get: () => fonts.find(f => f.id === B.fontId) || fonts[0] });
@@ -2542,7 +2653,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const layers = [];
   let selLayer = null;
   const texLoader = new THREE.TextureLoader();
-  const LAYER_DEF = { mode: 'center', size: 4, x: 0, y: 0, z: 0, rot: 0, opacity: 100, count: 12, ringR: 9, lit: true, billboard: false, spins: false, visible: true, order: 'space', stack: 0 };
+  const LAYER_DEF = { mode: 'center', size: 4, x: 0, y: 0, z: 0, rot: 0, opacity: 100, count: 12, ringR: 9, lit: true, billboard: false, spins: false, visible: true, order: 'space', stack: 0, ...PX_DEF, ...BT_DEF };
   const LS = {
     size:    { label: 'Размер', min: 0.2, max: 50, step: 0.2, dec: 1 },
     x:       { label: 'По горизонтали', min: -15, max: 15, step: 0.1, dec: 1 },
@@ -2778,7 +2889,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   };
   const SHAPE_DEF = { x: 0, y: 0, z: 0, size: 4, w: 100, h: 100, d: 100, rotX: 0, rotY: 0, rotZ: 0, corner: 0,
     color: '#ffffff', opacity: 100, metal: 0, rough: 0.5, lit: false, fit: 'cover', tiles: 3, open: false,
-    order: 'space', stack: 0, fixed: true, visible: true, videoSound: false };
+    order: 'space', stack: 0, fixed: true, visible: true, videoSound: false, ...PX_DEF, ...BT_DEF };
   const SS = {
     x:        { label: 'По горизонтали', min: -15, max: 15, step: 0.1, dec: 1, v: 0 },
     y:        { label: 'По вертикали', min: -15, max: 15, step: 0.1, dec: 1, v: 0 },
@@ -3697,7 +3808,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const SEC_ICONS = { 'Тексты': 'text', 'Текст': 'font', 'Шрифт': 'font', 'Эмодзи': 'smile', 'Цвет': 'palette', 'Заливка': 'palette', 'Форма': 'shape', 'Положение': 'move', 'Позиция': 'move',
     'Размещение': 'move', 'Масштаб': 'move', 'Поворот': 'cam', 'Анимация': 'play', 'Пропорции': 'sliders', 'Объём': 'sliders', 'Материал': 'sliders', 'Отображение': 'sliders',
     'Стикеры': 'image', 'Слой': 'image', 'Слои': 'image', 'Видео': 'video', 'Пресеты': 'light', 'Основной свет': 'light', 'Контровой свет': 'light', 'Общий свет': 'light',
-    'Шум': 'fx', 'Пиксели': 'grid', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
+    'Шум': 'fx', 'Пиксели': 'grid', 'Бит': 'music', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
     'Фон': 'scene', 'Тени': 'scene', 'Камера': 'cam', 'Добавить фигуру': 'shape' };
   const secIcon = title => (title === 'Пресеты' && st.tab === 'fx' ? 'fx' : title === 'Слои' && st.tab === 'text' ? 'scene' : SEC_ICONS[title]) || (/^Фигура/.test(title) ? 'shape' : (TABS.find(t => t[0] === st.tab) || [])[2] || 'dots');
   function section(title, kids, resetKeys, opts) {
@@ -3777,6 +3888,36 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   }
   const fxReset = u => { delete FX_MEM[u]; setMany(FX_UNITS[u].on); };
   const fxToggle = u => ({ get: () => fxOn(u), set: v => fxSet(u, v) });
+  // пиксели только у выбранного объекта (текст, картинка или фигура); остальная сцена остаётся как есть
+  const PXS = {
+    pxSize:   { label: 'Размер пикселя', min: 0.4, max: 8, step: 0.1, dec: 1, unit: '%' },
+    pxGap:    { label: 'Зазор между пикселями', min: 0, max: 60, step: 1, unit: '%' },
+    pxRound:  { label: 'Скругление', min: 0, max: 100, step: 1, unit: '%' },
+    pxLevels: { label: 'Градации яркости', min: 2, max: 32, step: 1 },
+    pxMono:   { label: 'Один цвет', min: 0, max: 100, step: 1, unit: '%' },
+  };
+  function pixelSection(o, what) {
+    const sl = k => slider(k, PXS[k], () => o[k], v => { o[k] = v; });
+    return section('Пиксели', [
+      h('p', { class: 'hint' }, `Пиксельная сетка только на ${what}: остальная сцена не меняется. Размер задан долей ширины кадра, поэтому в видео и PNG вид тот же. Объект с пикселями рисуется поверх других объектов своего слоя.`),
+      sl('pxSize'), sl('pxGap'), sl('pxRound'), sl('pxLevels'), sl('pxMono'),
+      color('pxTint', { label: 'Цвет света' }, () => o.pxTint, v => { o.pxTint = v; }),
+      color('pxBack', { label: 'Цвет теней' }, () => o.pxBack, v => { o.pxBack = v; }),
+    ], () => { PX_KEYS.forEach(k => { o[k] = PX_DEF[k]; }); o.pxOn = true; }, { toggle: { get: () => o.pxOn, set: v => { o.pxOn = v; } } });
+  }
+  // реакция на бит только у выбранной фигуры или картинки
+  const BTS = {
+    btPulse:  { label: 'Пульс размера', min: 0, max: 60, step: 1, unit: '%' },
+    btGlitch: { label: 'Сила глитча', min: 0, max: 100, step: 1, unit: '%' },
+  };
+  function beatSection(o, what) {
+    const sl = k => slider(k, BTS[k], () => o[k], v => { o[k] = v; });
+    return section('Бит', [
+      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар трека: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Работает, пока играет музыка. Чтобы дёргался только он, поставьте общий «Глитч под бит» на вкладке «Музыка» в 0. В момент глитча объект рисуется поверх других объектов своего слоя.`),
+      sl('btPulse'), sl('btGlitch'),
+      h('button', { class: 'btn small block', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'),
+    ], () => { BT_KEYS.forEach(k => { o[k] = BT_DEF[k]; }); o.btOn = true; }, { toggle: { get: () => o.btOn, set: v => { o.btOn = v; } } });
+  }
   // выбор эмодзи для пепла: строка с эмодзи (до 8) и быстрые кнопки; нажатие добавляет эмодзи или убирает, если оно уже выбрано
   function ashEmojiPicker() {
     const input = h('input', { class: 'text-input', type: 'text', value: st.ashEmoji, placeholder: 'Вставьте эмодзи, до 8 штук', 'aria-label': 'Эмодзи для пепла', spellcheck: 'false' });
@@ -3831,7 +3972,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
             h('button', { class: 'icon-btn', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash'))));
         });
       }
-      const pick2 = T => Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS].map(k => [k, T[k]]));
+      const pick2 = T => Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS].map(k => [k, T[k]]));
       renderTextList();
       return [
         section('Слои', [list,
@@ -3851,6 +3992,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           ...(B.grad ? [color(B.main ? 'matColor2' : 'bColor2', COLORS.matColor2, () => B.color2, v => setBlock(B, 'color2', v)),
             seg('Направление', [[0, 'Сверху вниз'], [1, 'Слева направо'], [2, 'Вокруг круга']], () => B.gradMode, v => setBlock(B, 'gradMode', v))] : []),
         ], B.main ? ['matColor', 'matColor2', 'matGrad'] : () => { setBlock(B, 'color', P.matColor); B.grad = false; applyBlockMaterial(B); }),
+        pixelSection(B, 'этом тексте'),
         section('Эмодзи', [emojiRow, slider('emojiScale'),
           h('p', { class: 'hint' }, 'Нажмите, чтобы вставить в текст. Любые другие — с системной панели: Win + . или Ctrl + Cmd + Пробел на Mac.')], ['emojiScale']),
         section('Положение', plain
@@ -3922,6 +4064,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
 
           L.mode === 'center' ? toggle('Всегда смотрит в камеру', () => L.billboard, v => { L.billboard = v; upd(); }, 'l-bb') : null,
         ]));
+        out.push(beatSection(L, 'картинка'));
+        out.push(pixelSection(L, 'этой картинке'));
       }
       return out;
     },
@@ -3981,6 +4125,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         toggle('Реагирует на свет', () => S.lit, v => { setShape(S, 'lit', v); renderPanel(); }, 'sh-lit'),
         ...(S.lit ? [ss('metal'), ss('rough')] : [h('p', { class: 'hint' }, 'Без света фото и видео показываются в исходных цветах, как экран.')]),
       ]));
+      out.push(beatSection(S, 'фигура'));
+      out.push(pixelSection(S, 'этой фигуре'));
       return out;
     },
     light() {
@@ -4162,7 +4308,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   function setBuffer(w, hh, pr) {
     renderer.setPixelRatio(pr); renderer.setSize(w, hh, false);
     const pw = Math.round(w * pr), ph = Math.round(hh * pr);
-    rt.setSize(pw, ph); FX.uRes.value.set(pw, ph); FX.uScale.value = pw / cssW; // пикселей буфера на 1 px превью
+    rt.setSize(pw, ph); rt2.setSize(pw, ph); FX.uRes.value.set(pw, ph); FX.uScale.value = pw / cssW; // пикселей буфера на 1 px превью
   }
   function resize() {
     if (exporting) return;
@@ -4702,7 +4848,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       fonts: fonts.filter(f => !f.builtin && f.file).map(f => ({ id: f.id, src: ref(f.file) })),
       layers: layers.filter(L => L.file).map(L => ({ props: pick(L, LAYER_KEYS), src: ref(L.file) })),
       shapes: shapes.map(S => ({ props: pick(S, SHAPE_KEYS), src: ref(S.file) })),
-      texts: texts.map(B => pick(B, ['text', 'fontId', 'lastSpin', 'order', 'stack', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS])),
+      texts: texts.map(B => pick(B, ['text', 'fontId', 'lastSpin', 'order', 'stack', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS])),
       bg: bgFile ? { src: ref(bgFile), sound: bgSound } : null,
       audio: MU.audio && MU.file ? { src: ref(MU.file), title: MU.title, artist: MU.artist, muted: MU.muted, cover: ref(MU.coverFile), clipStart: MU.clipStart, clipLen: MU.clipLen, link: MU.link } : null,
       cam: { p: camera.position.toArray().map(r3), t: controls.target.toArray().map(r3) },
@@ -4741,6 +4887,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     Object.entries(S).forEach(([k, d]) => P[k] = d.v);
     Object.entries(COLORS).forEach(([k, d]) => P[k] = d.v);
     Object.entries(TOGGLES).forEach(([k, d]) => P[k] = d.v);
+    PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
     Object.assign(st, ST0);
     TEXT = TEXT0; selLayer = null; selShape = null;
     activeLightPreset = 'Студия'; activeFxPreset = 'Чисто';
@@ -5592,6 +5739,24 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   try { const w = window.Telegram && window.Telegram.WebApp; if (w && w.platform && w.platform !== 'unknown') { TG = w; initTelegram(); } } catch (e) { console.error(e); TG = null; }
   renderRail(); renderPanel(); renderFormats();
   applyLights(); applyMaterial(); applyScene(); applyFx(); applyAsh(); layout(); resize(); syncPlay(); applyCamLock();
+  // в проход через текстуру объект попадает, пока включены пиксели или идёт глитч от удара
+  PXREG.list = () => {
+    const out = [], add = (o, roots, layer) => {
+      const gl = o.btOn ? MU.pulse * o.btGlitch / 100 : 0;
+      if ((o.pxOn || gl > 0.02) && roots.length) out.push({ o, roots, layer, gl });
+    };
+    if (!st.mainOff) add(MAIN, [textGroup], 0);
+    texts.forEach(B => add(B, [B.group], renderLayerOf(B)));
+    shapes.forEach(S => { if (S.mesh && S.visible) add(S, [S.mesh], renderLayerOf(S)); });
+    layers.forEach(L => { if (L.visible) add(L, [L.group], renderLayerOf(L)); });
+    return out;
+  };
+  BTREG.list = () => {
+    const out = [];
+    shapes.forEach(S => { if (S.btOn && S.mesh && S.visible) out.push({ o: S, nodes: [S.mesh] }); });
+    layers.forEach(L => { if (L.btOn && L.visible) { const nodes = []; L.group.traverse(n => { if (n.isMesh) nodes.push(n); }); out.push({ o: L, nodes }); } });
+    return out;
+  };
   requestAnimationFrame(tick);
   if (!IOS) Store.init().then(async () => { await initTabs(); await unlockP; showHome(true); });
   if (IOS) { post({ type: 'ready' }); emitState(); postTrack(); }
