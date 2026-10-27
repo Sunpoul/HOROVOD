@@ -2892,7 +2892,7 @@ const STICKERS = '__STICKERS__';
     document.querySelectorAll('.dd-menu:not([hidden])').forEach(m => { if (!m.parentElement.contains(e.target)) { m.hidden = true; m.parentElement.querySelector('.dd-btn').setAttribute('aria-expanded', 'false'); } });
   });
   // resetKeys — список общих параметров или функция своего сброса
-  // Группа настроек: значок, название и шеврон сворачивают её; по умолчанию все свёрнуты, развёрнутые запоминаются. opts.plain — без сворачивания (окно экспорта)
+  // Группа настроек: значок, название и шеврон сворачивают её; по умолчанию все свёрнуты (кроме opts.open), выбор пользователя запоминается. opts.plain — без сворачивания (окно экспорта)
   let OPENED = {}; // какие группы пользователь развернул (раньше хранили свёрнутые: ключ horovod.collapsed больше не читаем)
   try { OPENED = JSON.parse(localStorage.getItem('horovod.opened') || '{}') || {}; } catch (e) { OPENED = {}; }
   const SEC_ICONS = { 'Тексты': 'text', 'Текст': 'font', 'Шрифт': 'font', 'Эмодзи': 'smile', 'Цвет': 'palette', 'Заливка': 'palette', 'Форма': 'shape', 'Положение': 'move', 'Позиция': 'move',
@@ -2907,10 +2907,6 @@ const STICKERS = '__STICKERS__';
       const o = {}; resetKeys.forEach(k => o[k] = (S[k] || COLORS[k] || TOGGLES[k]).v); setMany(o);
     } }, 'Сбросить');
     if (opts && opts.plain) return h('section', { class: 'sec plain' }, h('div', { class: 'sec-head' }, h('h3', {}, title), reset), ...kids);
-    // группа без сворачивания: всегда развёрнута (шеврона нет)
-    if (opts && opts.always) return h('section', { class: 'sec' }, h('div', { class: 'sec-head' },
-      h('h3', {}, h('span', { class: 'sec-toggle static' }, h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title))), reset),
-      h('div', { class: 'sec-body' }, ...kids));
     // группа-эффект: тогл справа от названия; включён — ниже настройки и кнопка «Сбросить», выключен — только заголовок
     if (opts && opts.toggle) {
       const on = !!opts.toggle.get();
@@ -2922,7 +2918,7 @@ const STICKERS = '__STICKERS__';
         h('label', { class: 'toggle switch-only' }, sw)),
         ...(on ? [h('div', { class: 'sec-body' }, ...kids, resetKeys ? h('button', { class: 'btn small block', type: 'button', onclick: doReset }, 'Сбросить') : null)] : []));
     }
-    const key = st.tab + ':' + title, closed = !OPENED[key];
+    const key = st.tab + ':' + title, was = OPENED[key], closed = was === undefined ? !(opts && opts.open) : !was; // opts.open — развёрнута, пока пользователь не свернул
     const body = h('div', { class: 'sec-body' }, ...kids); body.hidden = closed;
     const btn = h('button', { class: 'sec-toggle', type: 'button', 'aria-expanded': String(!closed), title: closed ? 'Развернуть' : 'Свернуть' },
       h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title), icon('chev'));
@@ -2930,7 +2926,7 @@ const STICKERS = '__STICKERS__';
     btn.onclick = () => {
       const open = body.hidden; body.hidden = !open;
       btn.setAttribute('aria-expanded', String(open)); btn.title = open ? 'Свернуть' : 'Развернуть';
-      if (open) OPENED[key] = 1; else delete OPENED[key];
+      OPENED[key] = open ? 1 : 0; // 0 нужен группам, которые по умолчанию развёрнуты
       try { localStorage.setItem('horovod.opened', JSON.stringify(OPENED)); } catch (e) {}
     };
     return h('section', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h3', {}, btn), reset), body);
@@ -3072,10 +3068,10 @@ const STICKERS = '__STICKERS__';
         section('Слои', [list,
           h('button', { class: 'btn block', type: 'button', onclick: () => { addTextBlock(); renderPanel(); toast('Слой добавлен — плоский текст. Форму можно поменять ниже.'); } }, icon('plus'), 'Добавить текст'),
           h('p', { class: 'hint' }, 'У каждого текста своя форма, место, вращение, шрифт и пропорции. Объём и материал букв — общие.')]),
-        // «Текст» всегда развёрнут; вставка эмодзи и их размер лежат здесь же
+        // «Текст» по умолчанию развёрнут, но сворачивается; вставка эмодзи и их размер лежат здесь же
         section(B.main ? 'Текст' : 'Текст ' + (texts.indexOf(B) + (st.mainOff ? 1 : 2)), [ta, h('p', { class: 'hint' }, (plain ? 'Каждая строка — отдельная строка текста.' : 'Каждая строка — отдельное кольцо: первая снаружи, следующие внутри.') + ' Можно писать иероглифами (音楽, 东京) и вставлять эмодзи ✨🔥.'),
           emojiRow, slider('emojiScale'),
-          h('p', { class: 'hint' }, 'Нажмите на эмодзи, чтобы вставить в текст. Любые другие — с системной панели: Win + . или Ctrl + Cmd + Пробел на Mac.')], null, { always: true }),
+          h('p', { class: 'hint' }, 'Нажмите на эмодзи, чтобы вставить в текст. Любые другие — с системной панели: Win + . или Ctrl + Cmd + Пробел на Mac.')], null, { open: true }),
         section('Цвет', [
           color(B.main ? 'matColor' : 'bColor', COLORS.matColor, () => B.color, v => setBlock(B, 'color', v)),
           toggle(TOGGLES.matGrad.label, () => !!B.grad, v => { setBlock(B, 'grad', v); renderPanel(); }, 'f-grad'),
