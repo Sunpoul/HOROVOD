@@ -354,8 +354,11 @@ textarea:focus { border-color: var(--accent); outline: none; }
 #gate { z-index: 90; }
 html:not(.gate-ok) body > :not(#gate):not(script):not(style) { visibility: hidden !important; }
 html.gate-ok #gate { display: none; }
-.gate-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px; }
-.gate-brand .logo { width: 34px; height: 34px; }
+.gate-brand { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; margin-bottom: 12px; }
+.gate-brand .logo { width: 120px; height: 120px; animation: gate-rot 18s linear infinite, gate-pulse 2.6s ease-in-out infinite; }
+@keyframes gate-rot { to { rotate: 360deg; } }
+@keyframes gate-pulse { 0%, 100% { scale: 1; opacity: .85; } 50% { scale: 1.08; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .gate-brand .logo { animation: none; } }
 .gate-brand b { font: 500 26px 'Onest', var(--font-display); letter-spacing: .14em; }
 .gate-form { display: grid; gap: 12px; }
 .lock.shake .lock-card { animation: shake .35s; }
