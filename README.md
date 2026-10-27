@@ -121,6 +121,7 @@
 | `fonts/` | Подмножества шрифтов: Unbounded Bold, Rubik Mono One, Noto Sans SC Bold (около 7 700 частых иероглифов). Эти три — под лицензией SIL OFL 1.1. Ещё `bebas-neue.ttf` (Bebas Neue, SIL OFL 1.1, текст лицензии в `OFL-BebasNeue.txt`; только латиница, кириллица подставляется из Unbounded), `oswald-bold.ttf` (Oswald Bold, SIL OFL 1.1, текст лицензии в `OFL-Oswald.txt`, с кириллицей) и `tsarevich.ttf` (Tsarevich, с ofont.ru): перед коммерческим использованием проверьте лицензию у автора. |
 | `bot/` | Приветствие бота: тексты, картинки для BotFather и скрипт `horovod-bot.mjs`, который присылает приветственный пост с кнопкой «Начать». См. [bot/README.md](bot/README.md). |
 | `brand/` | Логотип HOROVOD: `Horovod_logo_blck.svg` (чёрный, для светлой темы) и `Horovod_logo_wh.svg` (светло-серый, для тёмной). Встроен в интерфейс и в значок вкладки. |
+| `og-image.jpg` | Картинка 1200×630 для превью ссылки (Open Graph): её показывают Telegram, соцсети и мессенджеры, когда отправляешь адрес сайта. Метатеги лежат в начале `src/app.src.html`. |
 | `build.py` | Собирает `index.html`, офлайн-бандл для iOS и `Spec.generated.swift` из исходника. |
 | `stickers/` | PNG-стикеры для вкладки «Картинки»; встраиваются в сборку. |
 | `vendor/` | Локальные копии Three.js r128, OrbitControls и opentype.js 1.3.4 для iOS, а также `mp4-muxer.mjs` (MIT, лицензия в `LICENSE-mp4-muxer.txt`): собирает MP4 при покадровом экспорте видео, встраивается в `index.html` при сборке. |
