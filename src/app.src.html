@@ -359,6 +359,7 @@ textarea:focus { border-color: var(--accent); outline: none; }
 /* меню аватарки */
 .pmenu.av-menu { position: fixed; z-index: 50; min-width: 230px; } /* выше главного экрана (30), профиля (31) и вкладок (35) */
 .pm-user { display: grid; gap: 2px; padding: 8px 12px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); min-width: 0; }
+.pm-ver { padding: 8px 12px 4px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 4px; }
 .pm-user b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pm-user small { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* экран профиля и экран блокировки */
@@ -3655,6 +3656,7 @@ const STICKERS = '__STICKERS__';
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
+  const APP_VERSION = '1.2.1'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
   const SEND_URL = 'https://6e944a2de2e726.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   let downloads = null;
@@ -4888,7 +4890,8 @@ const STICKERS = '__STICKERS__';
         // с экраном входа на сайт выход возвращает на первый экран: логин и пароль вводятся заново
         if (!IOS && !TG && g && g.on) { try { sessionStorage.removeItem(g.key); } catch (_) {} location.reload(); return; }
         showLock();
-      }));
+      }),
+      h('div', { class: 'pm-ver' }, 'HRVD · Beta ' + APP_VERSION));
     const r = anchor.getBoundingClientRect();
     openMenu.style.top = Math.round(r.bottom + 8) + 'px'; openMenu.style.bottom = 'auto';
     if (r.left + r.width / 2 > innerWidth / 2) { openMenu.style.right = Math.max(8, Math.round(innerWidth - r.right)) + 'px'; openMenu.style.left = 'auto'; }
