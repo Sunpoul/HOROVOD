@@ -575,7 +575,7 @@ body.ios .frame { box-shadow: none; }
 <div class="lock" id="gate" role="dialog" aria-modal="true" aria-label="Вход">
   <div class="lock-card">
     <div class="gate-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true" fill="currentColor"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" /><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" /><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" /><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" /><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" /><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" /><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" /><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" /><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" /><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" /><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" /><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" /><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" /><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" /><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" /><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" /><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" /><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" /><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" /><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" /><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" /><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" /><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" /><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" /></svg><b>HRVD</b></div>
-    <p class="gate-beta">Beta 1.2</p>
+    <p class="gate-beta">Beta 1.2.1</p>
     <p class="hint">Закрытая бета. Войдите, чтобы открыть редактор</p>
     <form class="gate-form" novalidate>
       <input class="text-input" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Логин" aria-label="Логин">
@@ -3662,7 +3662,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const markScene = new THREE.Scene();
   const markQuad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: markTex, transparent: true, depthTest: false, depthWrite: false, toneMapped: false }));
   markQuad.frustumCulled = false; markScene.add(markQuad);
-  let markReady = false, markAspect = 5;
+  let markReady = false, markAspect = 5, markCenter = false;
   async function drawMark() {
     const H = 168, label = ['Made with ', 'HRVD'], font = `500 ${Math.round(H * 0.4)}px Onest, system-ui, sans-serif`;
     try { await Promise.race([document.fonts.load('500 60px Onest', 'Made with HRVD'), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}
@@ -3687,9 +3687,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   function placeMark() {
     renderer.getDrawingBufferSize(_v2);
     const w = _v2.x, hh = _v2.y, m = Math.min(w, hh);
-    const mh = m * 0.052, mw = mh * markAspect, margin = m * 0.05;
+    const mh = m * 0.052, mw = mh * markAspect, margin = m * (markCenter ? 0.075 : 0.05);
     markQuad.scale.set(mw / w * 2, mh / hh * 2, 1);
-    markQuad.position.set(1 - (margin + mw / 2) / w * 2, -1 + (margin + mh / 2) / hh * 2, -0.5);
+    // в кружке углы обрезаются, поэтому плашка стоит внизу по центру
+    markQuad.position.set(markCenter ? 0 : 1 - (margin + mw / 2) / w * 2, -1 + (margin + mh / 2) / hh * 2, -0.5);
   }
   drawMark();
   function drawCard() {
@@ -4703,7 +4704,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   /* =================== ЭКСПОРТ =================== */
   let exporting = false, offlineRun = false;
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
-  const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
+  const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30, note: false };
+  const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат до 640 × 640, не длиннее 60 с
   let downloads = null;
   Promise.resolve().then(async () => { try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch (e) { downloads = null; } renderExport(); });
   const canSave = () => !!downloads || !window.claude;
@@ -4871,11 +4873,13 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
     if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { lastExport.why = !window.AudioEncoder && hasSound ? 'нет кодировщика звука (AudioEncoder)' : 'нет покадрового рендера (WebCodecs)'; toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
     closeExport();
-    const fps = exp.fps, [w, hh] = exportDims(exp.vlong), sr = withAudio ? MU.ctx.sampleRate : 48000;
-    const total = exp.sec === 'track' ? (withAudio && isFinite(MU.audio.duration) ? clipEnd() - MU.clipStart : 15) : exp.sec;
+    const note = exp.note;
+    const fps = note ? 30 : exp.fps, [w, hh] = note ? [NOTE_SIZE, NOTE_SIZE] : exportDims(exp.vlong), sr = withAudio ? MU.ctx.sampleRate : 48000;
+    let total = exp.sec === 'track' ? (withAudio && isFinite(MU.audio.duration) ? clipEnd() - MU.clipStart : 15) : exp.sec;
+    if (note && total > NOTE_MAX) { total = NOTE_MAX; toast('Кружок в Telegram — не длиннее минуты: беру первые 60 секунд.'); }
     const frames = Math.max(1, Math.round(total * fps));
     // подбор кодеков заранее: если что-то не поддерживается, падаем обратно на запись в реальном времени, пока ничего не тронуто
-    const bitrate = Math.round(Math.min(80e6, Math.max(4e6, w * hh * fps * 0.1)));
+    const bitrate = note ? 2500000 : Math.round(Math.min(80e6, Math.max(4e6, w * hh * fps * 0.1)));
     let vcfg = null, acfg = null;
     for (const codec of ['avc1.640034', 'avc1.640033', 'avc1.64002a', 'avc1.640028', 'avc1.4d4028', 'avc1.4d401f']) {
       const cfg = { codec, width: w, height: hh, bitrate, framerate: fps, latencyMode: 'quality', avc: { format: 'avc' } };
@@ -4903,6 +4907,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     let venc = null, aenc = null, failure = null;
     const audioDiag = { adts: false, desc: true, fixed: false };
     offlineRun = true; exporting = true;
+    const wasFmt = st.format, wasCss = [cssW, cssH];
     try {
       const { Muxer, ArrayBufferTarget } = await loadMuxer();
       const target = new ArrayBufferTarget();
@@ -5000,6 +5005,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       [MAIN, ...texts].forEach(B => { B.spinner.rotation.set(0, 0, 0); B.sqPhase = 0; if (B.mode === 'square') moveSquare(B); });
       gifAnims.forEach(a => { a.t = 0; });
       Object.assign(MU, { pulse: 0, lastBeat: -1e9, hist: [], beatFlux: [[], [], []] }); MU.beatPrev.fill(0);
+      // кружок: кадр квадратный, формат сцены на время рендера становится 1:1 (горизонталь сохраняется, остальное обрезается по центру)
+      if (note) { st.format = '1:1'; cssW = cssH = Math.min(cssW, cssH); markCenter = true; }
       setBuffer(w, hh, 1); updateCamera();
 
       // --- кадры
@@ -5042,12 +5049,13 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           if (acfg.mux === 'opus') toast('На этом устройстве звук закодирован в Opus. Часть плееров (iPhone, галерея) такое видео играет без звука. Откройте приложение в браузере: ⋯ → «Открыть в браузере».', true);
         }
         if (!hasSound) lastExport = { path: 'покадровый рендер', audio: 'в ролике нет звука: нет трека и звука видео', why: '' };
-        saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, outBlob);
+        saveFile(note ? `krug-kruzhok-${w}.mp4` : `krug-${st.format.replace(':', 'x')}-${w}x${hh}-${fps}fps.mp4`, outBlob);
       } else toast('Рендер отменён');
     } catch (e) {
       console.error(e); toast('Не получилось отрендерить видео: ' + (e && e.message ? e.message : e), true);
     } finally {
       try { if (venc && venc.state !== 'closed') venc.close(); if (aenc && aenc.state !== 'closed') aenc.close(); } catch (e) {}
+      st.format = wasFmt; cssW = wasCss[0]; cssH = wasCss[1]; markCenter = false;
       offAudio = null; offlineRun = false; exporting = false; renderJob = null; badge.remove(); resize();
       vids.forEach(x => { if (x.wasPlaying && !x.hold) x.v.play().catch(() => {}); });
       if (musicWasPlaying && MU.audio) { MU.ctx.resume(); MU.audio.play().catch(() => {}); }
@@ -5083,15 +5091,17 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           h('button', { class: 'btn', type: 'button', style: 'flex:1', onclick: () => { closeExport(); copyPng(); } }, 'Скопировать')),
       ], null, { plain: true }),
       canSave() ? section('Видео', [
-        seg('Длительность', [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']].concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
+        ...(canRenderOffline() ? [seg('Формат файла', [[false, 'Обычное видео'], [true, 'Кружок Telegram']], () => exp.note, v => { exp.note = v; if (v && exp.sec !== 'track' && exp.sec > NOTE_MAX) exp.sec = 15; renderExport(); })] : []),
+        seg('Длительность', (exp.note ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
         h('p', { class: 'hint' }, soundNote()),
-        ...(canRenderOffline() ? [
+        ...(canRenderOffline() && exp.note ? [h('p', { class: 'hint' }, `Квадрат ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Telegram сам обрезает кадр по кругу, а прозрачный фон в кружках не поддерживается: за пределами круга и внутри него будет цвет сцены. Кадр берётся по центру сцены.`)] : []),
+        ...(canRenderOffline() && !exp.note ? [
           seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
           seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
           vdimsText,
           h('p', { class: 'hint' }, 'Видео собирается покадрово: быстрее реального времени, кадры не пропадают, частота постоянная.'),
-        ] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
-        h('button', { class: 'btn block', type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? 'Отрендерить видео' : 'Записать видео'),
+        ] : canRenderOffline() ? [] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
+        h('button', { class: 'btn block', type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (exp.note ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
       ], null, { plain: true }) : null,
     );
   }
