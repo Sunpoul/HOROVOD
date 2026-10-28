@@ -2206,13 +2206,76 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   }
   function pxEnd() { PXREG.items.forEach(it => { it.saved.forEach(([o, m]) => { o.layers.mask = m; }); it.saved = []; }); PXREG.items = []; }
   // бит на отдельных объектах: пульс размера — временный масштаб на время кадра (меши самой фигуры или копий картинки)
+  /* реакция на звук видео: дорожка видео (в фигуре или на фоне) разбирается заранее на удары, а во время кадра берётся значение
+     для текущего момента видео. Поэтому работает и при выключенном звуке видео, и при покадровом экспорте */
+  const VA = new Map(); // файл видео → { status, low, full, env, sens, p }
+  const VA_HOP = 0.01;  // шаг анализа, секунд
+  function vaAnalyze(file, r) {
+    r.p = (async () => {
+      try {
+        const buf = await new OfflineAudioContext(1, 1, 22050).decodeAudioData(await file.arrayBuffer());
+        const sr = buf.sampleRate, hop = Math.round(sr * VA_HOP), n = Math.floor(buf.length / hop);
+        if (n < 20) throw new Error('short');
+        const chs = []; for (let c = 0; c < buf.numberOfChannels; c++) chs.push(buf.getChannelData(c));
+        const low = new Float32Array(n), full = new Float32Array(n), a = 1 - Math.exp(-2 * Math.PI * 200 / sr);
+        let y = 0;
+        for (let i = 0; i < n; i++) {
+          let sf = 0, sl = 0;
+          for (let j = i * hop; j < (i + 1) * hop; j++) {
+            let x = 0; for (let c = 0; c < chs.length; c++) x += chs[c][j]; x /= chs.length;
+            y += a * (x - y); sf += x * x; sl += y * y;
+          }
+          full[i] = Math.sqrt(sf / hop); low[i] = Math.sqrt(sl / hop);
+        }
+        const norm = arr => { let m = 0; for (let i = 0; i < arr.length; i++) m = Math.max(m, arr[i]); if (m < 1e-4) return false; for (let i = 0; i < arr.length; i++) arr[i] /= m; return true; };
+        if (!norm(full)) throw new Error('silent');
+        norm(low);
+        r.low = low; r.full = full; r.sens = null; r.status = 'ready';
+      } catch (e) {
+        r.status = 'none';
+        toast('В этом видео нет звука, который можно разобрать на удары.', true);
+      }
+    })();
+  }
+  // кривая реакции: пик на каждом ударе и спад, как у MU.pulse
+  function vaEnv(r, sens) {
+    const n = r.full.length, env = new Float32Array(n), thr = 1.4 - sens / 100 * 0.5, W = 50; // окно «обычной» громкости — 0,5 с
+    for (const e of [r.low, r.full]) {
+      const pre = new Float64Array(n + 1); for (let i = 0; i < n; i++) pre[i + 1] = pre[i] + e[i];
+      let last = -1e9;
+      for (let i = 2; i < n - 2; i++) {
+        const lo = Math.max(0, i - W), avg = (pre[i] - pre[lo]) / Math.max(1, i - lo);
+        if (e[i] > avg * thr + 0.04 && e[i] > 0.12 && e[i] >= e[i - 1] && e[i] >= e[i + 1] && i - last > 16) {
+          last = i;
+          const st0 = Math.min(1, 0.55 + (e[i] - avg * thr) * 1.2);
+          for (let k = 0; k < 60 && i + k < n; k++) env[i + k] = Math.max(env[i + k], st0 * Math.exp(-7 * k * VA_HOP));
+        }
+      }
+    }
+    return env;
+  }
+  function vaLevel(file, video) {
+    if (!file || !video) return 0;
+    let r = VA.get(file); if (!r) { r = { status: 'pending' }; VA.set(file, r); vaAnalyze(file, r); }
+    if (r.status !== 'ready') return 0;
+    if (r.sens !== P.beatSens) { r.env = vaEnv(r, P.beatSens); r.sens = P.beatSens; }
+    if (!offlineRun && video.paused) return 0;
+    return r.env[Math.min(r.env.length - 1, Math.max(0, Math.floor(video.currentTime / VA_HOP)))] || 0;
+  }
+  // откуда объект берёт удары: трек, видео в самой фигуре или видео на фоне
+  function btLevel(o) {
+    const src = o.btSrc || 'music';
+    if (src === 'self') return o.video && o.mediaKind === 'video' ? vaLevel(o.file, o.video) : 0;
+    if (src === 'bg') return bgVideo && bgFile ? vaLevel(bgFile, bgVideo) : 0;
+    return MU.pulse;
+  }
   const BTREG = { list: () => [], saved: [] };
   function btBegin() {
     BTREG.saved = [];
-    if (MU.pulse < 0.004) return;
     BTREG.list().forEach(({ o, nodes }) => {
-      if (!(o.btPulse > 0)) return;
-      const k = 1 + MU.pulse * o.btPulse / 100;
+      const lv = btLevel(o);
+      if (!(o.btPulse > 0) || lv < 0.004) return;
+      const k = 1 + lv * o.btPulse / 100;
       nodes.forEach(n => { BTREG.saved.push([n, n.scale.x, n.scale.y, n.scale.z]); n.scale.multiplyScalar(k); });
     });
   }
@@ -2703,7 +2766,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const PX_DEF = { pxOn: false, pxSize: 1.4, pxGap: 16, pxRound: 0, pxLevels: 10, pxMono: 100, pxTint: '#cfd8f4', pxBack: '#05050b' };
   const PX_KEYS = Object.keys(PX_DEF);
   // реакция на бит (фигуры и картинки): пульс размера и глитч только у этого объекта
-  const BT_DEF = { btOn: false, btPulse: 12, btGlitch: 70 };
+  const BT_DEF = { btOn: false, btPulse: 12, btGlitch: 70, btSrc: 'music' };
   const BT_KEYS = Object.keys(BT_DEF);
   PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
   const MAIN = { id: 'main', main: true,
@@ -4099,10 +4162,22 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   };
   function beatSection(o, what) {
     const sl = k => slider(k, BTS[k], () => o[k], v => { o[k] = v; });
+    // источники: трек всегда; видео в этой фигуре и видео на фоне — если они есть
+    const srcs = [['music', 'Музыка']];
+    if (o.mediaKind === 'video') srcs.push(['self', 'Видео фигуры']);
+    if (bgVideo) srcs.push(['bg', 'Видео на фоне']);
+    const src = srcs.some(x => x[0] === (o.btSrc || 'music')) ? (o.btSrc || 'music') : 'music';
+    const fromVideo = src !== 'music';
     return section('Бит', [
-      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар трека: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Работает, пока играет музыка. Чтобы дёргался только он, поставьте общий «Глитч под бит» на вкладке «Музыка» в 0. В момент глитча объект рисуется поверх других объектов своего слоя.`),
+      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Удары берутся из трека или из звука видео (в фигуре или на фоне), выбор ниже. Звук видео разбирается заранее, он может быть и выключен. Чтобы дёргался только объект, общий «Глитч под бит» на вкладке «Музыка» поставьте в 0. В момент глитча объект рисуется поверх других объектов своего слоя.`),
+      srcs.length > 1 ? seg('Реагирует на', srcs, () => src, v => {
+        o.btSrc = v;
+        if (v === 'self') vaLevel(o.file, o.video); else if (v === 'bg') vaLevel(bgFile, bgVideo); // запускает разбор звука сразу
+        renderPanel();
+      }) : h('p', { class: 'hint' }, 'Загрузите видео в фигуру или на фон, и здесь появится выбор «Видео фигуры» или «Видео на фоне».'),
       sl('btPulse'), sl('btGlitch'),
-      h('button', { class: 'btn small block', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'),
+      fromVideo ? h('p', { class: 'hint' }, 'Реакция идёт, пока видео играет. Если в видео нет звука, фигуре не на что реагировать.')
+        : h('button', { class: 'btn small block', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'),
     ], () => { BT_KEYS.forEach(k => { o[k] = BT_DEF[k]; }); o.btOn = true; }, { toggle: { get: () => o.btOn, set: v => { o.btOn = v; } } });
   }
   // выбор эмодзи для пепла: строка с эмодзи (до 8) и быстрые кнопки; нажатие добавляет эмодзи или убирает, если оно уже выбрано
@@ -4838,6 +4913,15 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           if (failure) throw failure;
         }
         await aenc.flush(); aenc.close(); aenc = null;
+      }
+
+      // --- реакция на звук видео: разбор должен быть готов до первого кадра
+      for (const o of [...shapes, ...layers]) {
+        if (!o.btOn || (o.btSrc !== 'self' && o.btSrc !== 'bg')) continue;
+        const f = o.btSrc === 'bg' ? bgFile : (o.mediaKind === 'video' ? o.file : null), vv = o.btSrc === 'bg' ? bgVideo : o.video;
+        vaLevel(f, vv);
+        const r = f && VA.get(f);
+        if (r && r.p) { info('Разбираю звук видео…'); await r.p; }
       }
 
       // --- исходное состояние: каждая выгрузка начинается одинаково
@@ -6171,7 +6255,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   // в проход через текстуру объект попадает, пока включены пиксели или идёт глитч от удара
   PXREG.list = () => {
     const out = [], add = (o, roots, layer) => {
-      const gl = o.btOn ? MU.pulse * o.btGlitch / 100 : 0;
+      const gl = o.btOn ? btLevel(o) * o.btGlitch / 100 : 0;
       if ((o.pxOn || gl > 0.02) && roots.length) out.push({ o, roots, layer, gl });
     };
     if (!st.mainOff) add(MAIN, [textGroup], 0);
