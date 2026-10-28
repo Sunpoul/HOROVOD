@@ -1202,11 +1202,25 @@ const STICKERS = '__STICKERS__';
     return r.env[Math.min(r.env.length - 1, Math.max(0, Math.floor(video.currentTime / VA_HOP)))] || 0;
   }
   // откуда объект берёт удары: трек, видео в самой фигуре или видео на фоне
-  function btLevel(o) {
+  // допустимый источник: если видео пропало (фигуру или фон убрали), объект возвращается к музыке
+  function btSrcOf(o) {
     const src = o.btSrc || 'music';
-    if (src === 'self') return o.video && o.mediaKind === 'video' ? vaLevel(o.file, o.video) : 0;
-    if (src === 'bg') return bgVideo && bgFile ? vaLevel(bgFile, bgVideo) : 0;
-    return MU.pulse;
+    if (src === 'self') return o.mediaKind === 'video' && o.video ? 'self' : 'music';
+    if (src === 'bg') return bgVideo && bgFile ? 'bg' : 'music';
+    if (src.startsWith('sh:')) { const S = shapes.find(x => x.id === src.slice(3)); return S && S.mediaKind === 'video' && S.video ? src : 'music'; }
+    return 'music';
+  }
+  // видео, чей звук слушает объект: в нём самом, в любой другой фигуре сцены или на фоне
+  function btVideoOf(o) {
+    const src = btSrcOf(o);
+    if (src === 'self') return { file: o.file, video: o.video };
+    if (src === 'bg') return { file: bgFile, video: bgVideo };
+    if (src.startsWith('sh:')) { const S = shapes.find(x => x.id === src.slice(3)); return { file: S.file, video: S.video }; }
+    return null;
+  }
+  function btLevel(o) {
+    const v = btVideoOf(o);
+    return v ? vaLevel(v.file, v.video) : MU.pulse;
   }
   const BTREG = { list: () => [], saved: [] };
   function btBegin() {
@@ -3125,21 +3139,22 @@ const STICKERS = '__STICKERS__';
   };
   function beatSection(o, what) {
     const sl = k => slider(k, BTS[k], () => o[k], v => { o[k] = v; });
-    // источники: трек всегда; видео в этой фигуре и видео на фоне — если они есть
+    // источники: трек всегда; звук видео — в этой фигуре, в любой другой фигуре сцены и на фоне, если они есть
     const srcs = [['music', 'Музыка']];
     if (o.mediaKind === 'video') srcs.push(['self', 'Видео фигуры']);
+    const vshapes = shapes.filter(S => S !== o && S.mediaKind === 'video' && S.video);
+    vshapes.forEach(S => { const same = vshapes.filter(x => x.name === S.name); srcs.push(['sh:' + S.id, 'Видео: ' + S.name + (same.length > 1 ? ' ' + (same.indexOf(S) + 1) : '')]); });
     if (bgVideo) srcs.push(['bg', 'Видео на фоне']);
-    const src = srcs.some(x => x[0] === (o.btSrc || 'music')) ? (o.btSrc || 'music') : 'music';
+    const src = btSrcOf(o);
     const fromVideo = src !== 'music';
     return section('Бит', [
-      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Удары берутся из трека или из звука видео (в фигуре или на фоне), выбор ниже. Звук видео разбирается заранее, он может быть и выключен. В момент глитча объект рисуется поверх других объектов своего слоя.`),
-      srcs.length > 1 ? seg('Реагирует на', srcs, () => src, v => {
-        o.btSrc = v;
-        if (v === 'self') vaLevel(o.file, o.video); else if (v === 'bg') vaLevel(bgFile, bgVideo); // запускает разбор звука сразу
-        renderPanel();
-      }) : h('p', { class: 'hint' }, 'Загрузите видео в фигуру или на фон, и здесь появится выбор «Видео фигуры» или «Видео на фоне».'),
+      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Удары берутся из трека или из звука видео (в любой фигуре или на фоне), выбор ниже. Звук видео разбирается заранее, он может быть и выключен. В момент глитча объект рисуется поверх других объектов своего слоя.`),
+      srcs.length > 1 ? (() => {
+        const pick = v => { o.btSrc = v; const vv = btVideoOf(o); if (vv) vaLevel(vv.file, vv.video); renderPanel(); }; // сразу запускаем разбор звука
+        return srcs.length > 3 ? dropdown('Реагирует на', srcs.map(([value, label]) => ({ value, label })), () => src, pick) : seg('Реагирует на', srcs, () => src, pick);
+      })() : h('p', { class: 'hint' }, 'Загрузите видео в любую фигуру или на фон, и здесь появится выбор источника: «Видео: …» или «Видео на фоне».'),
       sl('btPulse'), sl('btGlitch'), slider('beatSens'),
-      fromVideo ? h('p', { class: 'hint' }, 'Реакция идёт, пока видео играет. Если в видео нет звука, фигуре не на что реагировать.')
+      fromVideo ? h('p', { class: 'hint' }, 'Реакция идёт, пока видео играет. Если в видео нет звука, объекту не на что реагировать.')
         : h('button', { class: 'btn small block', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'),
     ], () => { BT_KEYS.forEach(k => { o[k] = BT_DEF[k]; }); o.btOn = true; }, { toggle: { get: () => o.btOn, set: v => { o.btOn = v; } } });
   }
@@ -3876,11 +3891,10 @@ const STICKERS = '__STICKERS__';
       }
 
       // --- реакция на звук видео: разбор должен быть готов до первого кадра
-      for (const o of [...shapes, ...layers]) {
-        if (!o.btOn || (o.btSrc !== 'self' && o.btSrc !== 'bg')) continue;
-        const f = o.btSrc === 'bg' ? bgFile : (o.mediaKind === 'video' ? o.file : null), vv = o.btSrc === 'bg' ? bgVideo : o.video;
-        vaLevel(f, vv);
-        const r = f && VA.get(f);
+      for (const o of [MAIN, ...texts, ...shapes, ...layers]) {
+        const v = o.btOn && btVideoOf(o); if (!v) continue;
+        vaLevel(v.file, v.video);
+        const r = VA.get(v.file);
         if (r && r.p) { info('Разбираю звук видео…'); await r.p; }
       }
 
