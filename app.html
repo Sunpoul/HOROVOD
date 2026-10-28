@@ -3693,7 +3693,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const mh = m * 0.052, mw = mh * markAspect, margin = m * (markCenter ? 0.075 : 0.05);
     markQuad.scale.set(mw / w * 2, mh / hh * 2, 1);
     // в кружке углы обрезаются, поэтому плашка стоит внизу по центру
-    markQuad.position.set(markCenter ? 0 : 1 - (margin + mw / 2) / w * 2, -1 + (margin + mh / 2) / hh * 2, -0.5);
+    // кружок: в файл попадает центральный квадрат кадра, плашка стоит у его нижнего края
+    const lift = markCenter ? (hh - w) / 2 : 0;
+    markQuad.position.set(markCenter ? 0 : 1 - (margin + mw / 2) / w * 2, -1 + (lift + margin + mh / 2) / hh * 2, -0.5);
   }
   drawMark();
   function drawCard() {
@@ -4589,11 +4591,11 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   /* =================== ФОРМАТЫ И РАЗМЕР =================== */
   const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат 640 × 640, не длиннее 60 с
   const CIRCLE = 'Кружок'; // видеокружок Telegram: квадратный кадр, который Telegram показывает в круге
-  const FORMATS = { '1:1': [1, 1], '16:9': [16, 9], '9:16': [9, 16], '4:3': [4, 3], '3:4': [3, 4], [CIRCLE]: [1, 1] };
+  const FORMATS = { '1:1': [1, 1], '16:9': [16, 9], '9:16': [9, 16], '4:3': [4, 3], '3:4': [3, 4], [CIRCLE]: [9, 16] };
   const isCircle = () => st.format === CIRCLE;
   function renderFormats() {
     const box = $('formats'); box.innerHTML = '';
-    const shape = name => { const [w, hh] = FORMATS[name]; const k = 12 / Math.max(w, hh); return h('span', { class: 'shape-slot' }, h('span', { class: 'shape' + (name === CIRCLE ? ' round' : ''), style: `width:${Math.round(w * k)}px;height:${Math.round(hh * k)}px` })); };
+    const shape = name => { const [w, hh] = name === CIRCLE ? [1, 1] : FORMATS[name]; const k = 12 / Math.max(w, hh); return h('span', { class: 'shape-slot' }, h('span', { class: 'shape' + (name === CIRCLE ? ' round' : ''), style: `width:${Math.round(w * k)}px;height:${Math.round(hh * k)}px` })); };
     const menu = h('div', { class: 'fmt-menu', role: 'listbox', 'aria-label': 'Формат кадра', hidden: true });
     const btn = h('button', { class: 'fmt-btn', type: 'button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': 'Формат кадра: ' + st.format, title: 'Формат кадра (клавиши 1–6)' }, shape(st.format), h('span', {}, st.format), icon('chev'));
     const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
@@ -5014,7 +5016,11 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       gifAnims.forEach(a => { a.t = 0; });
       Object.assign(MU, { pulse: 0, lastBeat: -1e9, hist: [], beatFlux: [[], [], []] }); MU.beatPrev.fill(0);
       markCenter = note; // в кружке углы обрезаются, плашка стоит внизу по центру
-      setBuffer(w, hh, 1); updateCamera();
+      // кружок: сцена рисуется в кадре 9:16, как в редакторе, а в файл идёт его центральный квадрат (то, что внутри круга)
+      const bw = w, bh = note ? Math.round(w * 16 / 9 / 2) * 2 : hh;
+      let crop = null, cropCtx = null;
+      if (note) { crop = document.createElement('canvas'); crop.width = w; crop.height = hh; cropCtx = crop.getContext('2d'); }
+      setBuffer(bw, bh, 1); updateCamera();
 
       // --- кадры
       venc = new VideoEncoder({ output: (c, m) => muxer.addVideoChunk(c, m), error: e => { failure = e; } });
@@ -5028,7 +5034,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         if (offAudio) offAudio.i = i;
         stepScene(i ? 1 / fps : 0, t);
         renderFrame();
-        const vf = new VideoFrame(renderer.domElement, { timestamp: Math.round(i * frameUs), duration: Math.round(frameUs) });
+        if (note) cropCtx.drawImage(renderer.domElement, 0, Math.round((bh - hh) / 2), w, hh, 0, 0, w, hh);
+        const vf = new VideoFrame(note ? crop : renderer.domElement, { timestamp: Math.round(i * frameUs), duration: Math.round(frameUs) });
         venc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
         while (venc.encodeQueueSize > 6) await yieldNow();
         if (i % 2 === 0) {
@@ -5101,7 +5108,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       canSave() ? section('Видео', [
         seg('Длительность', (isCircle() ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
         h('p', { class: 'hint' }, soundNote()),
-        ...(canRenderOffline() && isCircle() ? [h('p', { class: 'hint' }, `Формат «Кружок»: квадрат ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Telegram показывает кадр в круге, прозрачного фона в кружках нет: фоном остаётся цвет сцены.`)] : []),
+        ...(canRenderOffline() && isCircle() ? [h('p', { class: 'hint' }, `Формат «Кружок»: кадр 9:16, в видео идёт центральный круг ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Прозрачного фона в кружках Telegram нет: фоном остаётся цвет сцены.`)] : []),
         ...(canRenderOffline() && !isCircle() ? [
           seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
           seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
