@@ -9,6 +9,8 @@ import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import http from 'node:http';
+import crypto from 'node:crypto';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 // скрытый ввод токена в терминале
@@ -82,8 +84,58 @@ async function setup() {
   await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HOROVOD', web_app: { url: APP_URL } } });
 }
 
+// --- Отправка из редактора: Mini App присылает готовое видео, бот проверяет подпись Telegram и отправляет файл тому, кто его открыл ---
+const PORT = Number(process.env.PORT) || 8787;
+const ORIGINS = (process.env.ALLOW_ORIGINS || 'https://horovod.su,https://sunpoul.github.io').split(',').map(x => x.trim());
+const MAX_BYTES = 50 * 1024 * 1024; // Bot API принимает файлы до 50 МБ
+// initData подписан токеном бота: так мы знаем, что это настоящий пользователь Telegram, и берём его id из подписанных данных
+function verifyInit(initData) {
+  try {
+    const p = new URLSearchParams(initData); const hash = p.get('hash'); if (!hash) return null; p.delete('hash');
+    const check = [...p.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([k, v]) => `${k}=${v}`).join('\n');
+    const secret = crypto.createHmac('sha256', 'WebAppData').update(TOKEN).digest();
+    const mine = crypto.createHmac('sha256', secret).update(check).digest();
+    const theirs = Buffer.from(hash, 'hex');
+    if (theirs.length !== mine.length || !crypto.timingSafeEqual(mine, theirs)) return null;
+    if (Date.now() / 1000 - Number(p.get('auth_date')) > 86400) return null; // данные старше суток не принимаем
+    const user = JSON.parse(p.get('user') || 'null');
+    return user && user.id ? user : null;
+  } catch (e) { return null; }
+}
+function startServer() {
+  const server = http.createServer(async (req, res) => {
+    const origin = req.headers.origin;
+    const cors = { 'access-control-allow-origin': ORIGINS.includes(origin) ? origin : ORIGINS[0], 'access-control-allow-headers': 'content-type, x-init-data, x-kind, x-duration', 'access-control-allow-methods': 'POST, OPTIONS', vary: 'origin' };
+    const reply = (code, obj) => { res.writeHead(code, { ...cors, 'content-type': 'application/json' }); res.end(JSON.stringify(obj)); };
+    if (req.method === 'OPTIONS') { res.writeHead(204, cors); res.end(); return; }
+    if (req.method === 'GET' && req.url === '/') { reply(200, { ok: true, name: 'horovod-bot' }); return; }
+    if (req.method !== 'POST' || req.url !== '/send') { reply(404, { ok: false, error: 'нет такого адреса' }); return; }
+    if (origin && !ORIGINS.includes(origin)) { reply(403, { ok: false, error: 'запрос с чужого сайта' }); return; }
+    const user = verifyInit(String(req.headers['x-init-data'] || ''));
+    if (!user) { reply(401, { ok: false, error: 'не удалось проверить, что это Telegram' }); return; }
+    const chunks = []; let size = 0;
+    for await (const c of req) { size += c.length; if (size > MAX_BYTES) { reply(413, { ok: false, error: 'файл больше 50 МБ' }); req.destroy(); return; } chunks.push(c); }
+    if (!size) { reply(400, { ok: false, error: 'пустой файл' }); return; }
+    const note = req.headers['x-kind'] === 'note', sec = Math.min(60, Math.max(1, Number(req.headers['x-duration']) || 1));
+    try {
+      const form = new FormData();
+      form.set('chat_id', String(user.id));
+      const file = new Blob([Buffer.concat(chunks)], { type: 'video/mp4' });
+      if (note) { form.set('length', '640'); form.set('duration', String(sec)); form.set('video_note', file, 'horovod.mp4'); await call('sendVideoNote', null, form); }
+      else { form.set('supports_streaming', 'true'); form.set('video', file, 'horovod.mp4'); await call('sendVideo', null, form); }
+      reply(200, { ok: true });
+    } catch (e) {
+      // чаще всего это «бот не может писать первым»: человек не нажимал START у бота
+      console.error('Не отправилось:', e.message);
+      reply(502, { ok: false, error: /blocked|chat not found|can't initiate/i.test(e.message) ? 'сначала откройте бота и нажмите START' : e.message });
+    }
+  });
+  server.listen(PORT, () => console.log(`Приём файлов из редактора: порт ${PORT}`));
+}
+
 async function main() {
   await setup().catch(e => console.error('Настройка бота не выполнена:', e.message));
+  startServer();
   console.log('Бот запущен. Остановить: Ctrl+C');
   let offset = 0;
   for (;;) {

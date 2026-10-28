@@ -480,7 +480,7 @@ html.gate-ok #gate { display: none; }
 .dialog h3 { margin: 0; font: 500 18px/1.4 var(--font-display); text-wrap: balance; }
 .dialog p { margin: 0; color: var(--muted); line-height: 1.5; }
 .text-input { width: 100%; height: 44px; padding: 0 16px; border-radius: var(--r-md); border: 1px solid transparent; background: var(--well); }
-.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.dlg-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 .busy { position: fixed; inset: 0; z-index: 55; display: grid; place-items: center; background: rgba(0, 0, 0, .55); }
 .busy span { padding: 12px 20px; border-radius: var(--r-lg); background: var(--float); border: 1px solid var(--line); font-weight: 500; }
@@ -4705,6 +4705,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   let exporting = false, offlineRun = false;
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30, note: false };
+  // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
+  const SEND_URL = '';
+  const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат до 640 × 640, не длиннее 60 с
   let downloads = null;
   Promise.resolve().then(async () => { try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch (e) { downloads = null; } renderExport(); });
@@ -5036,6 +5039,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         if (failure) throw failure;
         muxer.finalize();
         const outBlob = new Blob([target.buffer], { type: 'video/mp4' });
+        outBlob.hrvdNote = note ? { sec: Math.max(1, Math.round(total)) } : null;
         if (hasSound) {
           // проверяем готовый файл: читается ли звук и не тишина ли это; результат показываем, чтобы было видно, что записалось
           let check = 'проверить не удалось';
@@ -6222,19 +6226,39 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         diag.textContent = base + ` Кодировщик звука: AAC ${await q('mp4a.40.2')}, Opus ${await q('opus')}.`;
       })();
     }
+    // отправка прямо в чат с ботом: бот проверяет подпись Telegram и присылает файл (кружком, если это кружок)
+    const note = blob.hrvdNote || null;
+    const canSend = isVideo && !!(TG && TG.initData) && !!sendUrl();
+    let sent = false;
+    const send = async btn => {
+      if (sent) { try { TG.close(); } catch (e) {} return; }
+      btn.disabled = true; btn.textContent = 'Отправляю…';
+      try {
+        const r = await fetch(sendUrl() + '/send', { method: 'POST', body: blob, headers: { 'content-type': 'video/mp4', 'x-init-data': TG.initData, 'x-kind': note ? 'note' : 'video', 'x-duration': String(note ? note.sec : 0) } });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) throw new Error(j.error || ('код ' + r.status));
+        sent = true; btn.disabled = false; btn.textContent = 'Открыть чат с ботом';
+        toast(note ? 'Кружок отправлен в чат с ботом. Перешлите его, куда нужно.' : 'Видео отправлено в чат с ботом.');
+        try { TG.HapticFeedback.notificationOccurred('success'); } catch (e) {}
+      } catch (e) {
+        btn.disabled = false; btn.textContent = 'Отправить в Telegram';
+        toast('Не отправилось: ' + (e && e.message ? e.message : e), true);
+      }
+    };
     const save = async () => {
       try { if (canShare) { await navigator.share({ files: [file], title: filename }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
       const a = h('a', { href: url, download: filename }); document.body.append(a); a.click(); a.remove(); // запасной путь: обычная загрузка
       toast('Если файл не сохранился, откройте приложение в браузере: ⋯ → «Открыть в браузере».');
     };
     modal(d => d.append(...[
-      h('h3', { id: 'dlgTitle' }, isVideo ? 'Видео готово' : 'Картинка готова'),
+      h('h3', { id: 'dlgTitle' }, note ? 'Кружок готов' : isVideo ? 'Видео готово' : 'Картинка готова'),
       isVideo ? h('video', { src: url, controls: '', playsinline: '', preload: 'metadata', style: 'width:100%;max-height:48vh;border-radius:12px;background:#000' }) : null,
       isImage ? h('img', { src: url, alt: filename, style: 'width:100%;max-height:48vh;object-fit:contain;border-radius:12px;background:#000' }) : null,
       h('p', { class: 'hint' }, `${filename} · ${mb} МБ` + (isVideo ? '. Если в предпросмотре нет звука, значит, его нет и в файле.' : '')),
       isVideo ? diag : null,
       h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Закрыть'),
-        h('button', { class: 'btn primary', type: 'button', onclick: save }, canShare ? 'Сохранить или отправить' : 'Скачать'))].filter(Boolean)));
+        h('button', { class: 'btn' + (canSend ? '' : ' primary'), type: 'button', onclick: save }, canShare ? 'Сохранить' : 'Скачать'),
+        canSend ? h('button', { class: 'btn primary', type: 'button', onclick: e => send(e.currentTarget) }, 'Отправить в Telegram') : null)].filter(Boolean)));
   }
   function initTelegram() {
     document.documentElement.classList.add('tg'); document.body.classList.add('tg');
