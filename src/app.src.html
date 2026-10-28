@@ -131,7 +131,7 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .fmtsel .shape { border: 1.5px solid currentColor; border-radius: 2px; display: inline-block; }
 .fmtsel .shape.round { border-radius: 50%; }
 /* формат «Кружок»: вне круга кадр затемнён, так видно, что останется в видеокружке Telegram (только в редакторе, в файл не попадает) */
-.frame.is-circle::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle closest-side, transparent calc(100% - 2px), rgba(255,255,255,.6) calc(100% - 2px), rgba(255,255,255,.6) 100%, rgba(0,0,0,.68) 100%); }
+.frame.is-circle::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle closest-side, transparent calc(100% - 1px), rgba(255,255,255,.16) calc(100% - 1px), rgba(255,255,255,.16) 100%, rgba(0,0,0,.68) 100%); }
 .fmt-menu { --well: var(--well-in); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); min-width: 200px; padding: 6px; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-lg); display: grid; gap: 2px; }
 .fmt-opt { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 9px 12px; border-radius: var(--r-md); text-align: left; font-variant-numeric: tabular-nums; }
 .fmt-opt:hover, .fmt-opt:focus-visible, .fmt-opt[aria-selected="true"] { background: var(--raised); }
