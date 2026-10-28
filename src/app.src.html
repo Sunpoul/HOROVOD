@@ -698,6 +698,7 @@ body.ios .frame { box-shadow: none; }
       <span class="sep" aria-hidden="true"></span>
       <button class="icon-btn" id="lockBtn" type="button" title="Заблокировать поворот и масштаб камеры" aria-label="Заблокировать камеру" aria-pressed="false"><svg class="i"><use href="#i-unlock"/></svg></button>
       <button class="icon-btn" id="camBtn" title="Камера по центру (R)" aria-label="Камера по центру"><svg class="i"><use href="#i-cam"/></svg></button>
+      <button class="icon-btn" id="muteBtn" title="Выключить звук везде (M)" aria-label="Выключить звук везде" aria-pressed="false"><svg class="i"><use href="#i-vol"/></svg></button>
       <button class="icon-btn" id="playBtn" title="Вращение: старт / пауза (Пробел)" aria-label="Вращение" aria-pressed="false"><svg class="i"><use href="#i-play"/></svg></button>
       <button class="btn primary" id="exportBtn" aria-haspopup="dialog" aria-expanded="false"><svg class="i"><use href="#i-down"/></svg>Экспорт</button>
     </div>
@@ -860,9 +861,7 @@ const STICKERS = '__STICKERS__';
     specOp:     { label: 'Яркость спектра', min: 0, max: 100, step: 1, v: 75, unit: '%', grp: 'music' },
     specH:      { label: 'Высота спектра', min: 5, max: 100, step: 1, v: 45, unit: '%', grp: 'music' },
     specY:      { label: 'Положение по вертикали', min: 0, max: 100, step: 1, v: 50, unit: '%', grp: 'music' },
-    beatGlitch: { label: 'Сила глитча', min: 0, max: 100, step: 1, v: 70, unit: '%', grp: 'music' },
     beatSens:   { label: 'Чувствительность', min: 0, max: 100, step: 1, v: 60, unit: '%', grp: 'music' },
-    beatPulse:  { label: 'Пульс текста', min: 0, max: 30, step: 1, v: 6, unit: '%', grp: 'music' },
     sphereR:    { label: 'Размер сферы', min: 1, max: 14, step: 0.1, v: 5.2, dec: 1, grp: 'sphere' },
     sphereCount:{ label: 'Количество частиц', min: 10, max: 200, step: 5, v: 70, unit: 'тыс.', grp: 'sphereGeo' },
     sphereSize: { label: 'Размер частиц', min: 0.3, max: 6, step: 0.1, v: 1.4, dec: 1, grp: 'sphere' },
@@ -1709,12 +1708,14 @@ const STICKERS = '__STICKERS__';
   const BT_DEF = { btOn: false, btPulse: 12, btGlitch: 70, btSrc: 'music' };
   const BT_KEYS = Object.keys(BT_DEF);
   PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
+  BT_KEYS.forEach(k => { P['m' + k] = BT_DEF[k]; });
   const MAIN = { id: 'main', main: true,
     get text() { return TEXT; }, set text(v) { TEXT = v; },
     get font() { return current; }, get fontId() { return current && current.id; },
     get spinner() { return spinner; }, get group() { return textGroup; } };
   BLOCK_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P[k] }));
   PX_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P['m' + k], set: v => { P['m' + k] = v; } }));
+  BT_KEYS.forEach(k => Object.defineProperty(MAIN, k, { get: () => P['m' + k], set: v => { P['m' + k] = v; } }));
   BLOCK_ST.forEach(k => Object.defineProperty(MAIN, k, { get: () => st[k] }));
   // цвет у каждого текста свой; у основного — общие настройки «Цвет букв»
   const BLOCK_LOOK = ['color', 'color2', 'grad', 'gradMode'];
@@ -1745,7 +1746,7 @@ const STICKERS = '__STICKERS__';
   }
   const texts = [];
   let selText = MAIN;
-  const TEXT_DEF = { color: '#e9e9e6', color2: '#3fc2ad', grad: false, gradMode: 0, mode: 'plain', fit: 'stretch', side: 'out', align: 'center', size: 1.1, stretchY: 100, width: 100, tracking: 4, posX: 0, posY: 0, radius: 6.5, boxW: 13, boxH: 13, corner: 30, gap: 1.7, angle: 0, spin: 0, order: 'space', stack: 0, ...PX_DEF };
+  const TEXT_DEF = { color: '#e9e9e6', color2: '#3fc2ad', grad: false, gradMode: 0, mode: 'plain', fit: 'stretch', side: 'out', align: 'center', size: 1.1, stretchY: 100, width: 100, tracking: 4, posX: 0, posY: 0, radius: 6.5, boxW: 13, boxH: 13, corner: 30, gap: 1.7, angle: 0, spin: 0, order: 'space', stack: 0, ...PX_DEF, ...BT_DEF };
   function addTextBlock(props, fresh = !props) {
     const B = Object.assign({ id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), text: 'ВТОРОЙ ТЕКСТ', fontId: current.id }, TEXT_DEF, props || {});
     Object.defineProperty(B, 'font', { get: () => fonts.find(f => f.id === B.fontId) || fonts[0] });
@@ -2185,7 +2186,7 @@ const STICKERS = '__STICKERS__';
   }
   function makeVideo(url, sound) {
     const v = document.createElement('video');
-    v.src = url; v.loop = true; v.muted = !sound; v.playsInline = true; v.setAttribute('playsinline', ''); v.crossOrigin = 'anonymous';
+    v.src = url; v.loop = true; v.muted = vMuted(sound); v.playsInline = true; v.setAttribute('playsinline', ''); v.crossOrigin = 'anonymous';
     v.play().catch(() => {});
     return v;
   }
@@ -2242,7 +2243,7 @@ const STICKERS = '__STICKERS__';
   function setShape(S, k, v) {
     S[k] = v;
     if (k === 'order' && v === 'front') S.stack = bumpFront();
-    if (k === 'videoSound' && S.video) { S.video.muted = !v; if (v) S.video.play().catch(() => {}); return; }
+    if (k === 'videoSound' && S.video) { S.video.muted = vMuted(v); if (v) S.video.play().catch(() => {}); return; }
     if (k === 'paused' && S.video) { v ? S.video.pause() : S.video.play().catch(() => {}); return; }
     if (SHAPE_REBUILD.has(k)) buildShape(S); else placeShape(S);
   }
@@ -2396,6 +2397,9 @@ const STICKERS = '__STICKERS__';
   }
 
   /* =================== МУЗЫКА =================== */
+  // «Без звука везде»: глушит трек и звук видео в фигурах и на фоне; запоминается на устройстве; в готовые PNG и видео не влияет
+  let muteAll = false; try { muteAll = localStorage.getItem('horovod.mute') === '1'; } catch (e) {}
+  const vMuted = sound => muteAll || !sound;
   const MU = { audio: null, ctx: null, src: null, an: null, gain: null, dest: null, data: null, title: '', artist: '', coverUrl: null, coverImg: null, muted: false, pulse: 0, hist: [], lastBeat: 0, beatAn: null, beatData: null, beatAnB: null, beatDataB: null, beatPrev: [0, 0, 0], beatFlux: [[], [], []], clipStart: 0, clipLen: 0, link: '' };
   // отрывок трека: играет по кругу от clipStart, clipLen = 0 — до конца трека
   const clipOn = () => MU.clipStart > 0 || MU.clipLen > 0;
@@ -2690,6 +2694,7 @@ const STICKERS = '__STICKERS__';
         MU.dest = MU.ctx.createMediaStreamDestination();
         MU.an.connect(MU.gain); MU.gain.connect(MU.ctx.destination);
         MU.an.connect(MU.dest); // для записи видео со звуком, даже когда звук выключен
+        MU.gain.gain.value = muteAll ? 0 : 1;
         MU.data = new Uint8Array(MU.an.frequencyBinCount);
         // быстрый анализатор без сглаживания — только для поиска ударов
         MU.beatAn = MU.ctx.createAnalyser(); MU.beatAn.fftSize = 1024; MU.beatAn.smoothingTimeConstant = 0.15;
@@ -2743,9 +2748,27 @@ const STICKERS = '__STICKERS__';
   function toggleMute() {
     if (!MU.audio) return;
     MU.muted = !MU.muted;
-    MU.gain.gain.setTargetAtTime(MU.muted ? 0 : 1, MU.ctx.currentTime, 0.02);
+    MU.gain.gain.setTargetAtTime(MU.muted || muteAll ? 0 : 1, MU.ctx.currentTime, 0.02);
     renderPlayer();
   }
+  function syncMuteBtn() {
+    const b = $('muteBtn'); if (!b) return;
+    b.setAttribute('aria-pressed', String(muteAll));
+    b.title = muteAll ? 'Включить звук (M)' : 'Выключить звук везде (M)'; b.setAttribute('aria-label', muteAll ? 'Включить звук' : 'Выключить звук везде');
+    b.querySelector('use').setAttribute('href', muteAll ? '#i-mute' : '#i-vol');
+  }
+  function applyMuteAll() {
+    shapes.forEach(S => { if (S.video) S.video.muted = vMuted(S.videoSound); });
+    if (bgVideo) bgVideo.muted = vMuted(bgSound);
+    if (MU.gain) MU.gain.gain.setTargetAtTime(MU.muted || muteAll ? 0 : 1, MU.ctx.currentTime, 0.02);
+    syncMuteBtn();
+  }
+  function toggleMuteAll() {
+    muteAll = !muteAll;
+    try { localStorage.setItem('horovod.mute', muteAll ? '1' : '0'); } catch (e) {}
+    applyMuteAll(); toast(muteAll ? 'Звук выключен везде' : 'Звук включён');
+  }
+  $('muteBtn').onclick = toggleMuteAll; syncMuteBtn();
   const fmtTime = s => !isFinite(s) ? '0:00' : Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
   function postTrack() {
     if (!IOS) return;
@@ -3044,7 +3067,7 @@ const STICKERS = '__STICKERS__';
     ['shapes', 'Фигуры', 'shape', 'Круг, квадрат, прямоугольник 9:16 и сфера с вашими фото и видео'],
     ['light', 'Свет', 'light', 'Три источника света и отражения'],
     ['fx', 'Эффекты', 'fx', 'Шум, глитч VHS и бензиновый перелив'],
-    ['music', 'Музыка', 'music', 'Трек, спектр на фоне и глитч под бит'],
+    ['music', 'Музыка', 'music', 'Трек и спектр на фоне'],
     ['scene', 'Сцена', 'scene', 'Фон, тени и камера'],
   ];
   function renderRail() {
@@ -3109,13 +3132,13 @@ const STICKERS = '__STICKERS__';
     const src = srcs.some(x => x[0] === (o.btSrc || 'music')) ? (o.btSrc || 'music') : 'music';
     const fromVideo = src !== 'music';
     return section('Бит', [
-      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Удары берутся из трека или из звука видео (в фигуре или на фоне), выбор ниже. Звук видео разбирается заранее, он может быть и выключен. Чтобы дёргался только объект, общий «Глитч под бит» на вкладке «Музыка» поставьте в 0. В момент глитча объект рисуется поверх других объектов своего слоя.`),
+      h('p', { class: 'hint' }, `${what[0].toUpperCase() + what.slice(1)} дёргается под удар: размер пульсирует, а полосы сдвигаются и цвета разъезжаются. Остальная сцена не меняется. Удары берутся из трека или из звука видео (в фигуре или на фоне), выбор ниже. Звук видео разбирается заранее, он может быть и выключен. В момент глитча объект рисуется поверх других объектов своего слоя.`),
       srcs.length > 1 ? seg('Реагирует на', srcs, () => src, v => {
         o.btSrc = v;
         if (v === 'self') vaLevel(o.file, o.video); else if (v === 'bg') vaLevel(bgFile, bgVideo); // запускает разбор звука сразу
         renderPanel();
       }) : h('p', { class: 'hint' }, 'Загрузите видео в фигуру или на фон, и здесь появится выбор «Видео фигуры» или «Видео на фоне».'),
-      sl('btPulse'), sl('btGlitch'),
+      sl('btPulse'), sl('btGlitch'), slider('beatSens'),
       fromVideo ? h('p', { class: 'hint' }, 'Реакция идёт, пока видео играет. Если в видео нет звука, фигуре не на что реагировать.')
         : h('button', { class: 'btn small block', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'),
     ], () => { BT_KEYS.forEach(k => { o[k] = BT_DEF[k]; }); o.btOn = true; }, { toggle: { get: () => o.btOn, set: v => { o.btOn = v; } } });
@@ -3174,7 +3197,7 @@ const STICKERS = '__STICKERS__';
             h('button', { class: 'icon-btn', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash'))));
         });
       }
-      const pick2 = T => Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS].map(k => [k, T[k]]));
+      const pick2 = T => Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS, ...BT_KEYS].map(k => [k, T[k]]));
       renderTextList();
       return [
         section('Слои', [list,
@@ -3198,6 +3221,7 @@ const STICKERS = '__STICKERS__';
           seg('Сторона', [['out', 'Снаружи'], ['in', 'Внутри']], () => B.side, v => setBlock(B, 'side', v))]),
         ], B.mode === 'square' ? rk(['boxW', 'boxH', 'corner']) : undefined),
         pixelSection(B, 'этом тексте'),
+        beatSection(B, 'текст'),
         section('Положение', plain
           ? [ts('posY'), ts('posX'), ts('gap', Object.assign({}, S.gap, { label: 'Межстрочный интервал' })), ts('angle', Object.assign({}, S.angle, { label: 'Наклон текста' }))]
           : [ts('posY'), ts('posX'), ...(B.mode === 'square' ? [] : [ts('radius')]), ts('gap'), ts('angle')], rk(['posY', 'posX', 'radius', 'gap', 'angle'])),
@@ -3361,8 +3385,8 @@ const STICKERS = '__STICKERS__';
     music() {
       if (!MU.audio) return [section('Трек', [
         h('button', { class: 'dropzone', type: 'button', onclick: () => $('audioInput').click() }, icon('music'), h('strong', {}, 'Загрузить музыку'), 'MP3 — название, исполнитель и обложка возьмутся из файла'),
-        h('p', { class: 'hint' }, 'После загрузки на фоне появится спектр, а кадр начнёт глитчить в такт басу.'),
-      ])];
+        h('p', { class: 'hint' }, 'После загрузки на фоне появится спектр. Дёргаться в такт музыке заставляют текст, фигуры и картинки: раздел «Бит» в их панелях.'),
+      ], null, { open: true })];
       const ti = h('input', { class: 'text-input', id: 'mu-title', value: MU.title, 'aria-label': 'Название трека', placeholder: 'Название' });
       ti.addEventListener('input', () => { MU.title = ti.value; drawCard(); renderPlayer(); });
       const ar = h('input', { class: 'text-input', id: 'mu-artist', value: MU.artist, 'aria-label': 'Исполнитель', placeholder: 'Исполнитель' });
@@ -3377,8 +3401,8 @@ const STICKERS = '__STICKERS__';
             h('button', { class: 'btn small', type: 'button', onclick: () => $('audioInput').click() }, 'Другой трек'),
             h('button', { class: 'link', type: 'button', onclick: removeAudio }, 'Убрать')),
           toggle(TOGGLES.cardOn.label, () => P.cardOn, v => setParam('cardOn', v), 'f-cardOn'),
-          h('p', { class: 'hint' }, 'Карточка с обложкой попадает в экспорт и видео. M — выключить или включить звук.'),
-        ]),
+          h('p', { class: 'hint' }, 'Карточка с обложкой попадает в экспорт и видео. M — выключить или включить звук везде.'),
+        ], null, { open: true }),
         ...(isFinite(MU.audio.duration) ? [section('Отрывок', [
           slider('clipStart', { label: 'Начало', min: 0, max: Math.max(1, Math.floor(MU.audio.duration - 1)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipStart, v => setClip(v, MU.clipLen)),
           slider('clipLen', { label: 'Длина (0 — до конца)', min: 0, max: Math.max(1, Math.ceil(MU.audio.duration)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipLen, v => setClip(MU.clipStart, v)),
@@ -3406,10 +3430,6 @@ const STICKERS = '__STICKERS__';
           slider('sphereR'), slider('sphereAmp'), slider('sphereSpec'), slider('sphereSpeed'),
           slider('sphereSize'), slider('sphereCount'), slider('sphereLayers'),
         ], ['sphereR', 'sphereAmp', 'sphereSpec', 'sphereSpeed', 'sphereSize', 'sphereCount', 'sphereLayers']) : null,
-        section('Глитч под бит', [
-          h('p', { class: 'hint' }, 'На каждый удар баса кадр срывается и расслаивается по цвету. Точка в плеере мигает в такт.'),
-          slider('beatGlitch'), slider('beatSens'), slider('beatPulse'),
-        ], ['beatGlitch', 'beatSens', 'beatPulse']),
       ];
     },
     scene() {
@@ -3424,7 +3444,7 @@ const STICKERS = '__STICKERS__';
                 h('button', { class: 'btn small', type: 'button', onclick: () => $('bgInput').click() }, 'Заменить'),
                 h('button', { class: 'btn small', type: 'button', onclick: clearBgMedia }, 'Убрать'))
             : h('button', { class: 'btn block', type: 'button', onclick: () => $('bgInput').click() }, icon('video'), 'Картинка или видео на фон'),
-          ...(bgKind === 'video' ? [toggle('Звук видео', () => bgSound, v => { bgSound = v; if (bgVideo) { bgVideo.muted = !v; if (v) bgVideo.play().catch(() => {}); } }, 'bg-snd')] : []),
+          ...(bgKind === 'video' ? [toggle('Звук видео', () => bgSound, v => { bgSound = v; if (bgVideo) { bgVideo.muted = vMuted(v); if (v) bgVideo.play().catch(() => {}); } }, 'bg-snd')] : []),
           h('p', { class: 'hint' }, 'Картинка или видео заполняет кадр целиком и обрезается по формату. Видео можно просто перетащить в окно на вкладке «Сцена».'),
         ]),
         section('Тени', [tog('floor'), slider('shadowOp')], ['floor', 'shadowOp']),
@@ -4015,7 +4035,7 @@ const STICKERS = '__STICKERS__';
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.code === 'Space' && !(t.matches && t.matches('button'))) { e.preventDefault(); togglePlay(); }
     else if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') resetCam();
-    else if (e.key === 'm' || e.key === 'M' || e.key === 'ь' || e.key === 'Ь') toggleMute();
+    else if (e.key === 'm' || e.key === 'M' || e.key === 'ь' || e.key === 'Ь') toggleMuteAll();
     else if (/^[1-5]$/.test(e.key)) setFormat(Object.keys(FORMATS)[+e.key - 1]);
   });
 
@@ -4218,13 +4238,10 @@ const STICKERS = '__STICKERS__';
     if (P.rimOrbit) { rimPhase = (rimPhase + P.rimOrbit * dt) % 360; applyLights(); }
     PU.uTime.value = t / 1000;
     updateAudio(dt, t);
-    const k = MU.pulse * P.beatGlitch / 100;
-    FX.uGlitch.value = P.glitch / 100 + k * 1.1;
-    FX.uAberr.value = P.aberr / 100 + k * 0.9;
-    spinner.scale.setScalar(1 + MU.pulse * P.beatPulse / 100);
+    FX.uGlitch.value = P.glitch / 100;
+    FX.uAberr.value = P.aberr / 100;
     texts.forEach(B => {
       spinText(B, B.spin * Math.PI / 180 * dt);
-      B.spinner.scale.setScalar(1 + MU.pulse * P.beatPulse / 100);
     });
     updateGifs(dt);
     updateAsh(dt, t);
@@ -4273,7 +4290,7 @@ const STICKERS = '__STICKERS__';
       fonts: fonts.filter(f => !f.builtin && f.file).map(f => ({ id: f.id, src: ref(f.file) })),
       layers: layers.filter(L => L.file).map(L => ({ props: pick(L, LAYER_KEYS), src: ref(L.file) })),
       shapes: shapes.map(S => ({ props: pick(S, SHAPE_KEYS), src: ref(S.file) })),
-      texts: texts.map(B => pick(B, ['text', 'fontId', 'lastSpin', 'order', 'stack', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS])),
+      texts: texts.map(B => pick(B, ['text', 'fontId', 'lastSpin', 'order', 'stack', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS, ...BT_KEYS])),
       bg: bgFile ? { src: ref(bgFile), sound: bgSound } : null,
       audio: MU.audio && MU.file ? { src: ref(MU.file), title: MU.title, artist: MU.artist, muted: MU.muted, cover: ref(MU.coverFile), clipStart: MU.clipStart, clipLen: MU.clipLen, link: MU.link } : null,
       cam: { p: camera.position.toArray().map(r3), t: controls.target.toArray().map(r3) },
@@ -4305,7 +4322,7 @@ const STICKERS = '__STICKERS__';
     bgSound = false;
     if (bgTex || bgVideo) clearBgMedia();
     if (MU.audio) removeAudio();
-    if (MU.muted && MU.gain) MU.gain.gain.value = 1;
+    if (MU.muted && MU.gain) MU.gain.gain.value = muteAll ? 0 : 1;
     MU.muted = false; MU.title = ''; MU.artist = '';
     for (let i = fonts.length - 1; i >= 0; i--) if (!fonts[i].builtin) fonts.splice(i, 1);
     current = fonts[0];
@@ -4313,6 +4330,7 @@ const STICKERS = '__STICKERS__';
     Object.entries(COLORS).forEach(([k, d]) => P[k] = d.v);
     Object.entries(TOGGLES).forEach(([k, d]) => P[k] = d.v);
     PX_KEYS.forEach(k => { P['m' + k] = PX_DEF[k]; });
+    BT_KEYS.forEach(k => { P['m' + k] = BT_DEF[k]; });
     Object.assign(st, ST0);
     TEXT = TEXT0; selLayer = null; selShape = null;
     activeLightPreset = 'Студия'; activeFxPreset = 'Чисто';
@@ -5006,7 +5024,7 @@ const STICKERS = '__STICKERS__';
     addSticker: id => { addSticker(id); },
     removeLayer: id => { const L = layers.find(x => x.id === id); if (L) removeLayer(L); emitState(); },
     clearBg: () => { clearBgMedia(); emitState(); },
-    setBgSound: v => { bgSound = v; if (bgVideo) { bgVideo.muted = !v; if (v) bgVideo.play().catch(() => {}); } },
+    setBgSound: v => { bgSound = v; if (bgVideo) { bgVideo.muted = vMuted(v); if (v) bgVideo.play().catch(() => {}); } },
     lightPreset: n => { if (LIGHT_PRESETS[n]) { activeLightPreset = n; setMany(LIGHT_PRESETS[n]); } },
     fxPreset: n => { if (FX_PRESETS[n]) { activeFxPreset = n; setMany(FX_PRESETS[n]); } },
     togglePlay: () => { togglePlay(); emitState(); },
@@ -5127,8 +5145,8 @@ const STICKERS = '__STICKERS__';
     const mq = matchMedia('(max-width: 700px)');
     const layoutMode = () => {
       root.classList.toggle('tg-m', mq.matches);
-      if (mq.matches) tools.append($('lockBtn'), $('camBtn'), $('playBtn'));
-      else $('exportBtn').before($('lockBtn'), $('camBtn'), $('playBtn'));
+      if (mq.matches) tools.append($('lockBtn'), $('camBtn'), $('playBtn'), $('muteBtn'));
+      else $('exportBtn').before($('lockBtn'), $('camBtn'), $('playBtn'), $('muteBtn'));
       resize();
     };
     mq.addEventListener('change', layoutMode); layoutMode();
@@ -5208,6 +5226,9 @@ const STICKERS = '__STICKERS__';
     const out = [];
     shapes.forEach(S => { if (S.btOn && S.mesh && S.visible) out.push({ o: S, nodes: [S.mesh] }); });
     layers.forEach(L => { if (L.btOn && L.visible) { const nodes = []; L.group.traverse(n => { if (n.isMesh) nodes.push(n); }); out.push({ o: L, nodes }); } });
+    // текст: пульс размера на группе букв (её масштаб больше нигде не меняется)
+    if (!st.mainOff && MAIN.btOn) out.push({ o: MAIN, nodes: [textGroup] });
+    texts.forEach(B => { if (B.btOn) out.push({ o: B, nodes: [B.group] }); });
     return out;
   };
   requestAnimationFrame(tick);
