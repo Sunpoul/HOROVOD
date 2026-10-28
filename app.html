@@ -2220,7 +2220,13 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   function vaAnalyze(file, r) {
     r.p = (async () => {
       try {
-        const buf = await new OfflineAudioContext(1, 1, 22050).decodeAudioData(await file.arrayBuffer());
+        // как в экспорте (там звук видео на iPhone читается): стерео 44100 и копия буфера; 22050/моно Safari может не принять
+        const raw = await file.arrayBuffer();
+        let buf = null, derr = null;
+        for (const sr0 of [44100, 48000]) {
+          try { buf = await new OfflineAudioContext(2, 1, sr0).decodeAudioData(raw.slice(0)); if (buf && buf.length) break; } catch (e) { derr = e; }
+        }
+        if (!buf || !buf.length) throw derr || new Error('decode');
         const sr = buf.sampleRate, hop = Math.round(sr * VA_HOP), n = Math.floor(buf.length / hop);
         if (n < 20) throw new Error('short');
         const chs = []; for (let c = 0; c < buf.numberOfChannels; c++) chs.push(buf.getChannelData(c));
@@ -2240,7 +2246,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         r.low = low; r.full = full; r.sens = null; r.status = 'ready';
       } catch (e) {
         r.status = 'none';
-        toast('В этом видео нет звука, который можно разобрать на удары.', true);
+        console.warn('vaAnalyze', e);
+        toast(e && e.message === 'silent' || e && e.message === 'short' ? 'В этом видео нет звука, который можно разобрать на удары.' : 'Не удалось прочитать звук видео для реакции на удары (' + (e && e.name || 'ошибка') + ').', true);
       }
     })();
   }
