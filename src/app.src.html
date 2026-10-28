@@ -421,6 +421,12 @@ html.gate-ok #gate { display: none; }
 .gate-eye:focus-visible { outline: 1px solid var(--fg); }
 .gate-eye .slash { display: block; }
 .gate-eye[aria-pressed="true"] .slash { display: none; }
+/* вход через Telegram: ссылка на бота, внутри Mini App логин не нужен */
+.gate-or { display: flex; align-items: center; gap: 12px; margin: 2px 0 12px; color: var(--muted); font-size: 12px; }
+.gate-or::before, .gate-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+#gate .gate-tg { text-decoration: none; gap: 8px; color: var(--fg); }
+#gate .gate-tg:hover { background: var(--well); }
+#gate.gate-kb .gate-or, #gate.gate-kb .gate-tg { display: none; } /* при вводе с клавиатуры место нужно полям */
 #gate .pf-err { min-height: 16px; margin: 7px 0 0; font-size: 12px; text-align: center; }
 .lock.shake .lock-card { animation: shake .35s; }
 @keyframes shake { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
@@ -578,6 +584,8 @@ body.ios .frame { box-shadow: none; }
       <button class="btn primary block" type="submit">Войти</button>
       <p class="pf-err" role="alert"></p>
     </form>
+    <div class="gate-or"><span>или</span></div>
+    <a class="btn block gate-tg" href="https://t.me/gethorovod_bot" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>Войти через Telegram</a>
   </div>
 </div>
 <div class="lock" id="boot" role="status" aria-label="Загрузка">
