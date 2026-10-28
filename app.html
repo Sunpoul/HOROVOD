@@ -699,7 +699,7 @@ body.ios .frame { box-shadow: none; }
       <button class="icon-btn" id="redoBtn" type="button" title="Вернуть (⇧⌘Z)" aria-label="Вернуть действие" disabled><svg class="i"><use href="#i-redo"/></svg></button>
       <span class="sep" aria-hidden="true"></span>
       <button class="icon-btn" id="lockBtn" type="button" title="Заблокировать поворот и масштаб камеры" aria-label="Заблокировать камеру" aria-pressed="false"><svg class="i"><use href="#i-unlock"/></svg></button>
-      <button class="icon-btn" id="camBtn" title="Камера по центру (R)" aria-label="Камера по центру"><svg class="i"><use href="#i-cam"/></svg></button>
+      <button class="icon-btn" id="camBtn" title="Сброс: камера по центру и видео с начала (R)" aria-label="Сброс: камера по центру и видео с начала"><svg class="i"><use href="#i-cam"/></svg></button>
       <button class="icon-btn" id="muteBtn" title="Выключить звук везде (M)" aria-label="Выключить звук везде" aria-pressed="false"><svg class="i"><use href="#i-vol"/></svg></button>
       <button class="icon-btn" id="playBtn" title="Вращение: старт / пауза (Пробел)" aria-label="Вращение" aria-pressed="false"><svg class="i"><use href="#i-play"/></svg></button>
       <button class="btn primary" id="exportBtn" aria-haspopup="dialog" aria-expanded="false"><svg class="i"><use href="#i-down"/></svg>Экспорт</button>
@@ -3261,6 +3261,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   function makeVideo(url, sound) {
     const v = document.createElement('video');
     v.src = url; v.loop = true; v.muted = vMuted(sound); v.playsInline = true; v.setAttribute('playsinline', ''); v.crossOrigin = 'anonymous';
+    v.addEventListener('play', () => syncPlay()); v.addEventListener('pause', () => syncPlay()); // кнопка воспроизведения показывает, играет ли что-нибудь
     v.play().catch(() => {});
     return v;
   }
@@ -4647,18 +4648,37 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const hint = document.querySelector('.stage-hint');
     if (hint) { if (!hint.dataset.free) hint.dataset.free = hint.textContent; hint.textContent = on ? 'Камера заблокирована — нажмите замок вверху, чтобы вращать и масштабировать · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно' : hint.dataset.free; }
   }
+  // Все видео сцены: в фигурах и на фоне. hold — видео, которое пользователь поставил на паузу переключателем у фигуры
+  const vidList = () => [...shapes.filter(S => S.video).map(S => ({ v: S.video, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, hold: false }] : [])];
+  const isPlaying = () => (P.spin !== 0 && canSpin(st.mode)) || vidList().some(x => !x.v.paused);
   function syncPlay() {
-    const on = P.spin !== 0 && canSpin(st.mode);
+    const on = isPlaying();
     $('playBtn').setAttribute('aria-pressed', String(on));
     $('playBtn').querySelector('use').setAttribute('href', on ? '#i-pause' : '#i-play');
-    if (on) st.lastSpin = P.spin;
+    if (P.spin !== 0 && canSpin(st.mode)) st.lastSpin = P.spin;
   }
+  // одна кнопка: играет — ставит на паузу и вращение, и все видео; стоит — запускает и то и другое
   function togglePlay() {
-    if (!canSpin(st.mode)) { toast('У плоского текста нет вращения. Выберите круг, квадрат или цилиндр.'); return; }
-    setParam('spin', P.spin !== 0 ? 0 : (st.lastSpin || 20));
+    const vids = vidList();
+    if (!canSpin(st.mode) && !vids.length) { toast('У плоского текста нет вращения. Выберите круг, квадрат или цилиндр.'); return; }
+    if (isPlaying()) {
+      vids.forEach(x => x.v.pause());
+      if (P.spin !== 0) setParam('spin', 0);
+    } else {
+      vids.forEach(x => { if (!x.hold) x.v.play().catch(() => {}); });
+      if (canSpin(st.mode)) setParam('spin', st.lastSpin || 20);
+    }
+    syncPlay();
     if (st.tab === 'text') renderPanel();
   }
-  $('camBtn').onclick = resetCam;
+  // «Сброс»: камера по центру и все видео сначала (с запуском; видео на паузе у фигуры остаётся на первом кадре); GIF тоже с начала
+  function restartVideos() {
+    vidList().forEach(x => { try { x.v.currentTime = 0; } catch (e) {} if (!x.hold) x.v.play().catch(() => {}); });
+    gifAnims.forEach(a => { a.t = 0; });
+    syncPlay();
+  }
+  function resetView() { resetCam(); restartVideos(); }
+  $('camBtn').onclick = resetView;
   $('lockBtn').onclick = () => { st.camLocked = !st.camLocked; applyCamLock(); toast(st.camLocked ? 'Камера заблокирована: поворот и масштаб выключены' : 'Камера разблокирована'); };
   $('playBtn').onclick = togglePlay;
 
@@ -5108,7 +5128,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     }
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.code === 'Space' && !(t.matches && t.matches('button'))) { e.preventDefault(); togglePlay(); }
-    else if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') resetCam();
+    else if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') resetView();
     else if (e.key === 'm' || e.key === 'M' || e.key === 'ь' || e.key === 'Ь') toggleMuteAll();
     else if (/^[1-5]$/.test(e.key)) setFormat(Object.keys(FORMATS)[+e.key - 1]);
   });
