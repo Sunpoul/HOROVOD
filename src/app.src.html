@@ -129,6 +129,9 @@ svg.i { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-widt
 .fmt-btn[aria-expanded="true"] svg.i { transform: rotate(180deg); }
 .fmtsel .shape-slot { width: 16px; height: 16px; display: grid; place-items: center; flex: none; }
 .fmtsel .shape { border: 1.5px solid currentColor; border-radius: 2px; display: inline-block; }
+.fmtsel .shape.round { border-radius: 50%; }
+/* формат «Кружок»: вне круга кадр затемнён, так видно, что останется в видеокружке Telegram (только в редакторе, в файл не попадает) */
+.frame.is-circle::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle closest-side, transparent calc(100% - 2px), rgba(255,255,255,.6) calc(100% - 2px), rgba(255,255,255,.6) 100%, rgba(0,0,0,.68) 100%); }
 .fmt-menu { --well: var(--well-in); position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); min-width: 200px; padding: 6px; background: var(--float); border: 1px solid var(--line); border-radius: var(--r-lg); display: grid; gap: 2px; }
 .fmt-opt { display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 9px 12px; border-radius: var(--r-md); text-align: left; font-variant-numeric: tabular-nums; }
 .fmt-opt:hover, .fmt-opt:focus-visible, .fmt-opt[aria-selected="true"] { background: var(--raised); }
@@ -3524,12 +3527,15 @@ const STICKERS = '__STICKERS__';
   }
 
   /* =================== ФОРМАТЫ И РАЗМЕР =================== */
-  const FORMATS = { '1:1': [1, 1], '16:9': [16, 9], '9:16': [9, 16], '4:3': [4, 3], '3:4': [3, 4] };
+  const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат 640 × 640, не длиннее 60 с
+  const CIRCLE = 'Кружок'; // видеокружок Telegram: квадратный кадр, который Telegram показывает в круге
+  const FORMATS = { '1:1': [1, 1], '16:9': [16, 9], '9:16': [9, 16], '4:3': [4, 3], '3:4': [3, 4], [CIRCLE]: [1, 1] };
+  const isCircle = () => st.format === CIRCLE;
   function renderFormats() {
     const box = $('formats'); box.innerHTML = '';
-    const shape = name => { const [w, hh] = FORMATS[name]; const k = 12 / Math.max(w, hh); return h('span', { class: 'shape-slot' }, h('span', { class: 'shape', style: `width:${Math.round(w * k)}px;height:${Math.round(hh * k)}px` })); };
+    const shape = name => { const [w, hh] = FORMATS[name]; const k = 12 / Math.max(w, hh); return h('span', { class: 'shape-slot' }, h('span', { class: 'shape' + (name === CIRCLE ? ' round' : ''), style: `width:${Math.round(w * k)}px;height:${Math.round(hh * k)}px` })); };
     const menu = h('div', { class: 'fmt-menu', role: 'listbox', 'aria-label': 'Формат кадра', hidden: true });
-    const btn = h('button', { class: 'fmt-btn', type: 'button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': 'Формат кадра: ' + st.format, title: 'Формат кадра (клавиши 1–5)' }, shape(st.format), h('span', {}, st.format), icon('chev'));
+    const btn = h('button', { class: 'fmt-btn', type: 'button', 'aria-haspopup': 'listbox', 'aria-expanded': 'false', 'aria-label': 'Формат кадра: ' + st.format, title: 'Формат кадра (клавиши 1–6)' }, shape(st.format), h('span', {}, st.format), icon('chev'));
     const close = () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); };
     btn.onclick = () => { if (menu.hidden) { menu.hidden = false; btn.setAttribute('aria-expanded', 'true'); (menu.querySelector('[aria-selected="true"]') || menu.firstChild).focus(); } else close(); };
     Object.keys(FORMATS).forEach((name, i) => menu.append(h('button', { class: 'fmt-opt', type: 'button', role: 'option', 'aria-selected': String(st.format === name), onclick: () => setFormat(name) },
@@ -3579,9 +3585,10 @@ const STICKERS = '__STICKERS__';
     $('player').style.width = Math.max(cssW, Math.min(420, availW)) + 'px';
     setBuffer(cssW, cssH, DPR);
     updateCamera();
+    frame.classList.toggle('is-circle', isCircle());
     $('metaFormat').textContent = st.format;
     const [ew, eh] = exportDims(1080);
-    $('metaSize').textContent = `экспорт от ${ew} × ${eh}`;
+    $('metaSize').textContent = isCircle() ? `видео ${NOTE_SIZE} × ${NOTE_SIZE}, до ${NOTE_MAX} с` : `экспорт от ${ew} × ${eh}`;
   }
   new ResizeObserver(resize).observe($('stage'));
 
@@ -3644,11 +3651,10 @@ const STICKERS = '__STICKERS__';
   /* =================== ЭКСПОРТ =================== */
   let exporting = false, offlineRun = false;
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
-  const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30, note: false };
+  const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
   const SEND_URL = 'https://1c254376f61eaa.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
-  const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат до 640 × 640, не длиннее 60 с
   let downloads = null;
   Promise.resolve().then(async () => { try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch (e) { downloads = null; } renderExport(); });
   const canSave = () => !!downloads || !window.claude;
@@ -3816,7 +3822,7 @@ const STICKERS = '__STICKERS__';
     const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
     if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { lastExport.why = !window.AudioEncoder && hasSound ? 'нет кодировщика звука (AudioEncoder)' : 'нет покадрового рендера (WebCodecs)'; toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
     closeExport();
-    const note = exp.note;
+    const note = isCircle();
     const fps = note ? 30 : exp.fps, [w, hh] = note ? [NOTE_SIZE, NOTE_SIZE] : exportDims(exp.vlong), sr = withAudio ? MU.ctx.sampleRate : 48000;
     let total = exp.sec === 'track' ? (withAudio && isFinite(MU.audio.duration) ? clipEnd() - MU.clipStart : 15) : exp.sec;
     if (note && total > NOTE_MAX) { total = NOTE_MAX; toast('Кружок в Telegram — не длиннее минуты: беру первые 60 секунд.'); }
@@ -3850,7 +3856,6 @@ const STICKERS = '__STICKERS__';
     let venc = null, aenc = null, failure = null;
     const audioDiag = { adts: false, desc: true, fixed: false };
     offlineRun = true; exporting = true;
-    const wasFmt = st.format, wasCss = [cssW, cssH];
     try {
       const { Muxer, ArrayBufferTarget } = await loadMuxer();
       const target = new ArrayBufferTarget();
@@ -3948,8 +3953,7 @@ const STICKERS = '__STICKERS__';
       [MAIN, ...texts].forEach(B => { B.spinner.rotation.set(0, 0, 0); B.sqPhase = 0; if (B.mode === 'square') moveSquare(B); });
       gifAnims.forEach(a => { a.t = 0; });
       Object.assign(MU, { pulse: 0, lastBeat: -1e9, hist: [], beatFlux: [[], [], []] }); MU.beatPrev.fill(0);
-      // кружок: кадр квадратный, формат сцены на время рендера становится 1:1 (горизонталь сохраняется, остальное обрезается по центру)
-      if (note) { st.format = '1:1'; cssW = cssH = Math.min(cssW, cssH); markCenter = true; }
+      markCenter = note; // в кружке углы обрезаются, плашка стоит внизу по центру
       setBuffer(w, hh, 1); updateCamera();
 
       // --- кадры
@@ -3999,7 +4003,7 @@ const STICKERS = '__STICKERS__';
       console.error(e); toast('Не получилось отрендерить видео: ' + (e && e.message ? e.message : e), true);
     } finally {
       try { if (venc && venc.state !== 'closed') venc.close(); if (aenc && aenc.state !== 'closed') aenc.close(); } catch (e) {}
-      st.format = wasFmt; cssW = wasCss[0]; cssH = wasCss[1]; markCenter = false;
+      markCenter = false;
       offAudio = null; offlineRun = false; exporting = false; renderJob = null; badge.remove(); resize();
       vids.forEach(x => { if (x.wasPlaying && !x.hold) x.v.play().catch(() => {}); });
       if (musicWasPlaying && MU.audio) { MU.ctx.resume(); MU.audio.play().catch(() => {}); }
@@ -4035,17 +4039,16 @@ const STICKERS = '__STICKERS__';
           h('button', { class: 'btn', type: 'button', style: 'flex:1', onclick: () => { closeExport(); copyPng(); } }, 'Скопировать')),
       ], null, { plain: true }),
       canSave() ? section('Видео', [
-        ...(canRenderOffline() ? [seg('Формат файла', [[false, 'Обычное видео'], [true, 'Кружок Telegram']], () => exp.note, v => { exp.note = v; if (v && exp.sec !== 'track' && exp.sec > NOTE_MAX) exp.sec = 15; renderExport(); })] : []),
-        seg('Длительность', (exp.note ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
+        seg('Длительность', (isCircle() ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
         h('p', { class: 'hint' }, soundNote()),
-        ...(canRenderOffline() && exp.note ? [h('p', { class: 'hint' }, `Квадрат ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Telegram сам обрезает кадр по кругу, а прозрачный фон в кружках не поддерживается: за пределами круга и внутри него будет цвет сцены. Кадр берётся по центру сцены.`)] : []),
-        ...(canRenderOffline() && !exp.note ? [
+        ...(canRenderOffline() && isCircle() ? [h('p', { class: 'hint' }, `Формат «Кружок»: квадрат ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Telegram показывает кадр в круге, прозрачного фона в кружках нет: фоном остаётся цвет сцены.`)] : []),
+        ...(canRenderOffline() && !isCircle() ? [
           seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
           seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
           vdimsText,
           h('p', { class: 'hint' }, 'Видео собирается покадрово: быстрее реального времени, кадры не пропадают, частота постоянная.'),
         ] : canRenderOffline() ? [] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
-        h('button', { class: 'btn block', type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (exp.note ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
+        h('button', { class: 'btn block', type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (isCircle() ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
       ], null, { plain: true }) : null,
     );
   }
@@ -4102,7 +4105,7 @@ const STICKERS = '__STICKERS__';
     if (e.code === 'Space' && !(t.matches && t.matches('button'))) { e.preventDefault(); togglePlay(); }
     else if (e.key === 'r' || e.key === 'R' || e.key === 'к' || e.key === 'К') resetView();
     else if (e.key === 'm' || e.key === 'M' || e.key === 'ь' || e.key === 'Ь') toggleMuteAll();
-    else if (/^[1-5]$/.test(e.key)) setFormat(Object.keys(FORMATS)[+e.key - 1]);
+    else if (/^[1-6]$/.test(e.key)) setFormat(Object.keys(FORMATS)[+e.key - 1]);
   });
 
   /* =================== ВЫБОР И ПЕРЕТАСКИВАНИЕ ОБЪЕКТОВ =================== */
