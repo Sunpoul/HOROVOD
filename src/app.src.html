@@ -1161,16 +1161,112 @@ const STICKERS = '__STICKERS__';
      для текущего момента видео. Поэтому работает и при выключенном звуке видео, и при покадровом экспорте */
   const VA = new Map(); // файл видео → { status, low, full, env, sens, p }
   const VA_HOP = 0.01;  // шаг анализа, секунд
+
+  /* звук из видеофайла. На iPhone decodeAudioData часто не берёт .mov с видеодорожкой (EncodingError), поэтому запасной путь:
+     читаем MP4/MOV сами, достаём дорожку AAC и разбираем её через WebCodecs (AudioDecoder) */
+  const VDEC = new WeakMap(); // файл → { частота: обещание }, чтобы разбор звука не повторялся
+  function decodeVideoAudio(file, sr) {
+    let m = VDEC.get(file); if (!m) { m = new Map(); VDEC.set(file, m); }
+    if (!m.has(sr)) { const p = decodeVideoAudio0(file, sr); m.set(sr, p); p.catch(() => m.delete(sr)); }
+    return m.get(sr);
+  }
+  async function decodeVideoAudio0(file, sr) {
+    let first = null;
+    try {
+      const buf = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await file.arrayBuffer());
+      if (buf && buf.length) return buf;
+    } catch (e) { first = e; }
+    try { return await mp4AudioBuffer(file, sr); }
+    catch (e) { const er = new Error((first && first.name ? first.name + ' → ' : '') + (e && e.message || e)); er.silent = !!(e && e.silent); throw er; }
+  }
+  async function mp4AudioBuffer(file, sr) {
+    if (!window.AudioDecoder) throw new Error('нет AudioDecoder');
+    const cc = (d, p) => String.fromCharCode(d.getUint8(p), d.getUint8(p + 1), d.getUint8(p + 2), d.getUint8(p + 3));
+    let pos = 0, moov = null;
+    while (pos + 8 <= file.size) { // верхний уровень файла: ищем moov, не читая весь файл
+      const d = new DataView(await file.slice(pos, pos + 16).arrayBuffer());
+      let size = d.getUint32(0), hdr = 8;
+      if (size === 1) { size = Number(d.getBigUint64(8)); hdr = 16; } else if (size === 0) size = file.size - pos;
+      if (size < hdr) break;
+      if (cc(d, 4) === 'moov') { moov = new DataView(await file.slice(pos + hdr, pos + size).arrayBuffer()); break; }
+      pos += size;
+    }
+    if (!moov) throw new Error('это не MP4/MOV');
+    const kids = (s0, e0) => {
+      const out = [];
+      while (s0 + 8 <= e0) {
+        let size = moov.getUint32(s0), hdr = 8;
+        if (size === 1) { size = Number(moov.getBigUint64(s0 + 8)); hdr = 16; } else if (size === 0) size = e0 - s0;
+        if (size < hdr || s0 + size > e0) break;
+        out.push({ t: cc(moov, s0 + 4), s: s0 + hdr, e: s0 + size }); s0 += size;
+      }
+      return out;
+    };
+    const sub = (b, t) => kids(b.s, b.e).filter(k => k.t === t);
+    const root = { s: 0, e: moov.byteLength };
+    let stbl = null;
+    for (const t of sub(root, 'trak')) {
+      const mdia = sub(t, 'mdia')[0], hdlr = mdia && sub(mdia, 'hdlr')[0];
+      if (!hdlr || cc(moov, hdlr.s + 8) !== 'soun') continue;
+      const minf = sub(mdia, 'minf')[0]; stbl = minf && sub(minf, 'stbl')[0]; break;
+    }
+    if (!stbl) throw new Error('в файле нет звуковой дорожки');
+    const stsd = sub(stbl, 'stsd')[0], esz = moov.getUint32(stsd.s + 8), etype = cc(moov, stsd.s + 12);
+    if (etype !== 'mp4a') throw new Error('звук ' + etype.trim() + ' не AAC');
+    let ei = -1; // описание AAC (esds) может лежать внутри «wave», поэтому ищем по байтам
+    for (let i = stsd.s + 16; i < stsd.s + 8 + esz - 8; i++) if (cc(moov, i) === 'esds') { ei = i; break; }
+    if (ei < 0) throw new Error('нет описания AAC');
+    const esEnd = Math.min(moov.byteLength, ei - 4 + moov.getUint32(ei - 4));
+    const asc = aacAsc(new Uint8Array(moov.buffer, moov.byteOffset + ei + 8, esEnd - ei - 8));
+    const obj = asc[0] >> 3, fi = ((asc[0] & 7) << 1) | (asc[1] >> 7), nch = (asc[1] >> 3) & 15;
+    const rate = [96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350][fi], chans = nch === 7 ? 8 : nch;
+    if (!rate || !chans) throw new Error('непонятное описание AAC');
+    const szB = sub(stbl, 'stsz')[0], count = moov.getUint32(szB.s + 8), fixed = moov.getUint32(szB.s + 4);
+    const sizes = new Uint32Array(count); for (let i = 0; i < count; i++) sizes[i] = fixed || moov.getUint32(szB.s + 12 + 4 * i);
+    const scB = sub(stbl, 'stsc')[0], runs = []; for (let i = 0, n = moov.getUint32(scB.s + 4); i < n; i++) runs.push([moov.getUint32(scB.s + 8 + 12 * i), moov.getUint32(scB.s + 12 + 12 * i)]);
+    const coB = sub(stbl, 'stco')[0] || sub(stbl, 'co64')[0], wide = coB.t === 'co64', nChunks = moov.getUint32(coB.s + 4);
+    const cfg = { codec: 'mp4a.40.' + obj, sampleRate: rate, numberOfChannels: chans, description: asc };
+    const sup = await AudioDecoder.isConfigSupported(cfg).catch(() => null);
+    if (!sup || !sup.supported) throw new Error('AudioDecoder не принял AAC ' + cfg.codec);
+    const parts = [], keep = Math.min(2, chans); for (let c = 0; c < keep; c++) parts.push([]);
+    let total = 0, fail = null;
+    const dec = new AudioDecoder({ error: e => { fail = e; }, output: ad => {
+      const n = ad.numberOfFrames, c = ad.numberOfChannels, f = ad.format || 'f32-planar', base = f.replace('-planar', '');
+      const T = { u8: Uint8Array, s16: Int16Array, s32: Int32Array, f32: Float32Array }[base] || Float32Array;
+      const cv = base === 'u8' ? v => (v - 128) / 128 : base === 's16' ? v => v / 32768 : base === 's32' ? v => v / 2147483648 : v => v;
+      if (/planar/.test(f)) for (let ch = 0; ch < keep; ch++) { const a = new T(n); ad.copyTo(a, { planeIndex: Math.min(ch, c - 1) }); parts[ch].push(Float32Array.from(a, cv)); }
+      else { const a = new T(n * c); ad.copyTo(a, { planeIndex: 0 }); for (let ch = 0; ch < keep; ch++) { const o = new Float32Array(n); for (let i = 0; i < n; i++) o[i] = cv(a[i * c + Math.min(ch, c - 1)]); parts[ch].push(o); } }
+      total += n; ad.close();
+    } });
+    dec.configure(cfg);
+    let k = 0, r = 0;
+    for (let ch = 0; ch < nChunks && k < count; ch++) {
+      while (r + 1 < runs.length && runs[r + 1][0] <= ch + 1) r++;
+      const per = Math.min(runs[r][1], count - k), off = wide ? Number(moov.getBigUint64(coB.s + 8 + 8 * ch)) : moov.getUint32(coB.s + 8 + 4 * ch);
+      let bytes = 0; for (let i = 0; i < per; i++) bytes += sizes[k + i];
+      const data = new Uint8Array(await file.slice(off, off + bytes).arrayBuffer());
+      let o = 0;
+      for (let i = 0; i < per; i++, k++) {
+        const z = sizes[k];
+        dec.decode(new EncodedAudioChunk({ type: 'key', timestamp: Math.round(k * 1024 / rate * 1e6), data: data.subarray(o, o + z) })); o += z;
+      }
+      while (dec.decodeQueueSize > 40 && !fail) await new Promise(res => setTimeout(res, 0));
+      if (fail) throw fail;
+    }
+    await dec.flush(); dec.close();
+    if (fail) throw fail;
+    if (!total) { const er = new Error('в звуке нет данных'); er.silent = true; throw er; }
+    const raw = new AudioBuffer({ length: total, numberOfChannels: keep, sampleRate: rate });
+    for (let c = 0; c < keep; c++) { const dst = raw.getChannelData(c); let p = 0; for (const a of parts[c]) { dst.set(a, p); p += a.length; } }
+    if (rate === sr) return raw;
+    const off = new OfflineAudioContext(keep, Math.ceil(total * sr / rate), sr), src = off.createBufferSource(); // приводим к частоте ролика
+    src.buffer = raw; src.connect(off.destination); src.start();
+    return await off.startRendering();
+  }
   function vaAnalyze(file, r) {
     r.p = (async () => {
       try {
-        // как в экспорте (там звук видео на iPhone читается): стерео 44100 и копия буфера; 22050/моно Safari может не принять
-        const raw = await file.arrayBuffer();
-        let buf = null, derr = null;
-        for (const sr0 of [44100, 48000]) {
-          try { buf = await new OfflineAudioContext(2, 1, sr0).decodeAudioData(raw.slice(0)); if (buf && buf.length) break; } catch (e) { derr = e; }
-        }
-        if (!buf || !buf.length) throw derr || new Error('decode');
+        const buf = await decodeVideoAudio(file, 44100);
         const sr = buf.sampleRate, hop = Math.round(sr * VA_HOP), n = Math.floor(buf.length / hop);
         if (n < 20) throw new Error('short');
         const chs = []; for (let c = 0; c < buf.numberOfChannels; c++) chs.push(buf.getChannelData(c));
@@ -1191,7 +1287,7 @@ const STICKERS = '__STICKERS__';
       } catch (e) {
         r.status = 'none';
         console.warn('vaAnalyze', e);
-        toast(e && e.message === 'silent' || e && e.message === 'short' ? 'В этом видео нет звука, который можно разобрать на удары.' : 'Не удалось прочитать звук видео для реакции на удары (' + (e && e.name || 'ошибка') + ').', true);
+        toast(e && (e.silent || e.message === 'silent' || e.message === 'short') ? 'В этом видео нет звука, который можно разобрать на удары.' : 'Не удалось прочитать звук видео для реакции на удары (' + (e && (e.name === 'Error' ? e.message : e.name) || 'ошибка') + ').', true);
       }
     })();
   }
@@ -3903,13 +3999,13 @@ const STICKERS = '__STICKERS__';
         if (tl) for (let ch = 0; ch < 2; ch++) mix.getChannelData(ch).set(tl.getChannelData(ch));
         for (const vs of vsounds) {
           try {
-            const dec = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await vs.file.arrayBuffer());
+            const dec = await decodeVideoAudio(vs.file, sr);
             if (!dec.length) continue;
             for (let ch = 0; ch < 2; ch++) {
               const from = dec.getChannelData(Math.min(ch, dec.numberOfChannels - 1)), to = mix.getChannelData(ch);
               for (let i = 0; i < N; i++) to[i] = Math.max(-1, Math.min(1, to[i] + from[i % dec.length]));
             }
-          } catch (e) { toast('Не удалось прочитать звук видео «' + vs.name + '»: оно будет без звука.', true); }
+          } catch (e) { toast('Не удалось прочитать звук видео «' + vs.name + '»: оно будет без звука (' + (e && (e.name === 'Error' ? e.message : e.name) || 'ошибка') + ').', true); }
         }
         let peak = 0; for (let ch = 0; ch < 2; ch++) { const d = mix.getChannelData(ch); for (let i = 0; i < N; i += 7) peak = Math.max(peak, Math.abs(d[i])); }
         if (peak < 0.0005) toast('В выбранном участке звука нет, в ролике будет тишина. Проверьте отметку начала и длину отрывка на вкладке «Музыка».', true);
