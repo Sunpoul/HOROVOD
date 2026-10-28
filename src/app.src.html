@@ -3646,7 +3646,7 @@ const STICKERS = '__STICKERS__';
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30, note: false };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
-  const SEND_URL = '';
+  const SEND_URL = 'https://1c254376f61eaa.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат до 640 × 640, не длиннее 60 с
   let downloads = null;
