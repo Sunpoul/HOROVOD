@@ -699,7 +699,7 @@ body.ios .frame { box-shadow: none; }
       <button class="icon-btn" id="redoBtn" type="button" title="Вернуть (⇧⌘Z)" aria-label="Вернуть действие" disabled><svg class="i"><use href="#i-redo"/></svg></button>
       <span class="sep" aria-hidden="true"></span>
       <button class="icon-btn" id="lockBtn" type="button" title="Заблокировать поворот и масштаб камеры" aria-label="Заблокировать камеру" aria-pressed="false"><svg class="i"><use href="#i-unlock"/></svg></button>
-      <button class="icon-btn" id="camBtn" title="Сброс: камера по центру и видео с начала (R)" aria-label="Сброс: камера по центру и видео с начала"><svg class="i"><use href="#i-cam"/></svg></button>
+      <button class="icon-btn" id="camBtn" title="Сброс: камера по центру, видео к началу (R)" aria-label="Сброс: камера по центру, видео к началу"><svg class="i"><use href="#i-cam"/></svg></button>
       <button class="icon-btn" id="muteBtn" title="Выключить звук везде (M)" aria-label="Выключить звук везде" aria-pressed="false"><svg class="i"><use href="#i-vol"/></svg></button>
       <button class="icon-btn" id="playBtn" title="Вращение: старт / пауза (Пробел)" aria-label="Вращение" aria-pressed="false"><svg class="i"><use href="#i-play"/></svg></button>
       <button class="btn primary" id="exportBtn" aria-haspopup="dialog" aria-expanded="false"><svg class="i"><use href="#i-down"/></svg>Экспорт</button>
@@ -4649,7 +4649,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     if (hint) { if (!hint.dataset.free) hint.dataset.free = hint.textContent; hint.textContent = on ? 'Камера заблокирована — нажмите замок вверху, чтобы вращать и масштабировать · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно' : hint.dataset.free; }
   }
   // Все видео сцены: в фигурах и на фоне. hold — видео, которое пользователь поставил на паузу переключателем у фигуры
-  const vidList = () => [...shapes.filter(S => S.video).map(S => ({ v: S.video, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, hold: false }] : [])];
+  const vidList = () => [...shapes.filter(S => S.video).map(S => ({ v: S.video, tex: S.tex, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, tex: bgTex, hold: false }] : [])];
   const isPlaying = () => (P.spin !== 0 && canSpin(st.mode)) || vidList().some(x => !x.v.paused);
   function syncPlay() {
     const on = isPlaying();
@@ -4671,9 +4671,12 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     syncPlay();
     if (st.tab === 'text') renderPanel();
   }
-  // «Сброс»: камера по центру и все видео сначала (с запуском; видео на паузе у фигуры остаётся на первом кадре); GIF тоже с начала
+  // «Сброс»: камера по центру и все видео с начала. Состояние сохраняется: что играло, играет дальше, что стояло на паузе, стоит на первом кадре. GIF тоже с начала
   function restartVideos() {
-    vidList().forEach(x => { try { x.v.currentTime = 0; } catch (e) {} if (!x.hold) x.v.play().catch(() => {}); });
+    vidList().forEach(x => {
+      try { x.v.currentTime = 0; } catch (e) {}
+      if (x.tex) x.v.addEventListener('seeked', () => { x.tex.needsUpdate = true; }, { once: true }); // на паузе кадр обновится сразу
+    });
     gifAnims.forEach(a => { a.t = 0; });
     syncPlay();
   }
