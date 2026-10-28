@@ -3753,7 +3753,7 @@ const STICKERS = '__STICKERS__';
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
   const APP_VERSION = '1.2.1'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
-  const SEND_URL = 'https://62aa68d773e28c.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
+  const SEND_URL = 'https://6c9f4a2a9573d2.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   let downloads = null;
   Promise.resolve().then(async () => { try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch (e) { downloads = null; } renderExport(); });
@@ -5291,7 +5291,7 @@ const STICKERS = '__STICKERS__';
         try { TG.HapticFeedback.notificationOccurred('success'); } catch (e) {}
       } catch (e) {
         btn.disabled = false; btn.textContent = 'Отправить в Telegram';
-        toast('Не отправилось: ' + (e && e.message ? e.message : e), true);
+        toast('Не отправилось: ' + (e && e.name === 'TypeError' ? 'сервер отправки не отвечает, скачайте видео и отправьте вручную' : (e && e.message ? e.message : e)), true);
       }
     };
     const save = async () => {
