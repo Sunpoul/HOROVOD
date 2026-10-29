@@ -654,6 +654,56 @@ html.tg-m .tp-strip .tp-reset { width: 34px; height: 34px; padding: 0; display: 
 html.tg-m .tp-strip.four .tp-reset { height: 40px; }
 html.tg-m .tp-strip .tp-reset svg.i { width: 16px; height: 16px; }
 html.tg-m .is-off { opacity: .35; pointer-events: none; }
+/* 1.3.0: вкладки текста по макету — чипы 28, плитки 34, плашки-переключатели 32/36, слои 36, карточки шрифтов 67 × 71 */
+html.tg-m .mx-panel { display: flex; flex-direction: column; gap: 12px; }
+html.tg-m .mx-tab-motion, html.tg-m .mx-tab-fx, html.tg-m .mx-tab-layers { gap: 8px; }
+html.tg-m .mx-chips, html.tg-m .mx-cards, html.tg-m .mx-swatches { display: flex; align-items: center; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .mx-chips::-webkit-scrollbar, html.tg-m .mx-cards::-webkit-scrollbar, html.tg-m .mx-swatches::-webkit-scrollbar, html.tg-m .mx-tiles::-webkit-scrollbar { display: none; }
+html.tg-m .mx-chip { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--well); color: #d9d9d9; font: 400 12px/15px 'Onest', var(--font-body); white-space: nowrap; }
+html.tg-m .mx-chip[aria-pressed="true"] { background: #f4f4f4; color: #000; }
+html.tg-m .mx-sep { flex: none; width: 1px; height: 16px; background: var(--line); }
+html.tg-m .mx-tiles { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - (var(--cols, 4) - 1) * 8px) / var(--cols, 4)); grid-template-rows: 34px; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .mx-tiles .field label { padding-top: 3px; }
+html.tg-m .mx-pills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+html.tg-m .mx-pill { display: flex; align-items: center; gap: 8px; height: 32px; min-height: 0; padding: 0 8px 0 10px; border-radius: 12px; background: var(--well); cursor: pointer; }
+html.tg-m .mx-pills .mx-pill { height: 36px; }
+html.tg-m .mx-pill.sel { background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--fg); }
+html.tg-m .mx-pill svg.i { width: 16px; height: 16px; flex: none; color: var(--muted); }
+html.tg-m .mx-pill.on svg.i { color: var(--fg); }
+html.tg-m .mx-pill-name { flex: 1; min-width: 0; font: 400 13px/16px 'Onest', var(--font-body); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.tg-m .mx-pill.on .mx-pill-name { color: var(--fg); }
+html.tg-m .mx-pill input { width: 32px; height: 20px; }
+html.tg-m .mx-pill input::after { top: 3px; left: 3px; width: 14px; height: 14px; }
+html.tg-m .mx-pill input:checked::after { transform: translateX(12px); }
+html.tg-m .mx-layers { flex: none; display: flex; flex-direction: column; gap: 8px; max-height: 80px; overflow-y: auto; scrollbar-width: none; }
+html.tg-m .mx-panel > * { flex: none; }
+html.tg-m .mx-layer { flex: none; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 6px 0 10px; border-radius: 10px; background: var(--well); cursor: pointer; }
+html.tg-m .mx-layer.sel { background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--fg); }
+html.tg-m .mx-n { flex: none; font: 500 11px/1 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .mx-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+html.tg-m .mx-name b { font: 500 13px/15px var(--font-body); color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.tg-m .mx-name small { font: 400 10px/12px 'Onest', var(--font-body); color: var(--muted); white-space: nowrap; }
+html.tg-m .mx-act { flex: none; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; background: none; color: var(--muted); }
+html.tg-m .mx-act svg.i { width: 18px; height: 18px; }
+html.tg-m .mx-add { display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font: 500 13px/1 var(--font-body); }
+html.tg-m .mx-add svg.i { width: 18px; height: 18px; }
+html.tg-m .mx-empty { margin: 0; font: 400 12px/15px 'Onest', var(--font-body); color: var(--muted); text-align: center; }
+html.tg-m .mx-card { flex: none; width: 67px; height: 71px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; border: 1px solid var(--line); border-radius: 16px; background: transparent; color: var(--fg); }
+html.tg-m .mx-card.sel { border: 2px solid var(--fg); }
+html.tg-m .mx-card.add { border-style: dashed; }
+html.tg-m .mx-card.add svg.i { width: 18px; height: 18px; }
+html.tg-m .mx-card.add span { font: 400 10px/1 'Onest', var(--font-body); color: var(--label); }
+html.tg-m .mx-card small { max-width: 100%; font: 400 9px/11px 'Onest', var(--font-body); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.tg-m .mx-card.sel small { color: var(--fg); }
+html.tg-m .mx-aa { font-size: 20px; line-height: 24px; }
+html.tg-m .mx-swatches { gap: 10px; }
+html.tg-m .mx-sw { position: relative; flex: none; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+html.tg-m .mx-sw.sel { box-shadow: inset 0 0 0 2px var(--fg); }
+html.tg-m .mx-sw i { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--line); }
+html.tg-m .mx-sw i.grad { background: linear-gradient(135deg, #ff6b6b, #7359ff); }
+html.tg-m .mx-sw.plus i { background: var(--well); box-shadow: none; color: var(--fg); }
+html.tg-m .mx-sw.plus svg.i { width: 16px; height: 16px; }
+html.tg-m .mx-native { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 html.tg-m .tp-strip.multi > .toggle { grid-column: span 2; } /* длинная подпись переключателя («Отбрасывать тени») не обрезается */
 /* 1.3.0: список слоёв занимает всю ширину, «Добавить …» — главная белая кнопка, как во флоу макета */
 html.tg-m .tp-wide .layers { flex: 1 0 auto; min-width: 100%; }
@@ -3982,6 +4032,103 @@ const STICKERS = '__STICKERS__';
     stateQueued = true;
     requestAnimationFrame(() => { stateQueued = false; post(Object.assign({ type: 'state' }, stateSnapshot())); });
   }
+
+  /* =================== Mini App 1.3.0: вкладки текста строго по макетам Figma (страница «App») =================== */
+  // Каждая вкладка собирается здесь вручную, а не упаковщиком: ряды и размеры как в макете.
+  const MX_COLORS = ['#ffffff', '#0b0b0b', '#ff6b6b', '#ffd84d', '#4dffb0', '#5a8cff'];
+  const mxChips = (items, cur, pick, cls = '') => h('div', { class: 'mx-chips ' + cls }, items.map(([v, label]) =>
+    h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(v === cur), onclick: () => pick(v) }, label)));
+  function mxSlider(B, k, label, def) {
+    const d = Object.assign({}, def || S[k], label ? { label } : {});
+    return B.main && !def ? slider(k, d) : slider(k, d, () => B[k], v => setBlock(B, k, v));
+  }
+  const mxTiles = (nodes, cols = 4) => { const t = h('div', { class: 'mx-tiles' }, nodes.filter(Boolean)); t.style.setProperty('--cols', cols); return t; };
+  function mxSwitch(on, set) { const i = h('input', { type: 'checkbox', role: 'switch' }); i.checked = on; i.addEventListener('click', e => e.stopPropagation()); i.addEventListener('change', () => set(i.checked)); return i; }
+  // плашка-переключатель: значок, название, тумблер; sel — выбрана (белая рамка)
+  function mxPill(ic, label, on, set, opts = {}) {
+    const el = h('div', { class: 'toggle mx-pill' + (opts.sel ? ' sel' : '') + (on ? ' on' : ''), role: opts.onSelect ? 'button' : null, tabindex: opts.onSelect ? '0' : null, onclick: opts.onSelect || null },
+      ic ? icon(ic) : null, h('span', { class: 'mx-pill-name' }, label), mxSwitch(on, set));
+    return el;
+  }
+  const mxOff = (node, off) => { if (off && node) { node.classList.add('is-off'); node.inert = true; } return node; };
+  const TGT = {
+    layers(B) {
+      const all = [...(st.mainOff ? [] : [MAIN]), ...texts];
+      const list = h('div', { class: 'mx-layers' }, all.map((T, i) => {
+        const pick = () => { selText = T; renderPanel(); };
+        return h('div', { class: 'mx-layer' + (T === B ? ' sel' : ''), role: 'button', tabindex: '0', onclick: pick },
+          h('span', { class: 'mx-n' }, String(i + 1)),
+          h('span', { class: 'mx-name' }, h('b', {}, blockTitle(T)), h('small', {}, (T.main ? 'Основной · ' : '') + MODE_NAMES[T.mode].short)),
+          h('button', { class: 'mx-act', type: 'button', title: 'Изменить текст', 'aria-label': 'Изменить текст', onclick: e => { e.stopPropagation(); selText = T; openTextEdit(); } }, icon('pencil')),
+          T.main ? null : h('button', { class: 'mx-act', type: 'button', title: 'Копия', 'aria-label': 'Копия текста', onclick: e => { e.stopPropagation(); const C = addTextBlock(Object.assign(Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS, ...BT_KEYS].map(k => [k, T[k]])), { posY: T.posY - 2 }), true); C.fontId = T.fontId; layoutBlock(C); renderPanel(); } }, icon('copy')),
+          h('button', { class: 'mx-act', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash')));
+      }));
+      const add = h('button', { class: 'mx-add', type: 'button', onclick: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(); } }, icon('plus'), 'Добавить текст');
+      return all.length ? [list, add] : [h('p', { class: 'mx-empty' }, 'Слоёв нет. Добавьте текст — он появится на сцене.'), add];
+    },
+    font(B) {
+      const inner = ['font', 'prop', 'vol', 'mat'].includes(SUBSEL.fontIn) ? SUBSEL.fontIn : 'font';
+      const chips = mxChips([['font', 'Шрифт'], ['prop', 'Пропорции'], ['vol', 'Объём'], ['mat', 'Материал']], inner, v => { SUBSEL.fontIn = v; renderPanel(); });
+      if (inner === 'font') {
+        const cards = h('div', { class: 'mx-cards' },
+          h('button', { class: 'mx-card add', type: 'button', onclick: () => $('fontInput').click() }, icon('upload'), h('span', {}, 'Свой'), h('small', {}, 'TTF · OTF')),
+          fonts.map(f => h('button', { class: 'mx-card' + (B.font && B.font.id === f.id ? ' sel' : ''), type: 'button', title: f.label, onclick: () => { setBlock(B, 'fontId', f.id); renderPanel(); } },
+            h('span', { class: 'mx-aa', style: `font-family:"${fontPreview(f)}", system-ui, sans-serif` }, f.id === 'cjk' ? '中文' : 'Аа'), h('small', {}, f.label.replace(/ (Bold|One)$/, '').replace(/ · .*/, '')))));
+        return [chips, cards];
+      }
+      if (inner === 'prop') return [chips, mxTiles([mxSlider(B, 'size', 'Высота'), mxSlider(B, 'stretchY', 'Растяжение'), mxSlider(B, 'width', 'Ширина'), mxSlider(B, 'tracking', 'Трекинг'), slider('emojiScale', Object.assign({}, S.emojiScale, { label: 'Эмодзи' }))])];
+      if (inner === 'vol') return [chips, mxTiles([slider('depth'), slider('bevel')], 2)];
+      return [chips, mxTiles([slider('metal'), slider('rough')], 2)];
+    },
+    color(B) {
+      const grad = !!B.grad, stop = grad && SUBSEL.colorStop === 2 ? 2 : 1;
+      const cur = String(stop === 2 ? B.color2 : B.color).toLowerCase(), key = stop === 2 ? 'color2' : 'color';
+      const top = mxChips([['one', 'Один цвет'], ['grad', 'Градиент']], grad ? 'grad' : 'one', v => { setBlock(B, 'grad', v === 'grad'); renderPanel(); });
+      if (grad) top.append(h('span', { class: 'mx-sep' }), ...[[1, 'Цвет 1'], [2, 'Цвет 2']].map(([n, l]) => h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(stop === n), onclick: () => { SUBSEL.colorStop = n; renderPanel(); } }, l)),
+        h('span', { class: 'mx-sep' }), ...[[0, 'Сверху вниз'], [1, 'Слева направо'], [2, 'Вокруг круга']].map(([m, l]) => h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(+B.gradMode === m), onclick: () => { setBlock(B, 'gradMode', m); renderPanel(); } }, l)));
+      const pickIn = h('input', { type: 'color', value: cur, class: 'mx-native', 'aria-label': 'Свой цвет' });
+      pickIn.addEventListener('input', () => setBlock(B, key, pickIn.value)); pickIn.addEventListener('change', renderPanel);
+      const custom = !MX_COLORS.includes(cur);
+      const row = h('div', { class: 'mx-swatches' },
+        MX_COLORS.map(c => h('button', { class: 'mx-sw' + (c === cur ? ' sel' : ''), type: 'button', 'aria-label': c, onclick: () => { setBlock(B, key, c); renderPanel(); } }, h('i', { style: 'background:' + c }))),
+        h('button', { class: 'mx-sw' + (grad ? ' sel' : ''), type: 'button', 'aria-label': 'Градиент', onclick: () => { setBlock(B, 'grad', !grad); renderPanel(); } }, h('i', { class: 'grad' })),
+        h('label', { class: 'mx-sw plus' + (custom ? ' sel' : ''), 'aria-label': 'Свой цвет', title: 'Свой цвет' }, h('i', { style: custom ? 'background:' + cur : '' }, custom ? null : icon('plus')), pickIn));
+      return [top, row];
+    },
+    form(B) {
+      const plain = B.mode === 'plain';
+      const forms = mxChips([['flat', 'Круг'], ['square', 'Квадрат'], ['cyl', 'Цилиндр'], ['plain', 'Плоский']], B.mode, v => { setBlock(B, 'mode', v); renderPanel(); });
+      const row2 = plain
+        ? mxChips([['left', 'Слева'], ['center', 'По центру'], ['right', 'Справа']], B.align, v => { setBlock(B, 'align', v); renderPanel(); })
+        : (() => { const r = mxChips([['none', 'Как есть'], ['stretch', 'Растянуть'], ['repeat', 'Повторить']], B.fit, v => { setBlock(B, 'fit', v); renderPanel(); });
+            r.append(h('span', { class: 'mx-sep' }), ...[['out', 'Снаружи'], ['in', 'Внутри']].map(([v, l]) => h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(B.side === v), onclick: () => { setBlock(B, 'side', v); renderPanel(); } }, l))); return r; })();
+      const out = [forms, row2];
+      if (B.mode === 'square') out.push(mxTiles([mxSlider(B, 'boxW', 'Ширина'), mxSlider(B, 'boxH', 'Высота'), mxSlider(B, 'corner', 'Скругление')], 3));
+      return out;
+    },
+    motion(B) {
+      const spin = canSpin(B.mode);
+      const on = spin && B.spin !== 0;
+      const pill = spin ? mxPill('d-rotate', B.mode === 'square' ? 'Движение по контуру' : 'Вращение', on, v => { setSpinOn(B, v); renderPanel(); }) : null;
+      const tiles = mxTiles([
+        spin ? mxSlider(B, 'spin', 'Скорость') : null,
+        B.mode === 'square' || B.mode === 'plain' ? null : mxSlider(B, 'radius', 'Радиус'),
+        mxSlider(B, 'posY', 'По вертикали'), mxSlider(B, 'angle', 'Наклон'),
+        mxSlider(B, 'posX', 'По горизонтали'), mxSlider(B, 'gap', B.mode === 'plain' ? 'Интервал' : 'Шаг колец')]);
+      return [pill, tiles].filter(Boolean);
+    },
+    fx(B) {
+      const sel = SUBSEL.textFx === 'beat' ? 'beat' : 'px';
+      const pills = h('div', { class: 'mx-pills' },
+        mxPill('d-grid', 'Пиксели', !!B.pxOn, v => { B.pxOn = v; SUBSEL.textFx = 'px'; renderPanel(); }, { sel: sel === 'px', onSelect: () => { SUBSEL.textFx = 'px'; renderPanel(); } }),
+        mxPill('d-zap', 'Бит', !!B.btOn, v => { B.btOn = v; SUBSEL.textFx = 'beat'; renderPanel(); }, { sel: sel === 'beat', onSelect: () => { SUBSEL.textFx = 'beat'; renderPanel(); } }));
+      const sl = (k, def, label) => slider(k, Object.assign({}, def[k], label ? { label } : {}), () => B[k], v => { B[k] = v; });
+      const tiles = sel === 'px'
+        ? mxTiles([sl('pxSize', PXS, 'Пиксель'), sl('pxGap', PXS, 'Зазор'), sl('pxRound', PXS), sl('pxLevels', PXS, 'Градации'), sl('pxMono', PXS)])
+        : mxTiles([sl('btPulse', BTS), sl('btGlitch', BTS), slider('beatSens')], 3);
+      return [pills, mxOff(tiles, sel === 'px' ? !B.pxOn : !B.btOn)];
+    },
+  };
   function renderPanel() {
     emitState();
     const [, name, , desc] = TABS.find(t => t[0] === st.tab);
@@ -3993,6 +4140,14 @@ const STICKERS = '__STICKERS__';
     const sub = st.tab === 'text' ? h('div', { class: 'subtabs', role: 'tablist', 'aria-label': 'Текст или буквы' },
       [['text', 'Текст'], ['font', 'Шрифт']].map(([id, label]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(st.textSub === id),
         onclick: () => { if (st.textSub === id) return; st.textSub = id; renderPanel(); panel.scrollTop = 0; } }, label))) : null;
+    if (tgm && st.tab === 'text') {
+      const cur = all.find(x => x.id === SUBSEL.text) || all[0];
+      const B = (st.mainOff && selText === MAIN) ? (selText = texts[0] || MAIN) : selText;
+      renderSubbar(all, cur);
+      const hasText = !(st.mainOff && !texts.length);
+      panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc), sub), h('div', { class: 'mx-panel mx-tab-' + cur.id }, ...(hasText || cur.id === 'layers' ? TGT[cur.id](B) : TGT.layers(B))));
+      panel.scrollTop = y; return;
+    }
     let nodes = BUILD[st.tab]().filter(Boolean);
     if (tgm && all.length) {
       const have = new Set(nodes.map(n => subIndex(all, n)));
