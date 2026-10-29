@@ -295,6 +295,11 @@ textarea:focus { border-color: var(--accent); outline: none; }
 /* рамка выделенного объекта: лежит поверх холста и в экспорт не попадает */
 .sel-frame { position: absolute; z-index: 3; pointer-events: none; box-sizing: border-box; border: 1px solid rgba(190,190,190,.85); }
 .sel-frame[hidden] { display: none; }
+/* кнопки выделенного объекта: повернуть (тянуть по кругу) и удалить */
+.sel-btn { position: absolute; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #8c8c8c; color: #fff; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; touch-action: none; cursor: pointer; }
+.sel-btn::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
+.sel-btn svg.i { width: 16px; height: 16px; }
+.sel-rot { right: 0; top: -38px; cursor: grab; } .sel-del { right: -28px; top: 10px; }
 .sel-frame i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #8c8c8c; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; }
 .sel-frame i::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; } /* зона касания шире самого маркера */
 .sel-frame i:nth-child(1) { left: -6px; top: -6px; } .sel-frame i:nth-child(2) { right: -6px; top: -6px; }
@@ -6294,7 +6299,27 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const pkTabs = ['text', 'images', 'shapes'];
   const pkFrame = document.createElement('div');
   pkFrame.className = 'sel-frame'; pkFrame.hidden = true; pkFrame.innerHTML = '<i></i><i></i><i></i><i></i>';
+  const pkRot = document.createElement('button'), pkDel = document.createElement('button');
+  pkRot.type = pkDel.type = 'button'; pkRot.className = 'sel-btn sel-rot'; pkDel.className = 'sel-btn sel-del';
+  pkRot.title = pkRot.ariaLabel = 'Повернуть: тяните по кругу'; pkDel.title = pkDel.ariaLabel = 'Удалить';
+  pkRot.append(icon('d-rotate')); pkDel.append(icon('x'));
+  pkFrame.append(pkRot, pkDel);
   frame.append(pkFrame);
+  function pkDelete(it) {
+    PK.on = false;
+    if (it.kind === 'shapes') removeShape(it.o); else if (it.kind === 'images') removeLayer(it.o); else if (it.o.main) removeMainText(); else removeTextBlock(it.o);
+    renderPanel(); toast('Объект удалён. Вернуть его можно отменой действия');
+  }
+  pkDel.addEventListener('click', () => { const it = pkCurrent(); if (it) pkDelete(it); });
+  // поворот: у текста это «Поворот текста» (angle, по часовой), у фигуры — «Поворот в плоскости» (rotZ), у картинки — «Поворот» (rot); оба против часовой
+  const pkRotGet = it => it.kind === 'shapes' ? it.o.rotZ : it.kind === 'images' ? it.o.rot : (it.o.main ? P.angle : it.o.angle);
+  const pkWrap = v => { v = ((v + 180) % 360 + 360) % 360 - 180; return Math.round(v); };
+  function pkRotSet(it, v) {
+    const o = it.o;
+    if (it.kind === 'shapes') { o.rotZ = v; placeShape(o); }
+    else if (it.kind === 'images') { o.rot = v; o.group.traverse(n => { if (n.isMesh) n.rotation.z = v * Math.PI / 180; }); }
+    else setBlock(o, 'angle', v);
+  }
   function pkItems() {
     const out = [];
     if (!st.mainOff) out.push({ kind: 'text', o: MAIN, root: textGroup });
@@ -6406,6 +6431,16 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   }
   frame.addEventListener('pointerdown', e => {
     if (e.button > 0 || PK.drag || homeOpen || exporting || !pkTabs.includes(st.tab)) return;
+    const rotBtn = e.target.closest && e.target.closest('.sel-rot'), delBtn = e.target.closest && e.target.closest('.sel-del');
+    if (delBtn) { e.stopPropagation(); return; }
+    if (rotBtn) { // кнопка поворота: тянем по кругу вокруг центра рамки
+      const it0 = pkCurrent(); if (!it0) return;
+      const fr = pkFrame.getBoundingClientRect(), cx = fr.left + fr.width / 2, cy = fr.top + fr.height / 2;
+      PK.drag = { mode: 'rotate', it: it0, id: e.pointerId, cx, cy, a0: Math.atan2(e.clientY - cy, e.clientX - cx), v0: pkRotGet(it0), sx: e.clientX, sy: e.clientY, moved: false };
+      controls.enabled = false; e.stopPropagation(); e.preventDefault();
+      try { renderer.domElement.setPointerCapture(e.pointerId); } catch (_) {}
+      return;
+    }
     const handle = e.target.closest && e.target.closest('.sel-frame i'), cur = handle && pkCurrent();
     if (cur) { // угловой маркер выделенного объекта: масштаб
       const keys = pkScaleKeys(cur); if (!keys.length) return;
@@ -6439,6 +6474,12 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     if (e.pointerId !== d.id) return;
     if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 4) return;
     d.moved = true;
+    if (d.mode === 'rotate') {
+      const cw = (Math.atan2(e.clientY - d.cy, e.clientX - d.cx) - d.a0) * 180 / Math.PI; // по часовой на экране
+      const o = d.it.o, sgn = d.it.kind === 'text' ? ((o.mode === 'flat' || o.mode === 'square') && o.side === 'in' ? -1 : 1) : -1; // угол текста растёт по часовой (внутри круга и квадрата — против)
+      pkRotSet(d.it, pkWrap(d.v0 + sgn * cw));
+      return;
+    }
     if (d.mode === 'scale') {
       d.k = Math.max(d.kmin, Math.min(d.kmax, Math.hypot(e.clientX - d.cx, e.clientY - d.cy) / d.d0));
       pkScalePreview(d.it, d.k, d.keys);
@@ -6456,7 +6497,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     if (p && e.pointerId === p.id) { if (e.type === 'pointerup' && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 5) PK.on = false; PK.pend = null; }
     if (!d || e.pointerId !== d.id) return;
     PK.drag = null; controls.enabled = true;
-    if (d.moved && d.mode === 'scale') pkScaleFinish(d);
+    if (d.mode === 'rotate') { if (d.moved) renderPanel(); }
+    else if (d.moved && d.mode === 'scale') pkScaleFinish(d);
     else if (d.moved) {
       const o = d.it.o, text = d.it.kind === 'text';
       pkApply(d.it, text ? o.posX : o.x, text ? o.posY : o.y, true); renderPanel();
@@ -6470,9 +6512,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     if (e.key === 'Escape') { PK.on = false; return; }
     if ((e.key !== 'Backspace' && e.key !== 'Delete') || TG || IOS || e.metaKey || e.ctrlKey || e.altKey || PK.drag) return;
     const it = pkCurrent(); if (!it) return;
-    e.preventDefault(); PK.on = false;
-    if (it.kind === 'shapes') removeShape(it.o); else if (it.kind === 'images') removeLayer(it.o); else if (it.o.main) removeMainText(); else removeTextBlock(it.o);
-    renderPanel(); toast('Объект удалён. Вернуть его можно отменой действия');
+    e.preventDefault(); pkDelete(it);
   });
 
   /* =================== ЦИКЛ =================== */
