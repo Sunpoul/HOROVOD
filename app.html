@@ -6314,6 +6314,14 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   // поворот: у текста это «Поворот текста» (angle, по часовой), у фигуры — «Поворот в плоскости» (rotZ), у картинки — «Поворот» (rot); оба против часовой
   const pkRotGet = it => it.kind === 'shapes' ? it.o.rotZ : it.kind === 'images' ? it.o.rot : (it.o.main ? P.angle : it.o.angle);
   const pkWrap = v => { v = ((v + 180) % 360 + 360) % 360 - 180; return Math.round(v); };
+  // угол за указателем: тянем кнопку поворота или угловой маркер — объект поворачивается вокруг центра рамки
+  function pkRotTo(d, e, dead = 0) {
+    let cw = (Math.atan2(e.clientY - d.cy, e.clientX - d.cx) - d.a0) * 180 / Math.PI; // по часовой на экране
+    cw = ((cw + 180) % 360 + 360) % 360 - 180;
+    if (dead) { if (Math.abs(cw) < dead) cw = 0; else cw -= Math.sign(cw) * dead; } // небольшой допуск: тянуть угол по диагонали не должно крутить объект
+    const o = d.it.o, sgn = d.it.kind === 'text' ? ((o.mode === 'flat' || o.mode === 'square') && o.side === 'in' ? -1 : 1) : -1; // угол текста растёт по часовой (внутри круга и квадрата — против)
+    pkRotSet(d.it, pkWrap(d.v0 + sgn * cw));
+  }
   function pkRotSet(it, v) {
     const o = it.o;
     if (it.kind === 'shapes') { o.rotZ = v; placeShape(o); }
@@ -6446,6 +6454,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       const keys = pkScaleKeys(cur); if (!keys.length) return;
       const fr = pkFrame.getBoundingClientRect(), cx = fr.left + fr.width / 2, cy = fr.top + fr.height / 2;
       PK.drag = { mode: 'scale', it: cur, keys, id: e.pointerId, cx, cy, d0: Math.max(10, Math.hypot(e.clientX - cx, e.clientY - cy)), k: 1, sx: e.clientX, sy: e.clientY, moved: false,
+        a0: Math.atan2(e.clientY - cy, e.clientX - cx), v0: pkRotGet(cur),
         kmin: Math.max(...keys.map(x => x.min / x.v0)), kmax: Math.min(...keys.map(x => x.max / x.v0)) };
       controls.enabled = false; e.stopPropagation(); e.preventDefault();
       try { renderer.domElement.setPointerCapture(e.pointerId); } catch (_) {}
@@ -6475,14 +6484,13 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     if (!d.moved && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 4) return;
     d.moved = true;
     if (d.mode === 'rotate') {
-      const cw = (Math.atan2(e.clientY - d.cy, e.clientX - d.cx) - d.a0) * 180 / Math.PI; // по часовой на экране
-      const o = d.it.o, sgn = d.it.kind === 'text' ? ((o.mode === 'flat' || o.mode === 'square') && o.side === 'in' ? -1 : 1) : -1; // угол текста растёт по часовой (внутри круга и квадрата — против)
-      pkRotSet(d.it, pkWrap(d.v0 + sgn * cw));
+      pkRotTo(d, e);
       return;
     }
     if (d.mode === 'scale') {
       d.k = Math.max(d.kmin, Math.min(d.kmax, Math.hypot(e.clientX - d.cx, e.clientY - d.cy) / d.d0));
       pkScalePreview(d.it, d.k, d.keys);
+      pkRotTo(d, e, 3); // угол тянет и масштаб, и поворот
       return;
     }
     pkRay.setFromCamera(pkNdc(e), camera);
