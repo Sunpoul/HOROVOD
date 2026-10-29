@@ -704,6 +704,18 @@ html.tg-m .mx-sw i { width: 28px; height: 28px; display: grid; place-items: cent
 html.tg-m .mx-sw i.grad { background: linear-gradient(135deg, #ff6b6b, #7359ff); }
 html.tg-m .mx-sw.plus i { background: var(--well); box-shadow: none; color: var(--fg); }
 html.tg-m .mx-sw.plus svg.i { width: 16px; height: 16px; }
+html.tg-m .mx-hint { margin: 0; font: 400 11px/15px 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .mx-row { display: flex; align-items: center; gap: 8px; }
+html.tg-m .mx-row > .mx-pill { flex: 0 0 150px; height: 28px; }
+html.tg-m .mx-chips.mx-inline { margin: 0; padding: 0; }
+html.tg-m .mx-tiles .swatch { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border-radius: 10px; background: var(--well); }
+html.tg-m .mx-tiles .swatch label { flex: none; font: 400 10px/13px 'Onest', var(--font-body); color: var(--label); }
+html.tg-m .mx-tiles .swatch .pick { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+html.tg-m .mx-tiles .swatch input.hex { min-width: 0; width: 100%; height: 20px; padding: 0; border: 0; background: transparent; font: 400 11px/14px 'Onest', var(--font-body); color: var(--muted); text-align: right; }
+html.tg-m .mx-tiles .swatch input[type=color] { flex: none; width: 18px; height: 18px; border-radius: 50%; }
+html.tg-m .mx-emoji { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+html.tg-m .mx-emoji button { flex: none; width: 32px; height: 32px; border: 0; border-radius: 10px; background: var(--well); font-size: 18px; }
+html.tg-m .mx-emoji button[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px var(--fg); }
 html.tg-m .mx-native { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 html.tg-m .tp-strip.multi > .toggle { grid-column: span 2; } /* длинная подпись переключателя («Отбрасывать тени») не обрезается */
 /* 1.3.0: список слоёв занимает всю ширину, «Добавить …» — главная белая кнопка, как во флоу макета */
@@ -5189,6 +5201,36 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       return [pills, mxOff(tiles, sel === 'px' ? !B.pxOn : !B.btOn)];
     },
   };
+
+  /* Mini App 1.3.0: эффекты сцены по макетам — плашка-переключатель и плитки эффекта (бледные, когда эффект выключен) */
+  // у выключенного эффекта плитки показывают значения, с которыми он включится (запомненные или по умолчанию), а не нули
+  const fxShow = k => { for (const [u, U] of Object.entries(FX_UNITS)) if (U.keys.includes(k) && !fxOn(u)) { const m = FX_MEM[u] && U.main.some(x => FX_MEM[u][x] > 0) ? FX_MEM[u] : U.on; if (m[k] != null) return m[k]; } return P[k]; };
+  const mxLabel = (k, label) => slider(k, Object.assign({}, S[k], { label }), () => fxShow(k));
+  function mxFxTab(ic, label, on, set, tiles, cols, extra) {
+    const pill = mxPill(ic, label, on, v => { set(v); renderPanel(); });
+    const head = extra ? h('div', { class: 'mx-row' }, pill, extra) : pill;
+    return [head, mxOff(mxTiles(tiles, cols), !on)];
+  }
+  const TGF = {
+    presets() {
+      return [mxChips(Object.keys(FX_PRESETS).map(n => [n, n]), activeFxPreset, n => { activeFxPreset = n; setMany(FX_PRESETS[n]); renderPanel(); }),
+        h('p', { class: 'mx-hint' }, 'Пресет включает набор эффектов сразу. Каждый подстраивается на своей вкладке.')];
+    },
+    noise() { return mxFxTab(null, 'Шум', fxOn('noise'), v => fxSet('noise', v), [mxLabel('noise', 'Сила'), mxLabel('grain', 'Размер зерна')], 2); },
+    pixels() { return mxFxTab(null, 'Пиксели · как светодиодный экран', fxOn('pixel'), v => fxSet('pixel', v),
+      [mxLabel('pixel', 'Сила'), mxLabel('pixelSize', 'Размер пикселя'), mxLabel('pixelGap', 'Зазор'), mxLabel('pixelRound', 'Скругление'), mxLabel('pixelLevels', 'Градации'), mxLabel('pixelMono', 'Один цвет'), color('pixelTint'), color('pixelBack')], 3); },
+    vhs() { return mxFxTab(null, 'Глитч VHS', fxOn('vhs'), v => fxSet('vhs', v),
+      [mxLabel('vhs', 'Искажение'), mxLabel('glitch', 'Срывы кадра'), mxLabel('aberr', 'Расслоение'), mxLabel('scan', 'Сканлайны')], 4); },
+    petrol() { return mxFxTab(null, 'Бензин · радужная плёнка на буквах', fxOn('petrol'), v => fxSet('petrol', v),
+      [mxLabel('petrol', 'Сила перелива'), mxLabel('petrolScale', 'Масштаб'), mxLabel('petrolSpeed', 'Течение')], 3); },
+    ash() {
+      const shape = mxChips([['flake', 'Хлопья'], ['emoji', 'Эмодзи']], st.ashShape, v => { st.ashShape = v; applyAsh(); renderPanel(); }, 'mx-inline');
+      const out = mxFxTab('d-snow', 'Пепел', !!P.ashOn, v => setParam('ashOn', v),
+        [mxLabel('ashCount', 'Частицы'), mxLabel('ashSpeed', 'Падение'), mxLabel('ashSize', 'Размер'), mxLabel('ashWind', 'Ветер'), st.ashShape === 'emoji' ? null : color('ashColor')], 4, shape);
+      if (st.ashShape === 'emoji') { const row = ashEmojiPicker().querySelector('.emoji-row'); row.classList.add('mx-emoji'); out.splice(1, 0, mxOff(row, !P.ashOn)); }
+      return out;
+    },
+  };
   function renderPanel() {
     emitState();
     const [, name, , desc] = TABS.find(t => t[0] === st.tab);
@@ -5200,6 +5242,12 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const sub = st.tab === 'text' ? h('div', { class: 'subtabs', role: 'tablist', 'aria-label': 'Текст или буквы' },
       [['text', 'Текст'], ['font', 'Шрифт']].map(([id, label]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(st.textSub === id),
         onclick: () => { if (st.textSub === id) return; st.textSub = id; renderPanel(); panel.scrollTop = 0; } }, label))) : null;
+    if (tgm && st.tab === 'fx') {
+      const cur = all.find(x => x.id === SUBSEL.fx) || all[0];
+      renderSubbar(all, cur);
+      panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc)), h('div', { class: 'mx-panel mx-tab-fx' }, ...TGF[cur.id]()));
+      panel.scrollTop = y; return;
+    }
     if (tgm && st.tab === 'text') {
       const cur = all.find(x => x.id === SUBSEL.text) || all[0];
       const B = (st.mainOff && selText === MAIN) ? (selText = texts[0] || MAIN) : selText;
