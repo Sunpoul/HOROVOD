@@ -586,7 +586,7 @@ html.tg-m .tab:not([aria-selected="true"]) { color: rgba(255, 255, 255, .62); } 
 html.tg-m .tab[aria-selected="true"] { background: rgba(16, 16, 16, .34); color: var(--fg); }
 html.tg-m .stage-mini { position: absolute; z-index: 5; left: 14px; bottom: 16px; display: flex; align-items: center; gap: 11px; padding: 5px 11px 5px 5px; background: #222; border-radius: 11px; }
 html.tg-m .player { display: none; }
-html.tg-m .stage-mini { flex-wrap: nowrap; gap: 14px; padding-right: 14px; } /* компактная плашка: только play и громкость, без времени и перемотки */
+html.tg-m .stage-mini { flex-wrap: nowrap; gap: 4px; padding: 5px; } /* компактная плашка: только play и громкость, без времени и перемотки */
 html.tg-m .stage-mini .mini-extra { display: none; }
 html.tg-m .tp-wide .text-input { height: 36px; padding: 0 12px; }
 html.tg-m .stage-mini .pl-time { flex: 1; color: var(--label); font: 400 11px/14px 'Onest', var(--font-body); font-variant-numeric: tabular-nums; text-align: center; }
@@ -596,7 +596,7 @@ html.tg-m .stage-mini input.mini-extra[type=range]::-webkit-slider-thumb { -webk
 html.tg-m .stage-mini .icon-btn { color: var(--fg); }
 html.tg-m #playBtn { width: 28px; height: 30px; border-radius: 7px; background: #343434; }
 html.tg-m #playBtn svg.i { width: 14px; height: 14px; }
-html.tg-m #muteBtn { width: 14px; height: 14px; }
+html.tg-m #muteBtn { flex: none; width: 28px; height: 30px; }
 html.tg-m #muteBtn svg.i { width: 14px; height: 14px; }
 html.tg-m .sheet-grip { display: none; }
 /* шторка: 16 px под холстом, настройки раздела, внизу вкладки */
