@@ -661,6 +661,8 @@ html.tg-m .mx-chips, html.tg-m .mx-cards, html.tg-m .mx-swatches { display: flex
 html.tg-m .mx-chips::-webkit-scrollbar, html.tg-m .mx-cards::-webkit-scrollbar, html.tg-m .mx-swatches::-webkit-scrollbar, html.tg-m .mx-tiles::-webkit-scrollbar { display: none; }
 html.tg-m .mx-chip { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--well); color: #d9d9d9; font: 400 12px/15px 'Onest', var(--font-body); white-space: nowrap; }
 html.tg-m .mx-chip[aria-pressed="true"] { background: #f4f4f4; color: #000; }
+html.tg-m .mx-chip.has-ic { display: inline-flex; align-items: center; gap: 4px; padding: 0 10px 0 7px; }
+html.tg-m .mx-chip svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 html.tg-m .mx-sep { flex: none; width: 1px; height: 16px; background: var(--line); }
 html.tg-m .mx-tiles { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - (var(--cols, 4) - 1) * 8px) / var(--cols, 4)); grid-template-rows: 34px; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 html.tg-m .mx-tiles .field label { padding-top: 3px; }
@@ -5159,8 +5161,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   /* =================== Mini App 1.3.0: вкладки текста строго по макетам Figma (страница «App») =================== */
   // Каждая вкладка собирается здесь вручную, а не упаковщиком: ряды и размеры как в макете.
   const MX_COLORS = ['#ffffff', '#0b0b0b', '#ff6b6b', '#ffd84d', '#4dffb0', '#5a8cff'];
-  const mxChips = (items, cur, pick, cls = '') => h('div', { class: 'mx-chips ' + cls }, items.map(([v, label]) =>
-    h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(v === cur), onclick: () => pick(v) }, label)));
+  const svgOf = markup => { const g = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); g.setAttribute('viewBox', '0 0 24 24'); g.innerHTML = markup; return g; };
+  // третий элемент строки — разметка значка (например, MODE_ICONS.flat): значок стоит слева от подписи
+  const mxChips = (items, cur, pick, cls = '') => h('div', { class: 'mx-chips ' + cls }, items.map(([v, label, ic]) =>
+    h('button', { class: 'mx-chip' + (ic ? ' has-ic' : ''), type: 'button', 'aria-pressed': String(v === cur), onclick: () => pick(v) }, ic ? svgOf(ic) : null, label)));
   function mxSlider(B, k, label, def) {
     const d = Object.assign({}, def || S[k], label ? { label } : {});
     return B.main && !def ? slider(k, d) : slider(k, d, () => B[k], v => setBlock(B, k, v));
@@ -5220,7 +5224,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     },
     form(B) {
       const plain = B.mode === 'plain';
-      const forms = mxChips([['flat', 'Круг'], ['square', 'Квадрат'], ['cyl', 'Цилиндр'], ['plain', 'Плоский']], B.mode, v => { setBlock(B, 'mode', v); renderPanel(); });
+      const forms = mxChips([['flat', 'Круг', MODE_ICONS.flat], ['square', 'Квадрат', MODE_ICONS.square], ['cyl', 'Цилиндр', MODE_ICONS.cyl], ['plain', 'Плоский', MODE_ICONS.plain]], B.mode, v => { setBlock(B, 'mode', v); renderPanel(); });
       const row2 = plain
         ? mxChips([['left', 'Слева'], ['center', 'По центру'], ['right', 'Справа']], B.align, v => { setBlock(B, 'align', v); renderPanel(); })
         : (() => { const r = mxChips([['none', 'Как есть'], ['stretch', 'Растянуть'], ['repeat', 'Повторить']], B.fit, v => { setBlock(B, 'fit', v); renderPanel(); });
