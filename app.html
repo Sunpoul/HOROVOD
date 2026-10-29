@@ -650,6 +650,16 @@ html.tg-m .tp-strip .btn svg.i { width: 16px; height: 16px; }
 html.tg-m .tp-strip .dropzone { height: 34px; padding: 0 10px; flex-direction: row; justify-content: center; gap: 6px; border: 1px dashed var(--line); border-radius: 10px; font-size: 0; }
 html.tg-m .tp-strip .dropzone strong { font: 500 11px/14px var(--font-body); }
 html.tg-m .tp-strip .dropzone svg.i { width: 16px; height: 16px; }
+/* 1.3.0: сброс — узкая кнопка-значок в конце ряда; выключенный эффект — настройки бледные и не нажимаются */
+html.tg-m .tp-strip .tp-reset { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 10px; background: var(--well); color: var(--label); }
+html.tg-m .tp-strip.four .tp-reset { height: 40px; }
+html.tg-m .tp-strip .tp-reset svg.i { width: 16px; height: 16px; }
+html.tg-m .is-off { opacity: .35; pointer-events: none; }
+html.tg-m .tp-strip.multi > .toggle { grid-column: span 2; } /* длинная подпись переключателя («Отбрасывать тени») не обрезается */
+/* 1.3.0: список слоёв занимает всю ширину, «Добавить …» — главная белая кнопка, как во флоу макета */
+html.tg-m .tp-wide .layers { flex: 1 0 auto; min-width: 100%; }
+html.tg-m .tp-wide .layer { flex: 1 0 168px; }
+html.tg-m .tp-strip .btn:has(use[href="#i-plus"]) { background: var(--accent); color: var(--accent-ink); }
 html.tg-m .hint { display: none; }
 .sticker-grid .st-name { display: none; }
 html.tg-m .sticker-grid .st-name { display: block; }
@@ -761,7 +771,7 @@ body.ios .frame { box-shadow: none; }
 <div class="lock" id="gate" role="dialog" aria-modal="true" aria-label="Вход">
   <div class="lock-card">
     <div class="gate-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true" fill="currentColor"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" /><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" /><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" /><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" /><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" /><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" /><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" /><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" /><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" /><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" /><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" /><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" /><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" /><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" /><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" /><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" /><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" /><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" /><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" /><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" /><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" /><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" /><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" /><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" /></svg><b>HRVD</b></div>
-    <p class="gate-beta">Beta 1.3</p>
+    <p class="gate-beta">Beta 1.3.0</p>
     <p class="hint">Закрытая бета. Войдите, чтобы открыть редактор</p>
     <form class="gate-form" novalidate>
       <input class="text-input" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Логин" aria-label="Логин">
@@ -4485,7 +4495,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       return h('section', { class: 'sec', 'data-sec': title }, h('div', { class: 'sec-head' },
         h('h3', {}, h('span', { class: 'sec-toggle static' }, h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title))),
         h('label', { class: 'toggle switch-only' }, sw)),
-        ...(on ? [h('div', { class: 'sec-body' }, ...kids, resetKeys ? h('button', { class: 'btn small block', type: 'button', onclick: doReset }, 'Сбросить') : null)] : []));
+        ...(on ? [h('div', { class: 'sec-body' }, ...kids, resetKeys ? h('button', { class: 'btn small block', type: 'button', onclick: doReset }, 'Сбросить') : null)]
+          // Mini App 1.3: у выключенного эффекта настройки видны бледными (как в макете), но не нажимаются
+          : isTgm() ? [h('div', { class: 'sec-body is-off', inert: '' }, ...kids)] : []));
     }
     const key = st.tab + ':' + title, was = OPENED[key], closed = isTgm() ? false : was === undefined ? !(opts && opts.open) : !was; // opts.open — развёрнута, пока пользователь не свернул
     const body = h('div', { class: 'sec-body' }, ...kids); body.hidden = closed;
@@ -4593,20 +4605,35 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       else if (c.matches('.group, .chips')) chips.append(c);
       else wide.append(c);
     };
+    // выключенный эффект показываем бледным рядом из 3 плиток, и только если во вкладке нет включённых — иначе шторка вырастет и сожмёт холст
+    const bodyOf = n => n.querySelector && n.querySelector(':scope > .sec-body');
+    const anyOn = nodes.some(n => { const b = bodyOf(n); return b && !b.classList.contains('is-off') && n.querySelector(':scope > .sec-head .switch-only'); });
+    let offShown = anyOn;
     nodes.forEach(n => {
+      const b0 = bodyOf(n);
+      if (b0 && b0.classList.contains('is-off')) { if (offShown) b0.remove(); else { offShown = true; [...b0.children].filter(c => !c.matches('.field')).forEach(c => c.remove()); [...b0.children].slice(3).forEach(c => c.remove()); } }
       if (n.classList && n.classList.contains('sub-chips')) { chips.append(n); return; }
       const hd = n.querySelector && n.querySelector(':scope > .sec-head');
-      if (hd) { if (hd.querySelector('.switch-only')) head.append(hd); else { const l = hd.querySelector('.link'); if (l) strip.append(l); } }
+      if (hd) { if (hd.querySelector('.switch-only')) head.append(hd); else { const l = hd.querySelector('.link'); if (l) { l.className = 'icon-btn tp-reset'; l.title = 'Сбросить'; l.setAttribute('aria-label', 'Сбросить'); l.textContent = ''; l.append(icon('cam')); strip.append(l); } } }
       const body = n.querySelector && n.querySelector(':scope > .sec-body');
-      if (body) [...body.children].forEach(put);
+      const off = body && body.classList.contains('is-off');
+      if (body) [...body.children].forEach(c => {
+        if (off) { c.classList.add('is-off'); c.inert = true; }
+        // «Сбросить» — круглая кнопка-значок в конце ряда, чтобы не отнимать ширину у плиток
+        if (c.matches('.btn, .link') && c.textContent.trim() === 'Сбросить') { c.className = 'icon-btn tp-reset'; c.title = 'Сбросить'; c.setAttribute('aria-label', 'Сбросить'); c.textContent = ''; c.append(icon('cam')); }
+        put(c);
+      });
     });
-    const n = strip.children.length;
+    // сброс всегда последний и узкий (34 px), остальные плитки делят ширину
+    const rs = [...strip.querySelectorAll(':scope > .tp-reset')]; rs.forEach(r => strip.append(r));
+    const n = strip.children.length - rs.length;
     if (n) {
-      const fields = [...strip.children].every(c => c.classList.contains('field'));
-      if (n <= 3) strip.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
-      else if (n === 4 && fields) { strip.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))'; strip.classList.add('four'); }
-      else strip.style.gridTemplateColumns = `repeat(${Math.ceil(n / 2)}, 114px)`;
-    }
+      const fields = [...strip.children].filter(c => !c.classList.contains('tp-reset')).every(c => c.classList.contains('field'));
+      const tail = rs.length ? ' 34px' : '';
+      if (n <= 3) strip.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))` + tail;
+      else if (n === 4 && fields) { strip.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))' + tail; strip.classList.add('four'); }
+      else { strip.style.gridTemplateColumns = Math.ceil(n / 2) <= 3 && rs.length ? `repeat(${Math.ceil(n / 2)}, minmax(0, 1fr))` : `repeat(${Math.ceil(n / 2)}, 114px)`; rs.forEach(r => { r.style.gridRow = '1'; r.style.gridColumn = String(Math.ceil(n / 2) + 1); }); strip.style.gridTemplateColumns += tail; if (Math.ceil(n / 2) === 3) strip.classList.add('multi'); }
+    } else rs.forEach(r => r.remove());
     return [head, chips, wide, strip].filter(r => r.children.length);
   }
   function selectTab(id) { st.tab = id; renderRail(); renderPanel(); $('panel').scrollTop = 0; }
@@ -5119,7 +5146,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   (function teInit() {
     const ta = $('teInput'), size = $('teSize');
     ta.addEventListener('input', () => { teSetText(teBlock(), ta.value); teFitText(); });
-    $('teDone').addEventListener('click', teClose);
+    $('teDone').addEventListener('click', () => { if (!SUBSEL.text || SUBSEL.text === 'layers') SUBSEL.text = 'form'; teClose(); }); // как во флоу макета: после «Готово» — вкладка «Форма»
     $('teEmoji').addEventListener('click', () => { TE.emoji = !TE.emoji; teRender(); });
     $('teMore').addEventListener('click', () => { addTextBlock(); teRender(); $('teInput').focus(); });
     const setFrom = e => {
@@ -5275,7 +5302,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
-  const APP_VERSION = '1.3'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
+  const APP_VERSION = '1.3.0'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
   const SEND_URL = 'https://1052b65425fe2e.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   let downloads = null;
