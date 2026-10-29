@@ -754,7 +754,7 @@ html.tg-m .mx-prog { display: block; height: 3px; margin-top: 6px; border-radius
 html.tg-m .mx-prog i { display: block; height: 100%; background: var(--fg); }
 html.tg-m .mx-play { flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
 html.tg-m .mx-play svg.i { width: 18px; height: 18px; }
-html.tg-m .mx-wave { position: relative; display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 8px; border-radius: 10px; background: var(--well); overflow: hidden; }
+html.tg-m .mx-wave { touch-action: none; cursor: ew-resize; position: relative; display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 8px; border-radius: 10px; background: var(--well); overflow: hidden; }
 html.tg-m .mx-wave i { width: 3px; border-radius: 2px; background: #4a4a4a; }
 html.tg-m .mx-wave i.on { background: var(--fg); }
 html.tg-m .mx-sel { position: absolute; top: 0; bottom: 0; border: 1.5px solid var(--fg); border-radius: 8px; pointer-events: none; }
@@ -4351,10 +4351,38 @@ const STICKERS = '__STICKERS__';
       if (!MU.audio || !isFinite(MU.audio.duration)) return TGM.track();
       const d = MU.audio.duration, a = MU.clipStart / d, b = MU.clipLen ? Math.min(1, (MU.clipStart + MU.clipLen) / d) : 1;
       const wave = h('div', { class: 'mx-wave' }); for (let i = 0; i < 58; i++) { const x = (i + .5) / 58; wave.append(h('i', { class: x >= a && x <= b ? 'on' : '', style: `height:${Math.round(6 + 20 * Math.abs(Math.sin(i * .7) * Math.cos(i * .23)))}px` })); }
-      wave.append(h('span', { class: 'mx-sel', style: `left:${(a * 100).toFixed(2)}%;width:${((b - a) * 100).toFixed(2)}%` }));
-      return [wave, mxTiles([
+      const sel = h('span', { class: 'mx-sel' }); wave.append(sel);
+      const paint = () => {
+        const a = MU.clipStart / d, b = MU.clipLen ? Math.min(1, (MU.clipStart + MU.clipLen) / d) : 1;
+        [...wave.querySelectorAll('i')].forEach((el, i) => { const x = (i + .5) / 58; el.classList.toggle('on', x >= a && x <= b); });
+        sel.style.left = (a * 100).toFixed(2) + '%'; sel.style.width = ((b - a) * 100).toFixed(2) + '%';
+      };
+      paint();
+      const tiles = mxTiles([
         slider('clipStart', { label: 'Начало', min: 0, max: Math.max(1, Math.floor(d - 1)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipStart, v => { setClip(v, MU.clipLen); }),
-        slider('clipLen', { label: 'Длина (0 — до конца)', min: 0, max: Math.max(1, Math.ceil(d)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipLen, v => { setClip(MU.clipStart, v); })], 2)];
+        slider('clipLen', { label: 'Длина (0 — до конца)', min: 0, max: Math.max(1, Math.ceil(d)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipLen, v => { setClip(MU.clipStart, v); })], 2);
+      tiles.addEventListener('input', paint); tiles.addEventListener('change', paint);
+      // выбор отрывка пальцем по волне: у левого края двигаем начало, у правого — конец, внутри окна — окно целиком, мимо окна — окно прыгает к пальцу
+      const half = v => Math.round(v * 2) / 2, put = (id, v) => { const r = $(id); if (r) { r.value = v; r.dispatchEvent(new Event('input')); } };
+      wave.addEventListener('pointerdown', e => {
+        e.preventDefault();
+        const box = wave.getBoundingClientRect(), tAt = ev => Math.max(0, Math.min(1, (ev.clientX - box.left) / box.width)) * d;
+        const t0 = tAt(e), s0 = MU.clipStart, e0 = MU.clipLen ? Math.min(d, s0 + MU.clipLen) : d, L = e0 - s0, tol = 16 / box.width * d;
+        const mode = Math.abs(t0 - s0) <= tol && Math.abs(t0 - s0) <= Math.abs(t0 - e0) ? 'start' : Math.abs(t0 - e0) <= tol ? 'end' : 'move';
+        const off = t0 >= s0 && t0 <= e0 ? t0 - s0 : L / 2, hadLen = MU.clipLen > 0;
+        const apply = ev => {
+          const t = tAt(ev); let s = s0, len = MU.clipLen;
+          if (mode === 'start') { s = Math.max(0, Math.min(half(t), e0 - 1)); len = hadLen ? e0 - s : 0; }
+          else if (mode === 'end') { const en = Math.max(half(t), s0 + 1); len = en >= d - .25 ? 0 : en - s0; }
+          else { s = Math.max(0, Math.min(half(t - off), d - L)); len = s + L >= d - .25 ? 0 : L; }
+          put('f-clipStart', s); put('f-clipLen', len); paint();
+        };
+        wave.setPointerCapture(e.pointerId);
+        const up = () => { wave.removeEventListener('pointermove', apply); wave.removeEventListener('pointerup', up); wave.removeEventListener('pointercancel', up); };
+        wave.addEventListener('pointermove', apply); wave.addEventListener('pointerup', up); wave.addEventListener('pointercancel', up);
+        apply(e);
+      });
+      return [wave, tiles];
     },
     spectrum() {
       const chips = mxChips([['bars', 'Полосы'], ['gram', 'Спектрограмма'], ['sphere', 'Сфера']], st.specMode, v => {
