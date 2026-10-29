@@ -592,41 +592,67 @@ html.tg-m #muteBtn { width: 14px; height: 14px; }
 html.tg-m #muteBtn svg.i { width: 14px; height: 14px; }
 html.tg-m .sheet-grip { display: none; }
 /* шторка: 16 px под холстом, настройки раздела, внизу вкладки */
-html.tg-m .panel { height: auto; min-height: 0; max-height: max(116px, 17dvh); margin-top: 16px; padding: 0 16px; background: var(--panel); transition: none; }
+html.tg-m .panel { height: auto; min-height: 0; max-height: none; margin-top: 16px; padding: 0 16px; overflow: hidden; background: var(--panel); transition: none; }
 html.tg-m .panel-head { display: none; }
-html.tg-m .panel .sec { padding: 0; border: 0; gap: 8px; }
-html.tg-m .panel .sec + .sec { margin-top: 8px; }
-html.tg-m .panel .sec-head h3 > button.sec-toggle { display: none; }
-html.tg-m .panel .sec-head:not(:has(.switch-only)) { justify-content: flex-end; min-height: 0; }
-html.tg-m .panel .sec-head:not(:has(.switch-only)):not(:has(.link)) { display: none; }
-html.tg-m .panel .sec-head:has(.switch-only) { height: 32px; padding: 0 10px; background: var(--well); border-radius: 10px; }
-html.tg-m .panel .sec-head .sec-toggle.static { padding: 0; font: 400 12px/15px 'Onest', var(--font-body); color: var(--label); }
-html.tg-m .panel .sec-head .sec-ic { display: none; }
-html.tg-m .panel .sec-head .toggle input { width: 32px; height: 20px; }
-html.tg-m .panel .sec-head .toggle input::after { top: 3px; left: 3px; width: 14px; height: 14px; }
-html.tg-m .panel .sec-head .toggle input:checked::after { transform: translateX(12px); }
-html.tg-m .panel .sec-body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-html.tg-m .panel .sec-body > * { grid-column: 1 / -1; }
-html.tg-m .panel .sec-body > .field, html.tg-m .panel .sec-body > .swatch { grid-column: auto; }
-html.tg-m .panel .sub-chips ~ .sec .sec-body { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-html.tg-m .panel .sub-chips ~ .sec .field { height: 40px; }
-html.tg-m .panel .sub-chips ~ .sec .field label { padding-top: 5px; }
-html.tg-m .hint { font-size: 11px; line-height: 14px; }
-html.tg-m .panel .sticker-grid { display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
-html.tg-m .panel .sticker-grid::-webkit-scrollbar { display: none; }
-html.tg-m .panel .sticker-grid button { flex: none; width: 67px; height: 71px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 16px; background: transparent; }
-html.tg-m .panel .sticker-grid img { width: 28px; height: 28px; object-fit: contain; }
-html.tg-m .panel .sticker-grid .st-name { font: 400 11px/normal 'Onest', var(--font-body); color: var(--label); }
-html.tg-m .sub-chips { flex-wrap: nowrap; overflow-x: auto; gap: 8px; margin: 0 -16px 12px; padding: 0 16px; scrollbar-width: none; }
-html.tg-m .sub-chips::-webkit-scrollbar { display: none; }
-html.tg-m .chip { flex: none; height: 28px; padding: 0 12px; font-size: 12px; line-height: 15px; background: var(--well); color: var(--fg); }
-html.tg-m .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-/* ползунок — плитка 114 × 34: подпись, значение и заливка по положению */
+html.tg-m .tp-head, html.tg-m .tp-chips, html.tg-m .tp-wide, html.tg-m .tp-strip { margin: 0 -16px 8px; padding: 0 16px; }
+html.tg-m .tp-head { display: flex; flex-direction: column; gap: 8px; }
+html.tg-m .tp-head .sec-head { height: 32px; padding: 0 10px; background: var(--well); border-radius: 10px; display: flex; align-items: center; justify-content: space-between; }
+html.tg-m .tp-head h3 { margin: 0; }
+html.tg-m .tp-head .sec-toggle.static { padding: 0; font: 400 12px/15px 'Onest', var(--font-body); color: var(--label); }
+html.tg-m .tp-head .sec-ic { display: none; }
+html.tg-m .tp-head .toggle input { width: 32px; height: 20px; }
+html.tg-m .tp-head .toggle input::after { top: 3px; left: 3px; width: 14px; height: 14px; }
+html.tg-m .tp-head .toggle input:checked::after { transform: translateX(12px); }
+html.tg-m .tp-chips, html.tg-m .tp-wide { display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .tp-chips::-webkit-scrollbar, html.tg-m .tp-wide::-webkit-scrollbar, html.tg-m .tp-strip::-webkit-scrollbar { display: none; }
+html.tg-m .tp-chips > *, html.tg-m .tp-wide > * { flex: none; }
+html.tg-m .tp-chips .group { display: contents; }
+html.tg-m .tp-chips .seg-label { display: none; }
+html.tg-m .tp-chips .seg { display: flex; gap: 8px; }
+html.tg-m .tp-chips .seg button, html.tg-m .tp-chips .chip { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--well); color: var(--label); font: 500 12px/15px var(--font-body); white-space: nowrap; }
+html.tg-m .tp-chips .seg button[aria-pressed="true"], html.tg-m .tp-chips .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+html.tg-m .tp-chips .seg.icons button { width: 44px; padding: 0; display: grid; place-items: center; }
+html.tg-m .tp-chips .seg.icons svg { width: 18px; height: 18px; }
+html.tg-m .tp-wide .tp-fonts { display: flex; gap: 8px; }
+html.tg-m .tp-wide .layers { flex-direction: row; gap: 8px; }
+html.tg-m .tp-wide .layer { flex: none; width: 168px; }
+html.tg-m .tp-wide .shape-add { display: flex; gap: 8px; }
+html.tg-m .tp-wide .shape-add button { flex: none; width: 67px; height: 71px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 16px; background: transparent; color: var(--label); font: 400 11px/normal 'Onest', var(--font-body); }
+html.tg-m .tp-wide .row { flex-wrap: nowrap; }
+html.tg-m .tp-wide .btn, html.tg-m .tp-wide .link { height: 34px; padding: 0 12px; border: 0; border-radius: 10px; background: var(--well); color: var(--fg); font: 500 11px/14px var(--font-body); white-space: nowrap; }
+html.tg-m .tp-wide .btn.small { height: 34px; }
+html.tg-m .tp-wide .media-row { min-width: 300px; }
+html.tg-m .tp-wide .empty { padding: 0 4px; white-space: nowrap; }
+html.tg-m .tp-strip { display: grid; gap: 8px; grid-auto-rows: 34px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .tp-strip.four { grid-auto-rows: 40px; }
+html.tg-m .tp-strip .swatch { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border-radius: 10px; background: var(--well); }
+html.tg-m .tp-strip .swatch label { flex: none; font: 400 11px/14px 'Onest', var(--font-body); color: var(--label); }
+html.tg-m .tp-strip .swatch .pick { flex: 1; min-width: 0; justify-content: flex-end; gap: 6px; }
+html.tg-m .tp-strip .swatch input.hex { height: 20px; min-width: 0; padding: 0; border: 0; background: transparent; font: 400 11px/14px 'Onest', var(--font-body); color: var(--muted); text-align: right; }
+html.tg-m .tp-strip .swatch input[type=color] { width: 18px; height: 18px; border-radius: 50%; }
+html.tg-m .tp-strip .toggle { height: 34px; min-height: 0; padding: 0 10px; border-radius: 10px; background: var(--well); gap: 6px; }
+html.tg-m .tp-strip .toggle span { font: 400 11px/14px 'Onest', var(--font-body); color: var(--label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.tg-m .tp-strip .toggle input { width: 32px; height: 20px; }
+html.tg-m .tp-strip .toggle input::after { top: 3px; left: 3px; width: 14px; height: 14px; }
+html.tg-m .tp-strip .toggle input:checked::after { transform: translateX(12px); }
+html.tg-m .tp-strip .btn, html.tg-m .tp-strip .link { height: 34px; padding: 0 10px; border: 0; border-radius: 10px; background: var(--well); color: var(--fg); font: 500 11px/14px var(--font-body); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.tg-m .tp-strip .btn svg.i { width: 16px; height: 16px; }
+html.tg-m .tp-strip .dropzone { height: 34px; padding: 0 10px; flex-direction: row; justify-content: center; gap: 6px; border: 1px dashed var(--line); border-radius: 10px; font-size: 0; }
+html.tg-m .tp-strip .dropzone strong { font: 500 11px/14px var(--font-body); }
+html.tg-m .tp-strip .dropzone svg.i { width: 16px; height: 16px; }
+html.tg-m .hint { display: none; }
 .sticker-grid .st-name { display: none; }
 html.tg-m .sticker-grid .st-name { display: block; }
-html.tg-m .field { position: relative; display: block; height: 34px; padding: 0; border-radius: 10px; background: var(--well); overflow: hidden; }
+html.tg-m .tp-wide .sticker-grid { display: flex; gap: 8px; }
+html.tg-m .tp-wide .sticker-grid button { flex: none; width: 67px; height: 71px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 16px; background: transparent; }
+html.tg-m .tp-wide .sticker-grid img { width: 28px; height: 28px; object-fit: contain; }
+html.tg-m .tp-wide .sticker-grid .st-name { font: 400 11px/normal 'Onest', var(--font-body); color: var(--label); }
+html.tg-m .dd-menu { position: fixed; z-index: 65; left: 16px; right: 16px; top: auto; bottom: calc(var(--tg-bot) + 110px); max-height: 40dvh; }
+/* ползунок — плитка 114 × 34: подпись, значение и заливка по положению */
+html.tg-m .field { position: relative; display: block; height: 100%; padding: 0; border-radius: 10px; background: var(--well); overflow: hidden; }
 html.tg-m .field::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--p, 0) * 100%); background: var(--raised); pointer-events: none; }
 html.tg-m .field label { position: relative; display: block; padding: 3px 0 0 10px; font: 400 10px/13px 'Onest', var(--font-body); color: var(--label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+html.tg-m .tp-strip.four .field label { padding-top: 5px; }
 html.tg-m .field .num { position: relative; display: block; width: 100%; height: 14px; padding: 0 0 0 10px; border: 0; background: transparent; font: 500 11px/14px 'Onest', var(--font-body); color: var(--fg); pointer-events: none; }
 html.tg-m .field input[type=range] { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; margin: 0; opacity: 0; touch-action: pan-y; }
 /* вкладки раздела внизу */
@@ -3475,6 +3501,34 @@ const STICKERS = '__STICKERS__';
       onclick: () => { if (SUBSEL[st.tab] === x.id) return; SUBSEL[st.tab] = x.id; renderPanel(); $('panel').scrollTop = 0; } },
       h('span', { class: 'sb-ic' }, x.ic === 'fx' ? h('span', { class: 'sb-fx' }, 'FX') : (() => { const g = icon('d-' + x.ic); if (x.s) g.style.width = g.style.height = x.s + 'px'; return g; })()), h('span', { class: 'sb-name' }, x.label))));
   }
+  // Mini App: настройки раздела собираются в компактные ряды без вертикальной прокрутки — переключатели, чипы выбора,
+  // карточки и сетка плиток; всё, что не помещается по ширине, листается вбок.
+  function tgPack(nodes) {
+    const head = h('div', { class: 'tp-head' }), chips = h('div', { class: 'tp-chips' }), wide = h('div', { class: 'tp-wide' }), strip = h('div', { class: 'tp-strip' });
+    const put = c => {
+      if (c.matches('.empty')) wide.append(c);
+      else if (c.matches('textarea, .emoji-row, p, .hint')) return;
+      else if (c.matches('.tp-fonts')) wide.append(c);
+      else if (c.matches('.field, .swatch, .toggle, .btn, .dropzone')) strip.append(c);
+      else if (c.matches('.group, .chips')) chips.append(c);
+      else wide.append(c);
+    };
+    nodes.forEach(n => {
+      if (n.classList && n.classList.contains('sub-chips')) { chips.append(n); return; }
+      const hd = n.querySelector && n.querySelector(':scope > .sec-head');
+      if (hd) { if (hd.querySelector('.switch-only')) head.append(hd); else { const l = hd.querySelector('.link'); if (l) strip.append(l); } }
+      const body = n.querySelector && n.querySelector(':scope > .sec-body');
+      if (body) [...body.children].forEach(put);
+    });
+    const n = strip.children.length;
+    if (n) {
+      const fields = [...strip.children].every(c => c.classList.contains('field'));
+      if (n <= 3) strip.style.gridTemplateColumns = `repeat(${n}, minmax(0, 1fr))`;
+      else if (n === 4 && fields) { strip.style.gridTemplateColumns = 'repeat(4, minmax(0, 1fr))'; strip.classList.add('four'); }
+      else strip.style.gridTemplateColumns = `repeat(${Math.ceil(n / 2)}, 114px)`;
+    }
+    return [head, chips, wide, strip].filter(r => r.children.length);
+  }
   function selectTab(id) { st.tab = id; renderRail(); renderPanel(); $('panel').scrollTop = 0; }
 
   // формы текста: иконки в переключателе и названия в списке текстов (gen — для подписи «Заполнение …»)
@@ -3636,7 +3690,8 @@ const STICKERS = '__STICKERS__';
     },
     font() {
       const B = selText;
-      const list = dropdown('Шрифт', fonts.map(f => ({ value: f.id, label: f.label, badge: f.builtin ? null : 'ваш', family: fontPreview(f) })), () => B.font.id, id => { setBlock(B, 'fontId', id); renderPanel(); },
+      const list = isTgm() ? h('div', { class: 'tp-fonts' }, fonts.map(f => h('button', { class: 'te-chip', type: 'button', 'aria-pressed': String(B.font.id === f.id), style: `font-family:"${fontPreview(f)}", system-ui, sans-serif`,
+        onclick: () => { setBlock(B, 'fontId', f.id); renderPanel(); } }, f.label))) : dropdown('Шрифт', fonts.map(f => ({ value: f.id, label: f.label, badge: f.builtin ? null : 'ваш', family: fontPreview(f) })), () => B.font.id, id => { setBlock(B, 'fontId', id); renderPanel(); },
         { onOpen: () => { const c = fonts.find(f => f.id === 'cjk'); if (c) fontPreview(c, true); } });
       return [
         section('Шрифт', [
@@ -3908,7 +3963,7 @@ const STICKERS = '__STICKERS__';
         renderSubbar(list, cur);
       }
     }
-    panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc), sub), ...nodes);
+    panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc), sub), ...(tgm && all.length ? tgPack(nodes) : nodes));
     panel.scrollTop = y;
   }
 
