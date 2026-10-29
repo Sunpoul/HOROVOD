@@ -5253,7 +5253,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       const tiles = sel === 'px'
         ? mxTiles([sl('pxSize', PXS, 'Пиксель'), sl('pxGap', PXS, 'Зазор'), sl('pxRound', PXS), sl('pxLevels', PXS, 'Градации'), sl('pxMono', PXS)])
         : mxTiles([sl('btPulse', BTS), sl('btGlitch', BTS), slider('beatSens')], 3);
-      return [pills, mxOff(tiles, sel === 'px' ? !B.pxOn : !B.btOn)];
+      return sel === 'beat' ? [pills, mxBeatSrc(B, !B.btOn), mxOff(tiles, !B.btOn)] : [pills, mxOff(tiles, !B.pxOn)];
     },
   };
 
@@ -5328,6 +5328,18 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const mxDrop = (label, onclick) => h('button', { class: 'mx-drop', type: 'button', onclick }, icon('plus'), label);
   const mxNeed = (what, add) => [h('p', { class: 'mx-empty' }, 'Сначала ' + what + ' — настройки появятся здесь.'), add];
   // эффекты объекта (картинка, фигура): «Бит» и «Пиксели» — две плашки с выбором, под ними плитки выбранного
+  // «Бит»: откуда брать удар — из трека или из звука видео (в этой фигуре, в другой фигуре сцены, на фоне); для трека есть «Проверить удар»
+  function mxBeatSrc(o, off) {
+    const srcs = [['music', 'Музыка']];
+    if (o.mediaKind === 'video') srcs.push(['self', 'Видео фигуры']);
+    const vshapes = shapes.filter(S => S !== o && S.mediaKind === 'video' && S.video);
+    vshapes.forEach(S => { const same = vshapes.filter(x => x.name === S.name); srcs.push(['sh:' + S.id, 'Видео: ' + S.name + (same.length > 1 ? ' ' + (same.indexOf(S) + 1) : '')]); });
+    if (bgVideo) srcs.push(['bg', 'Видео на фоне']);
+    const src = btSrcOf(o);
+    const chips = mxChips(srcs, src, v => { o.btSrc = v; const vv = btVideoOf(o); if (vv) vaLevel(vv.file, vv.video); renderPanel(); }); // сразу запускаем разбор звука
+    if (src === 'music') chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'));
+    return mxOff(chips, off);
+  }
   function mxObjFx(o, upd) {
     const sel = SUBSEL.objFx === 'px' ? 'px' : 'beat';
     const pills = h('div', { class: 'mx-pills' },
@@ -5336,7 +5348,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const tiles = sel === 'beat'
       ? mxTiles([mxObjSlider(o, BTS, 'btPulse'), mxObjSlider(o, BTS, 'btGlitch'), slider('beatSens')], 3)
       : mxTiles([mxObjSlider(o, PXS, 'pxSize', 'Пиксель'), mxObjSlider(o, PXS, 'pxGap', 'Зазор'), mxObjSlider(o, PXS, 'pxRound'), mxObjSlider(o, PXS, 'pxLevels', 'Градации'), mxObjSlider(o, PXS, 'pxMono')]);
-    return [pills, mxOff(tiles, sel === 'beat' ? !o.btOn : !o.pxOn)];
+    return sel === 'beat' ? [pills, mxBeatSrc(o, !o.btOn), mxOff(tiles, !o.btOn)] : [pills, mxOff(tiles, !o.pxOn)];
   }
   const TGI = {
     stickers() {
