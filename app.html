@@ -41,7 +41,7 @@ if(__i||__tg||sessionStorage.getItem('hrvd.gate')==='1')document.documentElement
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&family=Onest:wght@500&display=swap" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@400;500;600&family=Golos+Text:wght@400;500;600&family=Unbounded:wght@700&family=Onest:wght@400;500&display=swap" media="print" onload="this.media='all'">
 <style>
 /* Layout: редактор — верхняя панель, слева рейка вкладок + инспектор, в центре холст выбранного формата; на телефоне холст сверху, вкладки и инспектор снизу */
 :root {
@@ -549,64 +549,95 @@ html.tg-m .popover { position: fixed; z-index: 60; left: 0; right: 0; top: auto;
   border-width: 1px 0 0; border-radius: 16px 16px 0 0; padding-bottom: var(--tg-bot); box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5); }
 @media (prefers-reduced-motion: reduce) { html.tg-m .panel { transition: none; } }
 
-/* Mini App 1.3 (макет Figma): панель инструментов сверху, разделы справа от холста, настройки раздела — плитки и вкладки внизу */
-#backBtn, .stage-mini, .subbar { display: none; }
-html.tg-m { --stage-bg: var(--raised); }
+/* Mini App 1.3 по макету Figma «HOROVOD — Telegram Mini App»: размеры и цвета взяты из макета (экран 390 px) */
+#backBtn, .stage-mini, .subbar, .dsn, .te { display: none; }
+html.tg-m { --stage-bg: #2c2c2c; --nav-circle: #1f1f1f; }
+html.tg-m[data-theme="light"] { --stage-bg: var(--canvas); --nav-circle: var(--well); }
 html.tg-m .app { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "top" "stage" "panel" "sub"; }
-html.tg-m .top { height: 64px; padding: 10px 12px; gap: 8px; border-bottom: 0; background: transparent; }
+/* верхняя панель: 61 px, назад, формат, отмена, возврат, сброс, замок, экспорт */
+html.tg-m .top { height: 61px; padding: 8px 6px 8px 12px; gap: 0; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); }
 html.tg-m .brand { display: none; }
-html.tg-m #backBtn { display: grid; flex: none; background: var(--well); color: var(--fg); }
+html.tg-m .actions { display: contents; }
+html.tg-m #backBtn { display: grid; flex: none; width: 44px; height: 44px; background: var(--accent-soft); color: var(--fg); }
+html.tg-m .dsn { display: block; }
+html.tg-m button:has(> .dsn) > svg.i:not(.dsn) { display: none; }
+html.tg-m .top .icon-btn { width: 44px; height: 44px; color: var(--fg); }
+html.tg-m .top .icon-btn svg.i { width: 24px; height: 24px; }
 html.tg-m #backBtn svg { transform: rotate(90deg); }
-html.tg-m .top .icon-btn, html.tg-m #exportBtn { width: 44px; height: 44px; }
-html.tg-m .fmtsel { margin: 0 auto 0 0; }
-html.tg-m .fmt-btn { height: 44px; padding: 0 12px 0 16px; gap: 6px; background: var(--well); }
+html.tg-m .fmtsel { margin: 0; flex: none; }
+html.tg-m .fmt-btn { width: 69px; height: 36px; padding: 0 12px 0 14px; gap: 8px; background: var(--well); }
 html.tg-m .fmt-btn > span:not(.shape-slot) { display: none; }
+html.tg-m .fmtsel .shape-slot { width: 16px; height: 16px; }
+html.tg-m .fmtsel .shape { transform: scale(1.33); }
 html.tg-m .fmt-menu { left: 0; transform: none; }
-html.tg-m .actions { flex: none; gap: 2px; }
-html.tg-m #exportBtn { margin-left: 6px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+html.tg-m #exportBtn { margin: 0; width: 44px; height: 44px; background: #fff; border-color: transparent; color: #000; }
+html.tg-m #exportBtn svg.dsn { width: 20px; height: 20px; }
 html.tg-m #exportBtn:hover, html.tg-m #exportBtn[aria-expanded="true"] { background: var(--accent-hover); }
-html.tg-m .stage { position: relative; background: var(--stage-bg); border-radius: 0 0 28px 28px; }
-html.tg-m .stage-mini { position: absolute; z-index: 5; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 2px; padding: 4px; background: var(--well); border-radius: 12px; }
-html.tg-m .stage:has(.player:not([hidden])) .stage-mini { bottom: 80px; }
-html.tg-m .stage-mini .icon-btn { width: 36px; height: 36px; border-radius: 8px; color: var(--fg); }
-html.tg-m #playBtn { background: var(--raised); }
-html.tg-m .sheet-grip { display: none; }
-html.tg-m .rail { grid-area: stage; z-index: 6; align-self: start; justify-self: end; flex-direction: column; gap: 4px; overflow: visible; scroll-snap-type: none; padding: 8px 8px 0 0; background: transparent; border: 0; }
-html.tg-m .tab { flex: none; width: 44px; height: 44px; min-height: 0; padding: 0; gap: 0; border-radius: 50%; font-size: 0; color: var(--fg); }
+/* холст: тёмная плита со скруглением снизу, справа колонка разделов, слева внизу воспроизведение и звук */
+html.tg-m .stage { position: relative; background: var(--stage-bg); border-radius: 0 0 24px 24px; }
+html.tg-m .rail { grid-area: stage; z-index: 6; align-self: start; justify-self: end; flex-direction: column; gap: 4px; overflow: visible; scroll-snap-type: none; padding: 17px 12px 0 0; background: transparent; border: 0; }
+html.tg-m .tab { flex: none; width: 36px; height: 36px; min-height: 0; padding: 0; gap: 0; border-radius: 50%; font-size: 0; color: var(--fg); -webkit-backdrop-filter: blur(12.6px); backdrop-filter: blur(12.6px); }
 html.tg-m .tab svg.i { width: 24px; height: 24px; }
+html.tg-m .tab svg.i-od { display: none; }
+.tab svg.i-dn { display: none; }
+html.tg-m .tab svg.i-dn { display: block; }
+html.tg-m .tab#tab-images svg.i-dn { width: 22px; height: 22px; }
 html.tg-m .tab:hover { background: transparent; }
-html.tg-m .tab[aria-selected="true"] { background: var(--well); color: var(--fg); }
-html.tg-m .panel { height: auto; min-height: 0; max-height: min(42dvh, 340px); padding: 14px 16px 6px; background: var(--panel); transition: none; }
+html.tg-m .tab[aria-selected="true"] { background: rgba(16, 16, 16, .34); color: var(--fg); }
+html.tg-m .stage-mini { position: absolute; z-index: 5; left: 14px; bottom: 16px; display: flex; align-items: center; gap: 11px; padding: 5px 11px 5px 5px; background: #222; border-radius: 11px; }
+html.tg-m .stage:has(.player:not([hidden])) .stage-mini { bottom: 80px; }
+html.tg-m .stage-mini .icon-btn { color: var(--fg); }
+html.tg-m #playBtn { width: 28px; height: 30px; border-radius: 7px; background: #343434; }
+html.tg-m #playBtn svg.i { width: 14px; height: 14px; }
+html.tg-m #muteBtn { width: 14px; height: 14px; }
+html.tg-m #muteBtn svg.i { width: 14px; height: 14px; }
+html.tg-m .sheet-grip { display: none; }
+/* шторка: 16 px под холстом, настройки раздела, внизу вкладки */
+html.tg-m .panel { height: auto; min-height: 0; max-height: max(116px, 17dvh); margin-top: 16px; padding: 0 16px; background: var(--panel); transition: none; }
 html.tg-m .panel-head { display: none; }
 html.tg-m .panel .sec { padding: 0; border: 0; gap: 8px; }
 html.tg-m .panel .sec + .sec { margin-top: 8px; }
 html.tg-m .panel .sec-head h3 > button.sec-toggle { display: none; }
 html.tg-m .panel .sec-head:not(:has(.switch-only)) { justify-content: flex-end; min-height: 0; }
 html.tg-m .panel .sec-head:not(:has(.switch-only)):not(:has(.link)) { display: none; }
-html.tg-m .panel .sec-head:has(.switch-only) { min-height: 48px; padding: 0 16px; background: var(--well); border-radius: 12px; }
-html.tg-m .panel .sec-head .sec-toggle.static { padding: 0; }
+html.tg-m .panel .sec-head:has(.switch-only) { height: 32px; padding: 0 10px; background: var(--well); border-radius: 10px; }
+html.tg-m .panel .sec-head .sec-toggle.static { padding: 0; font: 400 12px/15px 'Onest', var(--font-body); color: var(--label); }
 html.tg-m .panel .sec-head .sec-ic { display: none; }
-html.tg-m .panel .sec-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+html.tg-m .panel .sec-head .toggle input { width: 32px; height: 20px; }
+html.tg-m .panel .sec-head .toggle input::after { top: 3px; left: 3px; width: 14px; height: 14px; }
+html.tg-m .panel .sec-head .toggle input:checked::after { transform: translateX(12px); }
+html.tg-m .panel .sec-body { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 html.tg-m .panel .sec-body > * { grid-column: 1 / -1; }
-html.tg-m .panel .sec-body > .field { grid-column: auto; }
+html.tg-m .panel .sec-body > .field, html.tg-m .panel .sec-body > .swatch { grid-column: auto; }
 html.tg-m .panel .sub-chips ~ .sec .sec-body { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-html.tg-m .hint { font-size: 11px; line-height: 1.4; }
-html.tg-m .sub-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; }
+html.tg-m .panel .sub-chips ~ .sec .field { height: 40px; }
+html.tg-m .panel .sub-chips ~ .sec .field label { padding-top: 5px; }
+html.tg-m .hint { font-size: 11px; line-height: 14px; }
+html.tg-m .panel .sticker-grid { display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .panel .sticker-grid::-webkit-scrollbar { display: none; }
+html.tg-m .panel .sticker-grid button { flex: none; width: 67px; height: 71px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 16px; background: transparent; }
+html.tg-m .panel .sticker-grid img { width: 28px; height: 28px; object-fit: contain; }
+html.tg-m .panel .sticker-grid .st-name { font: 400 11px/normal 'Onest', var(--font-body); color: var(--label); }
+html.tg-m .sub-chips { flex-wrap: nowrap; overflow-x: auto; gap: 8px; margin: 0 -16px 12px; padding: 0 16px; scrollbar-width: none; }
 html.tg-m .sub-chips::-webkit-scrollbar { display: none; }
-html.tg-m .chip { flex: none; height: 36px; padding: 0 16px; font-size: 13px; }
-/* ползунок — плитка: подпись, значение и заливка по положению */
-html.tg-m .field { position: relative; display: block; height: 52px; padding: 8px 12px; border-radius: 12px; background: var(--well); overflow: hidden; }
-html.tg-m .field::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--p, 0) * 100%); background: var(--accent-soft); pointer-events: none; }
-html.tg-m .field label { position: relative; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 14px; color: var(--muted); pointer-events: none; }
-html.tg-m .field .num { position: relative; display: block; width: 100%; height: 22px; padding: 0; border: 0; background: transparent; font-size: 13px; font-weight: 500; line-height: 22px; pointer-events: none; }
+html.tg-m .chip { flex: none; height: 28px; padding: 0 12px; font-size: 12px; line-height: 15px; background: var(--well); color: var(--fg); }
+html.tg-m .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+/* ползунок — плитка 114 × 34: подпись, значение и заливка по положению */
+.sticker-grid .st-name { display: none; }
+html.tg-m .sticker-grid .st-name { display: block; }
+html.tg-m .field { position: relative; display: block; height: 34px; padding: 0; border-radius: 10px; background: var(--well); overflow: hidden; }
+html.tg-m .field::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--p, 0) * 100%); background: var(--raised); pointer-events: none; }
+html.tg-m .field label { position: relative; display: block; padding: 3px 0 0 10px; font: 400 10px/13px 'Onest', var(--font-body); color: var(--label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none; }
+html.tg-m .field .num { position: relative; display: block; width: 100%; height: 14px; padding: 0 0 0 10px; border: 0; background: transparent; font: 500 11px/14px 'Onest', var(--font-body); color: var(--fg); pointer-events: none; }
 html.tg-m .field input[type=range] { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; margin: 0; opacity: 0; touch-action: pan-y; }
-html.tg-m .subbar { grid-area: sub; display: flex; justify-content: space-around; gap: 2px; padding: 10px 6px calc(8px + var(--tg-bot)); border-top: 1px solid var(--line); background: var(--panel); overflow-x: auto; scrollbar-width: none; }
+/* вкладки раздела внизу */
+html.tg-m .subbar { grid-area: sub; display: flex; justify-content: center; margin-top: 12px; padding: 4px 6px max(var(--tg-bot), 8px); border-top: 1px solid #1f1f1f; background: var(--panel); overflow-x: auto; scrollbar-width: none; }
 html.tg-m .subbar::-webkit-scrollbar { display: none; }
-html.tg-m .sb { flex: 1 0 56px; max-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--muted); font-size: 11px; }
-html.tg-m .sb .sb-ic { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--well); color: var(--label); }
-html.tg-m .sb .sb-ic svg.i { width: 22px; height: 22px; }
-html.tg-m .sb[aria-selected="true"] { color: var(--fg); font-weight: 600; }
-html.tg-m .sb[aria-selected="true"] .sb-ic { background: var(--accent); color: var(--accent-ink); }
+html.tg-m .sb { flex: none; width: 64px; height: 57px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; border: 0; background: none; color: #888; font: 500 10.5px/normal var(--font-body); white-space: nowrap; }
+html.tg-m .sb .sb-ic { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--nav-circle); color: #888; }
+html.tg-m .sb .sb-ic svg.i { width: 24px; height: 24px; }
+html.tg-m .sb .sb-fx { font: 500 15px/1 var(--font-body); }
+html.tg-m .sb[aria-selected="true"], html.tg-m .sb[aria-selected="true"] .sb-ic { color: var(--fg); }
 html.tg-m .toasts { bottom: calc(190px + var(--tg-bot)); }
 /* окно экспорта — нижняя шторка с заголовком и крестиком */
 .exp-head { display: none; }
@@ -624,6 +655,36 @@ html.tg-m .popover .seg button { flex: none; height: 36px; padding: 0 18px; bord
 html.tg-m .popover .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 html.tg-m .popover .btn { height: 52px; border-radius: 999px; border-color: transparent; background: var(--raised); color: var(--fg); font-size: 15px; }
 html.tg-m .popover .btn.primary { background: var(--accent); color: var(--accent-ink); }
+
+/* ввод текста (макет «Добавить текст»): тап по значку текста открывает поле с клавиатурой, шрифты, цвет, форму */
+html.tg-m .te { position: fixed; z-index: 70; left: 0; right: 0; top: var(--te-top, 0px); height: var(--te-h, 100dvh); display: flex; flex-direction: column; background: linear-gradient(180deg, #1f1f1f 0, #0f0f0f 460px), #151515; color: var(--fg); }
+html.tg-m .te[hidden] { display: none; }
+html.tg-m .te-top { flex: none; height: 52px; display: flex; align-items: center; justify-content: flex-end; padding: 0 41px 0 16px; }
+html.tg-m .te-done { border: 0; background: none; color: var(--fg); font: 600 17px/22px var(--font-body); padding: 8px 0; }
+html.tg-m .te-stage { position: relative; flex: 1 1 auto; min-height: 120px; display: grid; place-items: center; padding: 0 44px; }
+html.tg-m .te-input { width: 100%; max-height: 100%; border: 0; outline: 0; resize: none; background: transparent; color: var(--fg); caret-color: var(--fg); text-align: center; font: 700 40px/1.2 var(--font-display); overflow: hidden; padding: 0; min-height: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+html.tg-m .te-size { position: absolute; left: 0; top: 28px; width: 32px; height: 230px; touch-action: none; }
+html.tg-m .te-size .trk { position: absolute; left: 14px; top: 0; width: 4px; height: 200px; border-radius: 2px; background: rgba(255, 255, 255, .12); }
+html.tg-m .te-size .thumb { position: absolute; left: 5px; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; background: #fff; }
+html.tg-m .te-size .lbl { position: absolute; left: 4px; top: 216px; font: 400 10px/normal 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .te-panel { flex: none; height: 40px; margin-bottom: 12px; padding-left: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .te-panel::-webkit-scrollbar { display: none; }
+html.tg-m .te-chip { flex: none; height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0, 0, 0, .6); color: var(--fg); font-size: 16px; white-space: nowrap; }
+html.tg-m .te-chip svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+html.tg-m .te-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+html.tg-m .te-grad { flex: none; height: 32px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(0, 0, 0, .6); color: var(--fg); font-size: 13px; }
+html.tg-m .te-grad[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+html.tg-m .te-dot { flex: none; width: 26px; height: 26px; margin: 0 5px; border: 0; border-radius: 50%; padding: 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, .2); }
+html.tg-m .te-dot[aria-pressed="true"] { box-shadow: 0 0 0 2px #151515, 0 0 0 4px #fff; }
+html.tg-m .te-tools { flex: none; width: 358px; max-width: calc(100% - 32px); height: 52px; margin: 0 auto 6px; padding: 0 6px; display: flex; align-items: center; justify-content: space-between; border-radius: 18px; background: rgba(46, 46, 48, .92); }
+html.tg-m .te-tool { width: 60px; height: 42px; display: grid; place-items: center; border: 0; border-radius: 12px; background: none; color: var(--fg); padding: 0; }
+html.tg-m .te-tool[aria-pressed="true"] { background: #5e5e61; }
+html.tg-m .te-tool svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+html.tg-m .te-tool .aa { font: 600 20px/1 var(--font-body); }
+html.tg-m .te-tool .wheel { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(#ff5c5c, #ffd84d, #4dffa6, #22d3ee, #7a6bff, #ff5cd1, #ff5c5c); }
+html.tg-m .te-actions { flex: none; height: 44px; display: flex; align-items: center; justify-content: space-around; background: #2a2a2c; padding-bottom: 0; }
+html.tg-m .te-act { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: #fff; font: 500 15px/1 var(--font-body); padding: 0 8px; height: 44px; }
+html.tg-m .te-act svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
 /* встроенный режим iOS: интерфейс рисует нативное приложение, здесь остаётся только холст */
 body.ios { background: #000; overflow: hidden; padding-top: 0; }
@@ -774,6 +835,52 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-half" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M12 8h3M12 12h5M12 16h3"/></symbol>
   <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 12v0M8 8.5v7M12 5v14M16 8.5v7M20 12v0"/></symbol>
   <symbol id="i-sphere" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.8" ry="8.5"/><path d="M3.5 12h17"/></symbol>
+  <symbol id="i-d-sticker" viewBox="0 0 24 24"><path d="M15.5 3H5C4.46957 3 3.96086 3.21071 3.58579 3.58579C3.21071 3.96086 3 4.46957 3 5V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19V8.5L15.5 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 3V7C15 7.53043 15.2107 8.03914 15.5858 8.41421C15.9609 8.78929 16.4696 9 17 9H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M8 14.5C8 14.5 9.5 16.5 12 16.5C14.5 16.5 16 14.5 16 14.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-layers" viewBox="0 0 24 24"><path d="M12 2L22 7L12 12L2 7L12 2Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M2 17L12 22L22 17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M2 12L12 17L22 12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-scale" viewBox="0 0 24 24"><path d="M5 9L2 12L5 15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 5L12 2L15 5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 19L12 22L9 19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19 9L22 12L19 15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M2 12H22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 2V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-eye" viewBox="0 0 24 24"><path d="M2 12C2 12 5.5 5 12 5C18.5 5 22 12 22 12C22 12 18.5 19 12 19C5.5 19 2 12 2 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-zap" viewBox="0 0 24 24"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-plus" viewBox="0 0 24 24"><path d="M12 5V19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M5 12H19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-shapes" viewBox="0 0 24 24"><path d="M13 8C13 10.7614 10.7614 13 8 13C5.23858 13 3 10.7614 3 8C3 5.23858 5.23858 3 8 3C10.7614 3 13 5.23858 13 8Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12.5 11H19.5C20.3284 11 21 11.6716 21 12.5V19.5C21 20.3284 20.3284 21 19.5 21H12.5C11.6716 21 11 20.3284 11 19.5V12.5C11 11.6716 11.6716 11 12.5 11Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-fill" viewBox="0 0 24 24"><path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 3V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 7H18.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 11H20.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 15H20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 19H16.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-sparkles" viewBox="0 0 24 24"><path d="M12 3L13.9 8.1L19 10L13.9 11.9L12 17L10.1 11.9L5 10L10.1 8.1L12 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19 17V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 19H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-sun" viewBox="0 0 24 24"><path d="M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 2V4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 20V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4.90002 4.90039L6.30002 6.30039" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17.7 17.7L19.1 19.1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M2 12H4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 12H22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M6.3 17.7L4.9 19.1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19.1 4.90039L17.7 6.30039" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-moon" viewBox="0 0 24 24"><path d="M12 3C10.22 3 8.47991 3.52784 6.99987 4.51677C5.51983 5.50571 4.36627 6.91131 3.68508 8.55585C3.0039 10.2004 2.82567 12.01 3.17293 13.7558C3.5202 15.5016 4.37737 17.1053 5.63604 18.364C6.89471 19.6226 8.49836 20.4798 10.2442 20.8271C11.99 21.1743 13.7996 20.9961 15.4442 20.3149C17.0887 19.6337 18.4943 18.4802 19.4832 17.0001C20.4722 15.5201 21 13.78 21 12C19.7434 12.467 18.3792 12.5633 17.0695 12.2776C15.7598 11.9919 14.5597 11.3361 13.6118 10.3882C12.6639 9.44031 12.0081 8.24018 11.7224 6.93047C11.4367 5.62076 11.533 4.25655 12 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-ambient" viewBox="0 0 24 24"><path d="M20.9514 11.059C20.9835 11.3683 21 11.6822 21 12C21 12.3178 20.9835 12.6317 20.9514 12.941M20.2239 8.33837C19.9664 7.76077 19.6497 7.2153 19.2817 6.70963M17.2904 4.71828C16.7847 4.35027 16.2392 4.03364 15.6616 3.77608M12.941 3.04861C12.6317 3.01647 12.3178 3 12 3C11.6822 3 11.3683 3.01647 11.059 3.04861M8.33837 3.77608C7.76077 4.03364 7.2153 4.35027 6.70963 4.71828M4.71828 6.70963C4.35027 7.2153 4.03364 7.76077 3.77608 8.33837M3.04861 11.059C3.01647 11.3683 3 11.6822 3 12C3 12.3178 3.01647 12.6317 3.04861 12.941M3.77608 15.6616C4.03364 16.2392 4.35027 16.7847 4.71828 17.2904M6.70963 19.2817C7.2153 19.6497 7.76077 19.9664 8.33837 20.2239M11.059 20.9514C11.3683 20.9835 11.6822 21 12 21C12.3178 21 12.6317 20.9835 12.941 20.9514M15.6616 20.2239C16.2392 19.9664 16.7847 19.6497 17.2904 19.2817M19.2817 17.2904C19.6497 16.7847 19.9664 16.2392 20.2239 15.6616" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-film" viewBox="0 0 24 24"><path d="M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M7 3V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 3V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 7.5H7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 12H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 16.5H7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 7.5H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 16.5H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-grid" viewBox="0 0 24 24"><path d="M4 3H9C9.55228 3 10 3.44772 10 4V9C10 9.55228 9.55228 10 9 10H4C3.44772 10 3 9.55228 3 9V4C3 3.44772 3.44772 3 4 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 3H20C20.5523 3 21 3.44772 21 4V9C21 9.55228 20.5523 10 20 10H15C14.4477 10 14 9.55228 14 9V4C14 3.44772 14.4477 3 15 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4 14H9C9.55228 14 10 14.4477 10 15V20C10 20.5523 9.55228 21 9 21H4C3.44772 21 3 20.5523 3 20V15C3 14.4477 3.44772 14 4 14Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 14H20C20.5523 14 21 14.4477 21 15V20C21 20.5523 20.5523 21 20 21H15C14.4477 21 14 20.5523 14 20V15C14 14.4477 14.4477 14 15 14Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tv" viewBox="0 0 24 24"><path d="M4 7H20C21.1046 7 22 7.89543 22 9V20C22 21.1046 21.1046 22 20 22H4C2.89543 22 2 21.1046 2 20V9C2 7.89543 2.89543 7 4 7Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 2L12 7L7 2" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-droplet" viewBox="0 0 24 24"><path d="M12 22C13.8565 22 15.637 21.2625 16.9497 19.9497C18.2625 18.637 19 16.8565 19 15C19 13 18 11.1 16 9.5C14 7.9 12.5 5.5 12 3C11.5 5.5 10 7.9 8 9.5C6 11.1 5 13 5 15C5 16.8565 5.7375 18.637 7.05025 19.9497C8.36301 21.2625 10.1435 22 12 22Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-snow" viewBox="0 0 24 24"><path d="M12 2V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4.9 7L19.1 17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4.9 17L19.1 7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9.5 3.5L12 5.5L14.5 3.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9.5 20.5L12 18.5L14.5 20.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-music" viewBox="0 0 24 24"><path d="M9 18V5L21 3V16" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 18C9 19.6569 7.65685 21 6 21C4.34315 21 3 19.6569 3 18C3 16.3431 4.34315 15 6 15C7.65685 15 9 16.3431 9 18Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M21 16C21 17.6569 19.6569 19 18 19C16.3431 19 15 17.6569 15 16C15 14.3431 16.3431 13 18 13C19.6569 13 21 14.3431 21 16Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-scissors" viewBox="0 0 24 24"><path d="M9 6C9 7.65685 7.65685 9 6 9C4.34315 9 3 7.65685 3 6C3 4.34315 4.34315 3 6 3C7.65685 3 9 4.34315 9 6Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 18C9 19.6569 7.65685 21 6 21C4.34315 21 3 19.6569 3 18C3 16.3431 4.34315 15 6 15C7.65685 15 9 16.3431 9 18Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 4L8.1 15.9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M14.5 14.5L20 20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M8.1 8.1L12 12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-bars" viewBox="0 0 24 24"><path d="M4 20V10" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 20V4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M14 20V12" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19 20V7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-sphere" viewBox="0 0 24 24"><path d="M20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 12C20 13.6569 16.4183 15 12 15C7.58172 15 4 13.6569 4 12C4 10.3431 7.58172 9 12 9C16.4183 9 20 10.3431 20 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-bg" viewBox="0 0 24 24"><path d="M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 10L10 3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 17L17 3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M8 21L21 8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 21L21 15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-shadow" viewBox="0 0 24 24"><path d="M16 10C16 13.3137 13.3137 16 10 16C6.68629 16 4 13.3137 4 10C4 6.68629 6.68629 4 10 4C13.3137 4 16 6.68629 16 10Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M6 20H20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15.5 13.5L20 18" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-camera" viewBox="0 0 24 24"><path d="M14.5 4H9.5L7 7H4C3.46957 7 2.96086 7.21071 2.58579 7.58579C2.21071 7.96086 2 8.46957 2 9V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H20C20.5304 20 21.0391 19.7893 21.4142 19.4142C21.7893 19.0391 22 18.5304 22 18V9C22 8.46957 21.7893 7.96086 21.4142 7.58579C21.0391 7.21071 20.5304 7 20 7H17L14.5 4Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 13C15 14.6569 13.6569 16 12 16C10.3431 16 9 14.6569 9 13C9 11.3431 10.3431 10 12 10C13.6569 10 15 11.3431 15 13Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-text" viewBox="0 0 22 22"><path d="M3.66667 6.41667V3.66667H18.3333V6.41667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M8.25 18.3333H13.75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M11 3.66667V18.3333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-palette" viewBox="0 0 22 22"><path d="M13.2917 5.95833C13.2917 6.46459 12.8813 6.875 12.375 6.875C11.8687 6.875 11.4583 6.46459 11.4583 5.95833C11.4583 5.45207 11.8687 5.04167 12.375 5.04167C12.8813 5.04167 13.2917 5.45207 13.2917 5.95833Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M16.9583 9.625C16.9583 10.1313 16.5479 10.5417 16.0417 10.5417C15.5354 10.5417 15.125 10.1313 15.125 9.625C15.125 9.11874 15.5354 8.70833 16.0417 8.70833C16.5479 8.70833 16.9583 9.11874 16.9583 9.625Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M8.70833 6.875C8.70833 7.38126 8.29793 7.79167 7.79167 7.79167C7.28541 7.79167 6.875 7.38126 6.875 6.875C6.875 6.36874 7.28541 5.95833 7.79167 5.95833C8.29793 5.95833 8.70833 6.36874 8.70833 6.875Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M6.875 11.4583C6.875 11.9646 6.46459 12.375 5.95833 12.375C5.45207 12.375 5.04167 11.9646 5.04167 11.4583C5.04167 10.9521 5.45207 10.5417 5.95833 10.5417C6.46459 10.5417 6.875 10.9521 6.875 11.4583Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M11 1.83333C8.56885 1.83333 6.23727 2.7991 4.51819 4.51819C2.7991 6.23727 1.83333 8.56885 1.83333 11C1.83333 13.4312 2.7991 15.7627 4.51819 17.4818C6.23727 19.2009 8.56885 20.1667 11 20.1667C11.825 20.1667 12.4667 19.525 12.4667 18.7C12.4667 18.3333 12.2833 17.9667 12.1 17.6917C11.825 17.4167 11.7333 17.05 11.7333 16.6833C11.7333 15.8583 12.375 15.2167 13.2 15.2167H14.6667C16.1254 15.2167 17.5243 14.6372 18.5558 13.6058C19.5872 12.5743 20.1667 11.1754 20.1667 9.71667C20.1667 5.225 16.0417 1.83333 11 1.83333Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-form" viewBox="0 0 22 22"><path d="M18.151 9.36744C18.2703 9.89244 18.3333 10.4389 18.3333 11C18.3333 11.5611 18.2703 12.1076 18.151 12.6326M17.2102 7.09797C16.6237 6.16655 15.8335 5.37632 14.902 4.78984M12.6326 3.84905C12.1076 3.72969 11.5611 3.66667 11 3.66667C10.4389 3.66667 9.89244 3.72969 9.36744 3.84905M7.09797 4.78984C6.16655 5.37632 5.37632 6.16654 4.78984 7.09797M3.84905 9.36744C3.72969 9.89244 3.66667 10.4389 3.66667 11C3.66667 11.5611 3.72969 12.1076 3.84905 12.6326M4.78984 14.902C5.37632 15.8335 6.16654 16.6237 7.09797 17.2102M9.36744 18.151C9.89244 18.2703 10.4389 18.3333 11 18.3333C11.5611 18.3333 12.1076 18.2703 12.6326 18.151M14.902 17.2102C15.8335 16.6237 16.6237 15.8335 17.2102 14.902" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-rotate" viewBox="0 0 22 22"><path d="M19.25 11C19.2517 12.8893 18.6049 14.7219 17.4177 16.1916C16.2306 17.6613 14.5749 18.679 12.7275 19.0746C10.8801 19.4702 8.95283 19.2198 7.26791 18.3651C5.58298 17.5104 4.24244 16.1033 3.47036 14.379C2.69827 12.6547 2.54141 10.7176 3.02599 8.89149C3.51057 7.06539 4.60724 5.46095 6.1327 4.34631C7.65815 3.23166 9.51997 2.67437 11.407 2.76757C13.294 2.86076 15.0918 3.5988 16.5 4.85833L19.25 7.33333" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19.25 2.75V7.33333H14.6667" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tb-back" viewBox="0 0 24 24"><path d="M6.5 9.5L12 15L17.5 9.5" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tb-chev" viewBox="0 0 16 16"><path d="M4.33333 6.33333L8 10L11.6667 6.33333" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tb-undo" viewBox="0 0 24 24"><path d="M9 14L4 9L9 4" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4 9H14.5C15.9587 9 17.3576 9.57946 18.3891 10.6109C19.4205 11.6424 20 13.0413 20 14.5C20 15.9587 19.4205 17.3576 18.3891 18.3891C17.3576 19.4205 15.9587 20 14.5 20H11" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tb-redo" viewBox="0 0 24 24"><path d="M15 14L20 9L15 4" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 9H9.5C8.04131 9 6.64236 9.57946 5.61091 10.6109C4.57946 11.6424 4 13.0413 4 14.5C4 15.9587 4.57946 17.3576 5.61091 18.3891C6.64236 19.4205 8.04131 20 9.5 20H13" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tb-cam" viewBox="0 0 24 24"><path d="M4 12C4.01992 13.8496 4.68018 15.6352 5.86841 17.0528C7.05664 18.4705 8.69941 19.4325 10.5171 19.7753C12.3348 20.1181 14.2152 19.8203 15.8381 18.9328C17.461 18.0453 18.7262 16.6228 19.4183 14.9074C20.1105 13.192 20.1869 11.2898 19.6344 9.52451C19.0819 7.75919 17.9348 6.23986 16.3883 5.22511C14.8417 4.21036 12.9913 3.7629 11.1519 3.95888C9.31261 4.15485 7.59802 4.98216 6.3 6.3M4 4V8H8" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-tb-export" viewBox="0 0 20 19"><path d="M10 3.16667V11.875M13.75 8.3125L10 11.875L6.25 8.3125M4.16667 15.4375H15.8333" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-text" viewBox="0 0 24 24"><path d="M5 6V4H12M12 4H19V6M12 4V20M12 20H9M12 20H15" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-image" viewBox="0 0 22 22"><path d="M5.04167 4.125H16.9583C17.9709 4.125 18.7917 4.94581 18.7917 5.95833V16.0417C18.7917 17.0542 17.9709 17.875 16.9583 17.875H5.04167C4.02914 17.875 3.20833 17.0542 3.20833 16.0417V5.95833C3.20833 4.94581 4.02914 4.125 5.04167 4.125Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9.9 9.16667C9.9 10.0779 9.16127 10.8167 8.25 10.8167C7.33873 10.8167 6.6 10.0779 6.6 9.16667C6.6 8.2554 7.33873 7.51667 8.25 7.51667C9.16127 7.51667 9.9 8.2554 9.9 9.16667Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3.66667 16.5L8.25 11.9167L11.9167 15.5833L14.2083 13.2917L18.3333 17.4167" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-shapes" viewBox="0 0 24 24"><path d="M12.5 8C12.5 10.4853 10.4853 12.5 8 12.5C5.51472 12.5 3.5 10.4853 3.5 8C3.5 5.51472 5.51472 3.5 8 3.5C10.4853 3.5 12.5 5.51472 12.5 8Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12.5 11H19C19.8284 11 20.5 11.6716 20.5 12.5V19C20.5 19.8284 19.8284 20.5 19 20.5H12.5C11.6716 20.5 11 19.8284 11 19V12.5C11 11.6716 11.6716 11 12.5 11Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-light" viewBox="0 0 24 24"><path d="M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5M5.3 5.3L6.7 6.7M17.3 17.3L18.7 18.7M5.3 18.7L6.7 17.3M17.3 6.7L18.7 5.3" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-fx" viewBox="0 0 24 24"><path d="M4.5 17.5V12M4.5 12V6.5H10.5M4.5 12H9.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M13.5 6.5L16.5 12M16.5 12L19.5 17.5M16.5 12L19.5 6.5M16.5 12L13.5 17.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-music" viewBox="0 0 24 24"><path d="M9 18V5.5L20 3.5V16" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 18C9 19.3807 7.88071 20.5 6.5 20.5C5.11929 20.5 4 19.3807 4 18C4 16.6193 5.11929 15.5 6.5 15.5C7.88071 15.5 9 16.6193 9 18Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 16C20 17.3807 18.8807 18.5 17.5 18.5C16.1193 18.5 15 17.3807 15 16C15 14.6193 16.1193 13.5 17.5 13.5C18.8807 13.5 20 14.6193 20 16Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-scene" viewBox="0 0 24 24"><path d="M12 3L3 8L12 13L21 8L12 3Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 13L12 18L21 13" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-te-form" viewBox="0 0 26 26"><path d="M21.4511 11.0706C21.5922 11.6911 21.6667 12.3368 21.6667 13C21.6667 13.6632 21.5922 14.3089 21.4511 14.9294M20.3393 8.38852C19.6462 7.28774 18.7123 6.35383 17.6115 5.66072M14.9294 4.54888C14.3089 4.40782 13.6632 4.33333 13 4.33333C12.3368 4.33333 11.6911 4.40782 11.0706 4.54888M8.38852 5.66072C7.28774 6.35383 6.35383 7.28773 5.66072 8.38851M4.54888 11.0706C4.40782 11.6911 4.33333 12.3368 4.33333 13C4.33333 13.6632 4.40782 14.3089 4.54888 14.9294M5.66072 17.6115C6.35383 18.7123 7.28773 19.6462 8.38851 20.3393M11.0706 21.4511C11.6911 21.5922 12.3368 21.6667 13 21.6667C13.6632 21.6667 14.3089 21.5922 14.9294 21.4511M17.6115 20.3393C18.7123 19.6462 19.6462 18.7123 20.3393 17.6115" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-te-align" viewBox="0 0 26 26"><path d="M4.33333 6.5H21.6667" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M7.58333 13H18.4167" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M5.41667 19.5H20.5833" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-te-fx" viewBox="0 0 26 26"><path d="M13 3.25L15.0583 8.775L20.5833 10.8333L15.0583 12.8917L13 18.4167L10.9417 12.8917L5.41667 10.8333L10.9417 8.775L13 3.25Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20.5833 18.4167V22.75" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M18.4167 20.5833H22.75" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-te-emoji" viewBox="0 0 20 20"><path d="M17.5 10C17.5 14.1421 14.1421 17.5 10 17.5C5.85786 17.5 2.5 14.1421 2.5 10C2.5 5.85786 5.85786 2.5 10 2.5C14.1421 2.5 17.5 5.85786 17.5 10Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M6.66667 11.6667C6.66667 11.6667 7.91667 13.3333 10 13.3333C12.0833 13.3333 13.3333 11.6667 13.3333 11.6667" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M7.5 7.91667H7.50833" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12.5 7.91667H12.5083" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-te-plus" viewBox="0 0 20 20"><path d="M10 4.16667V15.8333" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4.16667 10H15.8333" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
 </svg>
 
@@ -785,7 +892,7 @@ body.ios .frame { box-shadow: none; }
 
 <div class="app">
   <header class="top">
-    <button class="icon-btn" id="backBtn" type="button" title="Все проекты" aria-label="Назад к проектам"><svg class="i"><use href="#i-chev"/></svg></button>
+    <button class="icon-btn" id="backBtn" type="button" title="Все проекты" aria-label="Назад к проектам"><svg class="i"><use href="#i-d-tb-back"/></svg></button>
     <div class="brand">
       <button class="avatar" id="avatarBtn" type="button" title="Профиль и настройки" aria-label="Меню профиля" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-user"/></svg><span class="av-letter"></span></button>
       <button class="pj-name" id="pjName" type="button" title="Переименовать проект">Проект</button>
@@ -793,14 +900,14 @@ body.ios .frame { box-shadow: none; }
     </div>
     <div class="fmtsel" id="formats"></div>
     <div class="actions">
-      <button class="icon-btn" id="undoBtn" type="button" title="Отменить (⌘Z)" aria-label="Отменить действие" disabled><svg class="i"><use href="#i-undo"/></svg></button>
-      <button class="icon-btn" id="redoBtn" type="button" title="Вернуть (⇧⌘Z)" aria-label="Вернуть действие" disabled><svg class="i"><use href="#i-redo"/></svg></button>
+      <button class="icon-btn" id="undoBtn" type="button" title="Отменить (⌘Z)" aria-label="Отменить действие" disabled><svg class="i"><use href="#i-undo"/></svg><svg class="i dsn"><use href="#i-d-tb-undo"/></svg></button>
+      <button class="icon-btn" id="redoBtn" type="button" title="Вернуть (⇧⌘Z)" aria-label="Вернуть действие" disabled><svg class="i"><use href="#i-redo"/></svg><svg class="i dsn"><use href="#i-d-tb-redo"/></svg></button>
       <span class="sep" aria-hidden="true"></span>
       <button class="icon-btn" id="lockBtn" type="button" title="Заблокировать поворот и масштаб камеры" aria-label="Заблокировать камеру" aria-pressed="false"><svg class="i"><use href="#i-unlock"/></svg></button>
-      <button class="icon-btn" id="camBtn" title="Сброс: камера по центру, видео к началу (R)" aria-label="Сброс: камера по центру, видео к началу"><svg class="i"><use href="#i-cam"/></svg></button>
+      <button class="icon-btn" id="camBtn" title="Сброс: камера по центру, видео к началу (R)" aria-label="Сброс: камера по центру, видео к началу"><svg class="i"><use href="#i-cam"/></svg><svg class="i dsn"><use href="#i-d-tb-cam"/></svg></button>
       <button class="icon-btn" id="muteBtn" title="Выключить звук везде (M)" aria-label="Выключить звук везде" aria-pressed="false"><svg class="i"><use href="#i-vol"/></svg></button>
       <button class="icon-btn" id="playBtn" title="Вращение: старт / пауза (Пробел)" aria-label="Вращение" aria-pressed="false"><svg class="i"><use href="#i-play"/></svg></button>
-      <button class="btn primary" id="exportBtn" aria-haspopup="dialog" aria-expanded="false"><svg class="i"><use href="#i-down"/></svg>Экспорт</button>
+      <button class="btn primary" id="exportBtn" aria-haspopup="dialog" aria-expanded="false"><svg class="i"><use href="#i-down"/></svg><svg class="i dsn"><use href="#i-d-tb-export"/></svg>Экспорт</button>
     </div>
   </header>
 
@@ -847,6 +954,16 @@ body.ios .frame { box-shadow: none; }
 <div class="busy" id="busy" hidden><span></span></div>
 <div class="popover" id="exportPop" role="dialog" aria-label="Экспорт" hidden></div>
 <div class="dropover" id="dropover" hidden><div><strong>Отпустите файл</strong>Шрифт, картинка, видео MP4 или музыка MP3</div></div>
+<div class="te" id="textEdit" hidden role="dialog" aria-label="Текст">
+  <div class="te-top"><button class="te-done" id="teDone" type="button">Готово</button></div>
+  <div class="te-stage">
+    <div class="te-size" id="teSize" role="slider" aria-label="Размер текста" aria-orientation="vertical"><span class="trk"></span><span class="thumb" id="teThumb"></span><span class="lbl">Размер</span></div>
+    <textarea class="te-input" id="teInput" rows="1" spellcheck="false" autocapitalize="characters" aria-label="Текст"></textarea>
+  </div>
+  <div class="te-panel" id="tePanel"></div>
+  <div class="te-tools" id="teTools" role="toolbar" aria-label="Настройки текста"></div>
+  <div class="te-actions"><button class="te-act" id="teEmoji" type="button"><svg class="i"><use href="#i-d-te-emoji"/></svg>Эмодзи</button><button class="te-act" id="teMore" type="button"><svg class="i"><use href="#i-d-te-plus"/></svg>Ещё текст</button></div>
+</div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <input type="file" id="fontInput" accept=".ttf,.otf,.woff" multiple hidden>
 <input type="file" id="imgInput" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
@@ -4355,51 +4472,56 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   ];
   function renderRail() {
     const rail = $('rail'); rail.innerHTML = '';
-    TABS.forEach(([id, name, ic]) => rail.append(h('button', { class: 'tab', role: 'tab', id: 'tab-' + id, title: name, 'aria-label': name, 'aria-selected': String(st.tab === id), 'aria-controls': 'panel', onclick: () => selectTab(id) }, icon(ic), name)));
+    TABS.forEach(([id, name, ic]) => {
+      const old = icon(ic); old.setAttribute('class', 'i i-od');
+      const dn = icon('d-r-' + ({ text: 'text', images: 'image', shapes: 'shapes', light: 'light', fx: 'fx', music: 'music', scene: 'scene' })[id]); dn.setAttribute('class', 'i i-dn');
+      rail.append(h('button', { class: 'tab', role: 'tab', id: 'tab-' + id, title: name, 'aria-label': name, 'aria-selected': String(st.tab === id), 'aria-controls': 'panel',
+        onclick: () => { if (id === 'text' && isTgm()) { st.tab = 'text'; renderRail(); renderPanel(); openTextEdit(); } else selectTab(id); } }, old, dn, name));
+    });
   }
   /* Mini App 1.3: разделы справа от холста, а настройки раздела делятся на вкладки внизу.
      Каждая вкладка показывает свои группы настроек: m — названия групп (строка или RegExp), группа без вкладки уходит в первую. */
   const SUBS = {
     text: [
-      { id: 'layers', label: 'Слои', ic: 'scene', m: ['Слои', /^Текст/] },
-      { id: 'font', label: 'Шрифт', ic: 'text', m: ['Шрифт', 'Пропорции', 'Объём', 'Материал'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём'], ['Материал', 'Материал']] },
-      { id: 'color', label: 'Цвет', ic: 'palette', m: ['Цвет'] },
-      { id: 'form', label: 'Форма', ic: 'shape', m: ['Форма', 'Положение'] },
-      { id: 'motion', label: 'Движение', ic: 'cam', m: ['Анимация'] },
-      { id: 'fx', label: 'Эффекты', ic: 'fx', m: ['Пиксели', 'Бит'] }],
+      { id: 'layers', label: 'Слои', ic: 'layers', s: 22, m: ['Слои', /^Текст/] },
+      { id: 'font', label: 'Шрифт', ic: 'text', s: 22, m: ['Шрифт', 'Пропорции', 'Объём', 'Материал'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём'], ['Материал', 'Материал']] },
+      { id: 'color', label: 'Цвет', ic: 'palette', s: 22, m: ['Цвет'] },
+      { id: 'form', label: 'Форма', ic: 'form', s: 22, m: ['Форма', 'Положение'] },
+      { id: 'motion', label: 'Движение', ic: 'rotate', s: 22, m: ['Анимация'] },
+      { id: 'fx', label: 'Эффекты', ic: 'fx', s: 22, m: ['Пиксели', 'Бит'] }],
     images: [
-      { id: 'stickers', label: 'Стикеры', ic: 'smile', m: ['Стикеры'] },
-      { id: 'layers', label: 'Слои', ic: 'scene', m: ['Слои', 'Слой'] },
-      { id: 'place', label: 'Место', ic: 'move', m: ['Размещение'] },
+      { id: 'stickers', label: 'Стикеры', ic: 'sticker', m: ['Стикеры'] },
+      { id: 'layers', label: 'Слои', ic: 'layers', m: ['Слои', 'Слой'] },
+      { id: 'place', label: 'Место', ic: 'scale', m: ['Размещение'] },
       { id: 'view', label: 'Вид', ic: 'eye', m: ['Отображение', 'Пиксели'] },
-      { id: 'beat', label: 'Бит', ic: 'bolt', m: ['Бит'] }],
+      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит'] }],
     shapes: [
       { id: 'add', label: 'Добавить', ic: 'plus', m: ['Добавить фигуру', /^Фигура/] },
-      { id: 'place', label: 'Место', ic: 'move', m: ['Позиция'] },
-      { id: 'form', label: 'Форма', ic: 'shape', m: ['Форма', 'Поворот'] },
-      { id: 'fill', label: 'Заливка', ic: 'half', m: ['Заливка', 'Пиксели'] },
-      { id: 'beat', label: 'Бит', ic: 'bolt', m: ['Бит'] }],
+      { id: 'place', label: 'Место', ic: 'scale', m: ['Позиция'] },
+      { id: 'form', label: 'Форма', ic: 'shapes', m: ['Форма', 'Поворот'] },
+      { id: 'fill', label: 'Заливка', ic: 'fill', m: ['Заливка', 'Пиксели'] },
+      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит'] }],
     light: [
-      { id: 'presets', label: 'Пресеты', ic: 'spark', m: ['Пресеты'] },
-      { id: 'key', label: 'Основной', ic: 'light', m: ['Основной свет'] },
-      { id: 'rim', label: 'Контровой', ic: 'half', m: ['Контровой свет'] },
-      { id: 'amb', label: 'Общий', ic: 'sliders', m: ['Общий свет'] }],
+      { id: 'presets', label: 'Пресеты', ic: 'sparkles', m: ['Пресеты'] },
+      { id: 'key', label: 'Основной', ic: 'sun', m: ['Основной свет'] },
+      { id: 'rim', label: 'Контровой', ic: 'moon', m: ['Контровой свет'] },
+      { id: 'amb', label: 'Общий', ic: 'ambient', m: ['Общий свет'] }],
     fx: [
-      { id: 'presets', label: 'Пресеты', ic: 'spark', m: ['Пресеты'] },
+      { id: 'presets', label: 'Пресеты', ic: 'sparkles', m: ['Пресеты'] },
       { id: 'noise', label: 'Шум', ic: 'film', m: ['Шум'] },
       { id: 'pixels', label: 'Пиксели', ic: 'grid', m: ['Пиксели'] },
       { id: 'vhs', label: 'VHS', ic: 'tv', m: ['Глитч VHS', 'Глитч под бит'] },
-      { id: 'petrol', label: 'Бензин', ic: 'drop', m: ['Бензин'] },
+      { id: 'petrol', label: 'Бензин', ic: 'droplet', m: ['Бензин'] },
       { id: 'ash', label: 'Пепел', ic: 'snow', m: ['Летающий пепел'] }],
     music: [
       { id: 'track', label: 'Трек', ic: 'music', m: ['Трек'] },
-      { id: 'clip', label: 'Отрывок', ic: 'sliders', m: ['Отрывок'] },
-      { id: 'spectrum', label: 'Спектр', ic: 'wave', m: ['Спектр на фоне'] },
+      { id: 'clip', label: 'Отрывок', ic: 'scissors', m: ['Отрывок'] },
+      { id: 'spectrum', label: 'Спектр', ic: 'bars', m: ['Спектр на фоне'] },
       { id: 'sphere', label: 'Сфера', ic: 'sphere', m: ['Сфера частиц'] }],
     scene: [
-      { id: 'bg', label: 'Фон', ic: 'image', m: ['Фон'] },
-      { id: 'shadow', label: 'Тени', ic: 'half', m: ['Тени'] },
-      { id: 'cam', label: 'Камера', ic: 'cam', m: ['Камера'] }],
+      { id: 'bg', label: 'Фон', ic: 'bg', m: ['Фон'] },
+      { id: 'shadow', label: 'Тени', ic: 'shadow', m: ['Тени'] },
+      { id: 'cam', label: 'Камера', ic: 'camera', m: ['Камера'] }],
   };
   const SUBSEL = {}; // выбранная вкладка по разделам
   const subIndex = (list, node) => {
@@ -4411,7 +4533,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const bar = $('subbar'); bar.innerHTML = '';
     list.forEach(x => bar.append(h('button', { class: 'sb', type: 'button', role: 'tab', 'aria-selected': String(x === cur), 'aria-label': x.label,
       onclick: () => { if (SUBSEL[st.tab] === x.id) return; SUBSEL[st.tab] = x.id; renderPanel(); $('panel').scrollTop = 0; } },
-      h('span', { class: 'sb-ic' }, icon(x.ic)), h('span', { class: 'sb-name' }, x.label))));
+      h('span', { class: 'sb-ic' }, x.ic === 'fx' ? h('span', { class: 'sb-fx' }, 'FX') : (() => { const g = icon('d-' + x.ic); if (x.s) g.style.width = g.style.height = x.s + 'px'; return g; })()), h('span', { class: 'sb-name' }, x.label))));
   }
   function selectTab(id) { st.tab = id; renderRail(); renderPanel(); $('panel').scrollTop = 0; }
 
@@ -4593,7 +4715,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     images() {
       const stickerGrid = h('div', { class: 'sticker-grid' }, stickerList.map(x =>
         h('button', { type: 'button', title: 'Добавить стикер: ' + x.label, 'aria-label': 'Добавить стикер: ' + x.label, onclick: () => addSticker(x.id) },
-          h('img', { src: x.src, alt: '' }))));
+          h('img', { src: x.src, alt: '' }), h('span', { class: 'st-name' }, x.label))));
       const out = [section('Стикеры', [stickerGrid, h('p', { class: 'hint' }, 'Нажмите, чтобы добавить. Дальше стикер настраивается как обычная картинка: размер, место, копии по кругу.')]),
         section('Слои', [
         h('button', { class: 'dropzone', type: 'button', onclick: () => $('imgInput').click() }, icon('plus'), h('strong', {}, 'Добавить PNG или GIF'), 'Прозрачность сохраняется. Подойдут GIF (анимированные), JPG и WEBP'),
@@ -4849,6 +4971,98 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc), sub), ...nodes);
     panel.scrollTop = y;
   }
+
+  /* =================== ВВОД ТЕКСТА (Mini App) =================== */
+  // Тап по значку текста справа открывает поле ввода с клавиатурой; над клавиатурой шрифты, цвет и форма, как в макете «Добавить текст».
+  const TE = { tool: 'font', emoji: false, vv: null };
+  const TE_COLORS = ['#ffffff', '#000000', '#ff6b6b', '#ff9f5a', '#ffd84d', '#4dffa6', '#22d3ee'];
+  const teBlock = () => { if (st.mainOff && selText === MAIN) selText = texts[0] || MAIN; return selText; };
+  const teSizeDef = () => S.size;
+  const teSizeGet = B => B.main ? P.size : B.size;
+  function teFit() {
+    const el = $('textEdit'), vv = window.visualViewport;
+    el.style.setProperty('--te-h', (vv ? vv.height : innerHeight) + 'px');
+    el.style.setProperty('--te-top', (vv ? vv.offsetTop : 0) + 'px');
+  }
+  function teFitText() {
+    const ta = $('teInput'), n = ta.value.length, lines = ta.value.split('\n').length;
+    ta.style.fontSize = (n > 40 || lines > 2 ? 22 : n > 16 || lines > 1 ? 28 : 40) + 'px';
+    ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, ta.parentNode.clientHeight - 16) + 'px';
+  }
+  function teSetText(B, v) { if (B.main) { TEXT = v; queueLayout(); } else { B.text = v; layoutBlock(B); } }
+  function teDrawSize(B) {
+    const d = teSizeDef(), f = (teSizeGet(B) - d.min) / ((d.max - d.min) || 1);
+    $('teThumb').style.top = ((1 - Math.max(0, Math.min(1, f))) * 200) + 'px';
+  }
+  function teRender() {
+    const B = teBlock(), ta = $('teInput');
+    if (ta.value !== (B.main ? TEXT : B.text)) ta.value = B.main ? TEXT : B.text;
+    ta.style.fontFamily = B.font ? `"${fontPreview(B.font)}", system-ui, sans-serif` : '';
+    teDrawSize(B); teFitText();
+    const tools = $('teTools'); tools.innerHTML = '';
+    const mk = (id, label, inner, extra) => tools.append(h('button', { class: 'te-tool', type: 'button', 'aria-label': label, title: label, 'aria-pressed': String(TE.tool === id && !TE.emoji),
+      onclick: extra || (() => { TE.tool = id; TE.emoji = false; teRender(); }) }, inner));
+    mk('font', 'Шрифт', h('span', { class: 'aa' }, 'Aa'));
+    mk('color', 'Цвет', h('span', { class: 'wheel' }));
+    mk('form', 'Форма', icon('d-te-form'));
+    mk('align', 'Положение', icon('d-te-align'), () => teLeave('form'));
+    mk('fx', 'Эффекты', icon('d-te-fx'), () => teLeave('fx'));
+    const panel = $('tePanel'); panel.innerHTML = '';
+    if (TE.emoji) {
+      QUICK_EMOJI.forEach(e => panel.append(h('button', { class: 'te-chip', type: 'button', onclick: () => {
+        const a = ta.selectionStart ?? ta.value.length, b = ta.selectionEnd ?? a; ta.setRangeText(e, a, b, 'end'); teSetText(B, ta.value); ta.focus();
+      } }, e)));
+    } else if (TE.tool === 'font') {
+      fonts.forEach(f => panel.append(h('button', { class: 'te-chip', type: 'button', 'aria-pressed': String(B.font && B.font.id === f.id), style: `font-family:"${fontPreview(f)}", system-ui, sans-serif`,
+        onclick: () => { setBlock(B, 'fontId', f.id); teRender(); } }, f.label)));
+    } else if (TE.tool === 'color') {
+      panel.append(h('button', { class: 'te-grad', type: 'button', 'aria-pressed': String(!!B.grad), onclick: () => { setBlock(B, 'grad', !B.grad); teRender(); } }, 'Градиент'));
+      const cur = String(B.color || '').toLowerCase();
+      TE_COLORS.forEach(c => panel.append(h('button', { class: 'te-dot', type: 'button', 'aria-label': c, 'aria-pressed': String(cur === c), style: 'background:' + c,
+        onclick: () => { setBlock(B, 'color', c); teRender(); } })));
+    } else if (TE.tool === 'form') {
+      [['flat', 'Круг'], ['square', 'Квадрат'], ['cyl', 'Цилиндр'], ['plain', 'Плоский']].forEach(([k, label]) => {
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); g.setAttribute('viewBox', '0 0 24 24'); g.innerHTML = MODE_ICONS[k];
+        panel.append(h('button', { class: 'te-chip', type: 'button', 'aria-pressed': String(B.mode === k), onclick: () => { setBlock(B, 'mode', k); teRender(); } }, g, label));
+      });
+    }
+  }
+  function teLeave(sub) { SUBSEL.text = sub; teClose(); }
+  function teOpen() {
+    if (!isTgm()) return;
+    if (st.mainOff && !texts.length) addTextBlock();
+    const el = $('textEdit'); TE.tool = 'font'; TE.emoji = false;
+    el.hidden = false; teFit(); teRender();
+    const ta = $('teInput'); ta.focus(); try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {}
+  }
+  function teClose() {
+    const el = $('textEdit'); if (el.hidden) return;
+    $('teInput').blur(); el.hidden = true;
+    st.tab = 'text'; renderRail(); renderPanel();
+  }
+  const openTextEdit = teOpen;
+  (function teInit() {
+    const ta = $('teInput'), size = $('teSize');
+    ta.addEventListener('input', () => { teSetText(teBlock(), ta.value); teFitText(); });
+    $('teDone').addEventListener('click', teClose);
+    $('teEmoji').addEventListener('click', () => { TE.emoji = !TE.emoji; teRender(); });
+    $('teMore').addEventListener('click', () => { addTextBlock(); teRender(); $('teInput').focus(); });
+    const setFrom = e => {
+      const B = teBlock(), d = teSizeDef(), r = size.getBoundingClientRect();
+      const f = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / 200));
+      let v = d.min + f * (d.max - d.min); v = Math.round(v / d.step) * d.step; v = Math.max(d.min, Math.min(d.max, v));
+      if (B.main) setParam('size', v); else setBlock(B, 'size', v);
+      teDrawSize(B);
+    };
+    let drag = false;
+    size.addEventListener('pointerdown', e => { drag = true; size.setPointerCapture(e.pointerId); setFrom(e); e.preventDefault(); });
+    size.addEventListener('pointermove', e => { if (drag) setFrom(e); });
+    size.addEventListener('pointerup', () => { drag = false; });
+    size.addEventListener('pointercancel', () => { drag = false; });
+    // клавиатура меняет видимую область: панели остаются над ней
+    if (window.visualViewport) { visualViewport.addEventListener('resize', () => { if (!$('textEdit').hidden) teFit(); }); visualViewport.addEventListener('scroll', () => { if (!$('textEdit').hidden) teFit(); }); }
+    addEventListener('resize', () => { if (!$('textEdit').hidden) teFit(); });
+  })();
 
   /* =================== ФОРМАТЫ И РАЗМЕР =================== */
   const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат 640 × 640, не длиннее 60 с
