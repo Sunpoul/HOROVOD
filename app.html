@@ -5276,7 +5276,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
   const APP_VERSION = '1.3'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
-  const SEND_URL = 'https://845962aa8ee02b.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
+  const SEND_URL = 'https://1052b65425fe2e.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   let downloads = null;
   Promise.resolve().then(async () => { try { downloads = window.claude?.use ? await window.claude.use('downloads') : null; } catch (e) { downloads = null; } renderExport(); });
