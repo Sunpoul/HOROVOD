@@ -715,6 +715,19 @@ html.tg-m .mx-tiles .swatch input[type=color] { flex: none; width: 18px; height:
 html.tg-m .mx-emoji { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
 html.tg-m .mx-emoji button { flex: none; width: 32px; height: 32px; border: 0; border-radius: 10px; background: var(--well); font-size: 18px; }
 html.tg-m .mx-emoji button[aria-pressed="true"] { box-shadow: inset 0 0 0 1.5px var(--fg); }
+html.tg-m [class*="mx-tab-light-"]:not(.mx-tab-light-presets), html.tg-m .mx-tab-scene-shadow, html.tg-m .mx-tab-scene-cam { gap: 8px; }
+html.tg-m .mx-color { cursor: pointer; position: relative; }
+html.tg-m .mx-color .mx-pill-name { color: var(--label); }
+html.tg-m .mx-hex { flex: none; font: 400 11px/14px 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .mx-dot { flex: none; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--line); }
+html.tg-m .mx-action { width: 100%; border: 0; color: var(--fg); text-align: left; }
+html.tg-m .mx-action .mx-pill-name { color: var(--label); }
+html.tg-m .mx-action svg.i { color: var(--fg); }
+html.tg-m .mx-x { flex: none; width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; background: none; color: var(--muted); }
+html.tg-m .mx-strip { display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .mx-strip::-webkit-scrollbar { display: none; }
+html.tg-m .mx-strip > * { flex: 0 0 auto; min-width: 140px; width: auto; height: 32px; }
+html.tg-m .mx-strip > .field { width: 114px; min-width: 114px; height: 32px; }
 html.tg-m .mx-native { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 html.tg-m .tp-strip.multi > .toggle { grid-column: span 2; } /* длинная подпись переключателя («Отбрасывать тени») не обрезается */
 /* 1.3.0: список слоёв занимает всю ширину, «Добавить …» — главная белая кнопка, как во флоу макета */
@@ -4171,6 +4184,41 @@ const STICKERS = '__STICKERS__';
       return out;
     },
   };
+
+  /* Mini App 1.3.0: свет и сцена по макетам */
+  function mxColor(label, get, set) {
+    const v = String(get()).toLowerCase();
+    const inp = h('input', { type: 'color', value: v, class: 'mx-native', 'aria-label': label });
+    const hex = h('span', { class: 'mx-hex' }, v.toUpperCase()), dot = h('i', { class: 'mx-dot', style: 'background:' + v });
+    inp.addEventListener('input', () => { set(inp.value); hex.textContent = inp.value.toUpperCase(); dot.style.background = inp.value; });
+    return h('label', { class: 'toggle mx-pill mx-color' }, h('span', { class: 'mx-pill-name' }, label), hex, dot, inp);
+  }
+  const mxPColor = (k, label) => mxColor(label, () => P[k], v => setParam(k, v));
+  const mxPTog = (k, label) => mxPill(null, label, !!P[k], v => { setParam(k, v); renderPanel(); });
+  const mxAction = (label, ic, onclick) => h('button', { class: 'mx-pill mx-action', type: 'button', onclick }, h('span', { class: 'mx-pill-name' }, label), icon(ic));
+  const mxPair = (...kids) => h('div', { class: 'mx-pills' }, kids);
+  const TGL = {
+    presets() { return [mxChips(Object.keys(LIGHT_PRESETS).map(n => [n, n]), activeLightPreset, n => { activeLightPreset = n; setMany(LIGHT_PRESETS[n]); renderPanel(); }),
+      h('p', { class: 'mx-hint' }, 'Пресет меняет свет, фон и материал букв. Дальше подстройте вручную.')]; },
+    key() { return [mxPair(mxPColor('keyColor', 'Цвет'), mxPTog('keyShadow', 'Отбрасывать тени')), mxTiles([mxLabel('keyInt', 'Яркость'), mxLabel('keyAz', 'Направление'), mxLabel('keyEl', 'Высота')], 3)]; },
+    rim() { return [mxPColor('rimColor', 'Цвет · блик по краям букв'), mxTiles([mxLabel('rimInt', 'Яркость'), mxLabel('rimAz', 'Направление'), mxLabel('rimEl', 'Высота'), mxLabel('rimOrbit', 'По кругу')], 4)]; },
+    amb() { return [mxPair(mxPColor('ambColor', 'Цвет'), mxPTog('helpers', 'Источники света')), mxTiles([mxLabel('ambInt', 'Яркость'), mxLabel('env', 'Отражения'), mxLabel('exposure', 'Экспозиция')], 3)]; },
+  };
+  const TGS = {
+    bg() {
+      const fill = mxChips([['color', 'Цвет'], ['linear', 'Линейный'], ['radial', 'Радиальный']], st.bgFill, v => { st.bgFill = v; applyScene(); renderPanel(); });
+      const row = h('div', { class: 'mx-strip' },
+        bgTex ? h('div', { class: 'mx-pill mx-action' }, h('span', { class: 'mx-pill-name' }, (bgKind === 'video' ? 'Видео: ' : 'Фото: ') + bgName), h('button', { class: 'mx-x', type: 'button', 'aria-label': 'Убрать фон', onclick: () => { clearBgMedia(); renderPanel(); } }, icon('x')))
+          : mxAction('Фото, видео', 'image', () => $('bgInput').click()),
+        bgKind === 'video' ? mxPill(null, 'Звук видео', !!bgSound, v => { bgSound = v; if (bgVideo) { bgVideo.muted = vMuted(v); if (v) bgVideo.play().catch(() => {}); } renderPanel(); }) : null,
+        mxPColor('bgColor', st.bgFill === 'color' ? 'Цвет' : 'Цвет 1'),
+        st.bgFill !== 'color' ? mxPColor('bgColor2', 'Цвет 2') : null,
+        st.bgFill === 'linear' ? mxLabel('bgAngle', 'Угол') : null);
+      return [fill, row];
+    },
+    shadow() { return [mxPTog('floor', 'Поверхность для теней'), mxTiles([mxLabel('shadowOp', 'Плотность тени')], 1)]; },
+    cam() { return [mxTiles([mxLabel('fov', 'Угол обзора камеры')], 1), mxAction('Вернуть камеру по центру', 'cam', resetCam)]; },
+  };
   function renderPanel() {
     emitState();
     const [, name, , desc] = TABS.find(t => t[0] === st.tab);
@@ -4182,6 +4230,12 @@ const STICKERS = '__STICKERS__';
     const sub = st.tab === 'text' ? h('div', { class: 'subtabs', role: 'tablist', 'aria-label': 'Текст или буквы' },
       [['text', 'Текст'], ['font', 'Шрифт']].map(([id, label]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(st.textSub === id),
         onclick: () => { if (st.textSub === id) return; st.textSub = id; renderPanel(); panel.scrollTop = 0; } }, label))) : null;
+    if (tgm && (st.tab === 'light' || st.tab === 'scene')) {
+      const cur = all.find(x => x.id === SUBSEL[st.tab]) || all[0], R = st.tab === 'light' ? TGL : TGS;
+      renderSubbar(all, cur);
+      panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc)), h('div', { class: 'mx-panel mx-tab-' + st.tab + '-' + cur.id }, ...R[cur.id]().filter(Boolean)));
+      panel.scrollTop = y; return;
+    }
     if (tgm && st.tab === 'fx') {
       const cur = all.find(x => x.id === SUBSEL.fx) || all[0];
       renderSubbar(all, cur);
