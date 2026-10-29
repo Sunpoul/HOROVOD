@@ -816,16 +816,18 @@ html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; 
 html.tg-m .pcard { gap: 8px; }
 
 /* ввод текста (макет «Добавить текст»): тап по значку текста открывает поле с клавиатурой, шрифты, цвет, форму */
-html.tg-m .te { position: fixed; z-index: 70; left: 0; right: 0; top: var(--te-top, 0px); height: var(--te-h, 100dvh); display: flex; flex-direction: column; background: linear-gradient(180deg, #1f1f1f 0, #0f0f0f 460px), #151515; color: var(--fg); }
+html.tg-m .te { position: fixed; z-index: 70; left: 0; right: 0; top: var(--te-top, 0px); height: var(--te-h, 100dvh); display: flex; flex-direction: column; background: transparent; color: var(--fg); } /* прозрачный фон: сверху виден постер, и текст меняется на нём вживую */
 html.tg-m .te[hidden] { display: none; }
-html.tg-m .te-top { flex: none; height: 52px; display: flex; align-items: center; justify-content: flex-end; padding: 0 41px 0 16px; }
-html.tg-m .te-done { border: 0; background: none; color: var(--fg); font: 600 17px/22px var(--font-body); padding: 8px 0; }
+html.tg-m .te-top { flex: none; height: 58px; background: var(--panel); display: flex; align-items: center; justify-content: space-between; padding: 0 41px 0 16px; }
+html.tg-m .te-cancel { border: 0; background: none; color: var(--fg); font: 400 17px/22px var(--font-body); padding: 8px 0; text-shadow: 0 0 6px rgba(0, 0, 0, .6); }
+html.tg-m .te-done { border: 0; background: none; color: var(--fg); font: 600 17px/22px var(--font-body); padding: 8px 0; text-shadow: 0 0 6px rgba(0, 0, 0, .6); }
 html.tg-m .te-stage { position: relative; flex: 1 1 auto; min-height: 120px; display: grid; place-items: center; padding: 0 44px; }
-html.tg-m .te-input { width: 100%; max-height: 100%; border: 0; outline: 0; resize: none; background: transparent; color: var(--fg); caret-color: var(--fg); text-align: center; font: 700 40px/1.2 var(--font-display); overflow: hidden; padding: 0; min-height: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+html.tg-m .te-input { width: 100%; max-height: 100%; border: 0; outline: 0; resize: none; background: transparent; color: transparent; caret-color: var(--fg); text-align: center; font: 700 40px/1.2 var(--font-display); overflow: hidden; padding: 0; min-height: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 html.tg-m .te-size { position: absolute; left: 0; top: 28px; width: 32px; height: 230px; touch-action: none; }
-html.tg-m .te-size .trk { position: absolute; left: 14px; top: 0; width: 4px; height: 200px; border-radius: 2px; background: rgba(255, 255, 255, .12); }
-html.tg-m .te-size .thumb { position: absolute; left: 5px; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; background: #fff; }
-html.tg-m .te-size .lbl { position: absolute; left: 4px; top: 216px; font: 400 10px/normal 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .te-size .trk { position: absolute; left: 14px; top: 0; width: 4px; height: 200px; border-radius: 2px; background: rgba(255, 255, 255, .4); box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); }
+html.tg-m .te-size .thumb { position: absolute; left: 5px; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .5); }
+html.tg-m .te-size .lbl { position: absolute; left: 4px; top: 216px; font: 400 10px/normal 'Onest', var(--font-body); color: var(--fg); text-shadow: 0 0 4px rgba(0, 0, 0, .7); }
+html.tg-m .te-bottom { flex: none; padding-top: 12px; background: #0b0b0b; }
 html.tg-m .te-panel { flex: none; height: 40px; margin-bottom: 12px; padding-left: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 html.tg-m .te-panel::-webkit-scrollbar { display: none; }
 html.tg-m .te-chip { flex: none; height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0, 0, 0, .6); color: var(--fg); font-size: 16px; white-space: nowrap; }
@@ -841,6 +843,9 @@ html.tg-m .te-tool[aria-pressed="true"] { background: #5e5e61; }
 html.tg-m .te-tool svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 html.tg-m .te-tool .aa { font: 600 20px/1 var(--font-body); }
 html.tg-m .te-tool .wheel { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(#ff5c5c, #ffd84d, #4dffa6, #22d3ee, #7a6bff, #ff5cd1, #ff5c5c); }
+/* пока открыт ввод, холст уменьшается и стоит между верхней и нижней панелью, чтобы текст было видно над клавиатурой */
+html.tg-m.te-on .stage { transform-origin: 50% 0; transform: translateY(var(--te-ty, 0px)) scale(var(--te-sc, 1)); transition: transform .18s ease; }
+html.tg-m.te-on .rail, html.tg-m.te-on .stage-mini { visibility: hidden; }
 html.tg-m .te-actions { flex: none; height: 44px; display: flex; align-items: center; justify-content: space-around; background: #2a2a2c; padding-bottom: 0; }
 html.tg-m .te-act { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: #fff; font: 500 15px/1 var(--font-body); padding: 0 8px; height: 44px; }
 html.tg-m .te-act svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
@@ -1113,14 +1118,16 @@ body.ios .frame { box-shadow: none; }
 <div class="popover" id="exportPop" role="dialog" aria-label="Экспорт" hidden></div>
 <div class="dropover" id="dropover" hidden><div><strong>Отпустите файл</strong>Шрифт, картинка, видео MP4 или музыка MP3</div></div>
 <div class="te" id="textEdit" hidden role="dialog" aria-label="Текст">
-  <div class="te-top"><button class="te-done" id="teDone" type="button">Готово</button></div>
+  <div class="te-top"><button class="te-cancel" id="teCancel" type="button">Отмена</button><button class="te-done" id="teDone" type="button">Готово</button></div>
   <div class="te-stage">
     <div class="te-size" id="teSize" role="slider" aria-label="Размер текста" aria-orientation="vertical"><span class="trk"></span><span class="thumb" id="teThumb"></span><span class="lbl">Размер</span></div>
     <textarea class="te-input" id="teInput" rows="1" spellcheck="false" autocapitalize="characters" aria-label="Текст"></textarea>
   </div>
+  <div class="te-bottom" id="teBottom">
   <div class="te-panel" id="tePanel"></div>
   <div class="te-tools" id="teTools" role="toolbar" aria-label="Настройки текста"></div>
   <div class="te-actions"><button class="te-act" id="teEmoji" type="button"><svg class="i"><use href="#i-d-te-emoji"/></svg>Эмодзи</button><button class="te-act" id="teMore" type="button"><svg class="i"><use href="#i-d-te-plus"/></svg>Ещё текст</button></div>
+  </div>
 </div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
 <input type="file" id="fontInput" accept=".ttf,.otf,.woff" multiple hidden>
@@ -3586,7 +3593,7 @@ const STICKERS = '__STICKERS__';
      Каждая вкладка показывает свои группы настроек: m — названия групп (строка или RegExp), группа без вкладки уходит в первую. */
   const SUBS = {
     text: [
-      { id: 'add', label: 'Добавить', ic: 'plus', s: 22, m: [], act: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(); } }, // не вкладка, а действие: новый текст и сразу ввод
+      { id: 'add', label: 'Добавить', ic: 'plus', s: 22, m: [], act: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(true); } }, // не вкладка, а действие: новый текст и сразу ввод
       { id: 'layers', label: 'Слои', ic: 'layers', s: 22, m: ['Слои', /^Текст/] },
       { id: 'font', label: 'Шрифт', ic: 'text', s: 22, m: ['Шрифт', 'Пропорции', 'Объём', 'Материал'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём'], ['Материал', 'Материал']] },
       { id: 'color', label: 'Цвет', ic: 'palette', s: 22, m: ['Цвет'] },
@@ -4119,7 +4126,7 @@ const STICKERS = '__STICKERS__';
           T.main ? null : h('button', { class: 'mx-act', type: 'button', title: 'Копия', 'aria-label': 'Копия текста', onclick: e => { e.stopPropagation(); const C = addTextBlock(Object.assign(Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS, ...BT_KEYS].map(k => [k, T[k]])), { posY: T.posY - 2 }), true); C.fontId = T.fontId; layoutBlock(C); renderPanel(); } }, icon('copy')),
           h('button', { class: 'mx-act', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash')));
       }));
-      const add = h('button', { class: 'mx-add', type: 'button', onclick: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(); } }, icon('plus'), 'Добавить текст');
+      const add = h('button', { class: 'mx-add', type: 'button', onclick: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(true); } }, icon('plus'), 'Добавить текст');
       return all.length ? [list, add] : [h('p', { class: 'mx-empty' }, 'Слоёв нет. Добавьте текст — он появится на сцене.'), add];
     },
     font(B) {
@@ -4451,7 +4458,7 @@ const STICKERS = '__STICKERS__';
 
   /* =================== ВВОД ТЕКСТА (Mini App) =================== */
   // Тап по значку текста справа открывает поле ввода с клавиатурой; над клавиатурой шрифты, цвет и форма, как в макете «Добавить текст».
-  const TE = { tool: 'font', emoji: false, vv: null };
+  const TE = { tool: 'font', emoji: false, vv: null, fresh: [], snap: null }; // fresh — тексты, созданные за этот ввод; snap — прежнее состояние правимого текста (для «Отмены»)
   const TE_COLORS = ['#ffffff', '#000000', '#ff6b6b', '#ff9f5a', '#ffd84d', '#4dffa6', '#22d3ee'];
   const teBlock = () => { if (st.mainOff && selText === MAIN) selText = texts[0] || MAIN; return selText; };
   const teSizeDef = () => S.size;
@@ -4460,6 +4467,11 @@ const STICKERS = '__STICKERS__';
     const el = $('textEdit'), vv = window.visualViewport;
     el.style.setProperty('--te-h', (vv ? vv.height : innerHeight) + 'px');
     el.style.setProperty('--te-top', (vv ? vv.offsetTop : 0) + 'px');
+    if (el.hidden) return;
+    const stg = document.querySelector('.stage'), top = $('textEdit').querySelector('.te-top').offsetHeight, bot = (vv ? vv.height : innerHeight) - $('teBottom').offsetHeight;
+    const hS = stg.offsetHeight, room = Math.max(120, bot - top - 8), k = Math.max(.35, Math.min(1, room / hS));
+    document.documentElement.style.setProperty('--te-sc', k.toFixed(3));
+    document.documentElement.style.setProperty('--te-ty', Math.round(top + 4 + (room - hS * k) / 2 - stg.offsetTop) + 'px');
   }
   function teFitText() {
     const ta = $('teInput'), n = ta.value.length, lines = ta.value.split('\n').length;
@@ -4505,16 +4517,28 @@ const STICKERS = '__STICKERS__';
     }
   }
   function teLeave(sub) { SUBSEL.text = sub; teClose(); }
-  function teOpen() {
+  function teSnap(B) { return { B, text: B.main ? TEXT : B.text, size: teSizeGet(B), fontId: B.font && B.font.id, color: B.color, grad: B.grad, mode: B.mode }; }
+  function teRevert() {
+    TE.fresh.slice().reverse().forEach(B => { if (texts.includes(B)) removeTextBlock(B); }); // новые тексты убираем
+    const n = TE.snap; if (!n) return;
+    teSetText(n.B, n.text);
+    if (teSizeGet(n.B) !== n.size) { if (n.B.main) setParam('size', n.size); else setBlock(n.B, 'size', n.size); }
+    if (n.fontId && n.B.font && n.B.font.id !== n.fontId) setBlock(n.B, 'fontId', n.fontId);
+    if (n.B.color !== n.color) setBlock(n.B, 'color', n.color);
+    if (n.B.grad !== n.grad) setBlock(n.B, 'grad', n.grad);
+    if (n.B.mode !== n.mode) setBlock(n.B, 'mode', n.mode);
+  }
+  function teOpen(fresh) {
     if (!isTgm()) return;
-    if (st.mainOff && !texts.length) addTextBlock();
+    if (st.mainOff && !texts.length) { addTextBlock(); fresh = true; }
+    TE.fresh = fresh ? [teBlock()] : []; TE.snap = fresh ? null : teSnap(teBlock());
     const el = $('textEdit'); TE.tool = 'font'; TE.emoji = false;
-    el.hidden = false; teFit(); teRender();
+    el.hidden = false; document.documentElement.classList.add('te-on'); teRender(); teFit();
     const ta = $('teInput'); ta.focus(); try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {}
   }
   function teClose() {
     const el = $('textEdit'); if (el.hidden) return;
-    $('teInput').blur(); el.hidden = true;
+    $('teInput').blur(); el.hidden = true; document.documentElement.classList.remove('te-on');
     st.tab = 'text'; renderRail(); renderPanel();
   }
   const openTextEdit = teOpen;
@@ -4523,7 +4547,8 @@ const STICKERS = '__STICKERS__';
     ta.addEventListener('input', () => { teSetText(teBlock(), ta.value); teFitText(); });
     $('teDone').addEventListener('click', () => { if (!SUBSEL.text || SUBSEL.text === 'layers') SUBSEL.text = 'form'; teClose(); }); // как во флоу макета: после «Готово» — вкладка «Форма»
     $('teEmoji').addEventListener('click', () => { TE.emoji = !TE.emoji; teRender(); });
-    $('teMore').addEventListener('click', () => { addTextBlock(); teRender(); $('teInput').focus(); });
+    $('teMore').addEventListener('click', () => { addTextBlock(); TE.fresh.push(selText); teRender(); $('teInput').focus(); });
+    $('teCancel').addEventListener('click', () => { const dropped = TE.fresh.length > 0; teRevert(); if (dropped) SUBSEL.text = 'layers'; teClose(); }); // отмена: возвращаем текст, размер, шрифт, цвет и форму, новые тексты убираем
     const setFrom = e => {
       const B = teBlock(), d = teSizeDef(), r = size.getBoundingClientRect();
       const f = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / 200));
