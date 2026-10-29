@@ -549,6 +549,82 @@ html.tg-m .popover { position: fixed; z-index: 60; left: 0; right: 0; top: auto;
   border-width: 1px 0 0; border-radius: 16px 16px 0 0; padding-bottom: var(--tg-bot); box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .5); }
 @media (prefers-reduced-motion: reduce) { html.tg-m .panel { transition: none; } }
 
+/* Mini App 1.3 (макет Figma): панель инструментов сверху, разделы справа от холста, настройки раздела — плитки и вкладки внизу */
+#backBtn, .stage-mini, .subbar { display: none; }
+html.tg-m { --stage-bg: var(--raised); }
+html.tg-m .app { grid-template-rows: auto minmax(0, 1fr) auto auto; grid-template-areas: "top" "stage" "panel" "sub"; }
+html.tg-m .top { height: 64px; padding: 10px 12px; gap: 8px; border-bottom: 0; background: transparent; }
+html.tg-m .brand { display: none; }
+html.tg-m #backBtn { display: grid; flex: none; background: var(--well); color: var(--fg); }
+html.tg-m #backBtn svg { transform: rotate(90deg); }
+html.tg-m .top .icon-btn, html.tg-m #exportBtn { width: 44px; height: 44px; }
+html.tg-m .fmtsel { margin: 0 auto 0 0; }
+html.tg-m .fmt-btn { height: 44px; padding: 0 12px 0 16px; gap: 6px; background: var(--well); }
+html.tg-m .fmt-btn > span:not(.shape-slot) { display: none; }
+html.tg-m .fmt-menu { left: 0; transform: none; }
+html.tg-m .actions { flex: none; gap: 2px; }
+html.tg-m #exportBtn { margin-left: 6px; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+html.tg-m #exportBtn:hover, html.tg-m #exportBtn[aria-expanded="true"] { background: var(--accent-hover); }
+html.tg-m .stage { position: relative; background: var(--stage-bg); border-radius: 0 0 28px 28px; }
+html.tg-m .stage-mini { position: absolute; z-index: 5; left: 12px; bottom: 12px; display: flex; align-items: center; gap: 2px; padding: 4px; background: var(--well); border-radius: 12px; }
+html.tg-m .stage:has(.player:not([hidden])) .stage-mini { bottom: 80px; }
+html.tg-m .stage-mini .icon-btn { width: 36px; height: 36px; border-radius: 8px; color: var(--fg); }
+html.tg-m #playBtn { background: var(--raised); }
+html.tg-m .sheet-grip { display: none; }
+html.tg-m .rail { grid-area: stage; z-index: 6; align-self: start; justify-self: end; flex-direction: column; gap: 4px; overflow: visible; scroll-snap-type: none; padding: 8px 8px 0 0; background: transparent; border: 0; }
+html.tg-m .tab { flex: none; width: 44px; height: 44px; min-height: 0; padding: 0; gap: 0; border-radius: 50%; font-size: 0; color: var(--fg); }
+html.tg-m .tab svg.i { width: 24px; height: 24px; }
+html.tg-m .tab:hover { background: transparent; }
+html.tg-m .tab[aria-selected="true"] { background: var(--well); color: var(--fg); }
+html.tg-m .panel { height: auto; min-height: 0; max-height: min(42dvh, 340px); padding: 14px 16px 6px; background: var(--panel); transition: none; }
+html.tg-m .panel-head { display: none; }
+html.tg-m .panel .sec { padding: 0; border: 0; gap: 8px; }
+html.tg-m .panel .sec + .sec { margin-top: 8px; }
+html.tg-m .panel .sec-head h3 > button.sec-toggle { display: none; }
+html.tg-m .panel .sec-head:not(:has(.switch-only)) { justify-content: flex-end; min-height: 0; }
+html.tg-m .panel .sec-head:not(:has(.switch-only)):not(:has(.link)) { display: none; }
+html.tg-m .panel .sec-head:has(.switch-only) { min-height: 48px; padding: 0 16px; background: var(--well); border-radius: 12px; }
+html.tg-m .panel .sec-head .sec-toggle.static { padding: 0; }
+html.tg-m .panel .sec-head .sec-ic { display: none; }
+html.tg-m .panel .sec-body { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+html.tg-m .panel .sec-body > * { grid-column: 1 / -1; }
+html.tg-m .panel .sec-body > .field { grid-column: auto; }
+html.tg-m .panel .sub-chips ~ .sec .sec-body { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+html.tg-m .hint { font-size: 11px; line-height: 1.4; }
+html.tg-m .sub-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-bottom: 10px; }
+html.tg-m .sub-chips::-webkit-scrollbar { display: none; }
+html.tg-m .chip { flex: none; height: 36px; padding: 0 16px; font-size: 13px; }
+/* ползунок — плитка: подпись, значение и заливка по положению */
+html.tg-m .field { position: relative; display: block; height: 52px; padding: 8px 12px; border-radius: 12px; background: var(--well); overflow: hidden; }
+html.tg-m .field::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--p, 0) * 100%); background: var(--accent-soft); pointer-events: none; }
+html.tg-m .field label { position: relative; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 14px; color: var(--muted); pointer-events: none; }
+html.tg-m .field .num { position: relative; display: block; width: 100%; height: 22px; padding: 0; border: 0; background: transparent; font-size: 13px; font-weight: 500; line-height: 22px; pointer-events: none; }
+html.tg-m .field input[type=range] { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; margin: 0; opacity: 0; touch-action: pan-y; }
+html.tg-m .subbar { grid-area: sub; display: flex; justify-content: space-around; gap: 2px; padding: 10px 6px calc(8px + var(--tg-bot)); border-top: 1px solid var(--line); background: var(--panel); overflow-x: auto; scrollbar-width: none; }
+html.tg-m .subbar::-webkit-scrollbar { display: none; }
+html.tg-m .sb { flex: 1 0 56px; max-width: 80px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; border: 0; background: none; color: var(--muted); font-size: 11px; }
+html.tg-m .sb .sb-ic { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; background: var(--well); color: var(--label); }
+html.tg-m .sb .sb-ic svg.i { width: 22px; height: 22px; }
+html.tg-m .sb[aria-selected="true"] { color: var(--fg); font-weight: 600; }
+html.tg-m .sb[aria-selected="true"] .sb-ic { background: var(--accent); color: var(--accent-ink); }
+html.tg-m .toasts { bottom: calc(190px + var(--tg-bot)); }
+/* окно экспорта — нижняя шторка с заголовком и крестиком */
+.exp-head { display: none; }
+html.tg-m .popover { padding: 8px 20px calc(16px + var(--tg-bot)); border-radius: 28px 28px 0 0; background: var(--float); }
+html.tg-m .exp-head { display: flex; align-items: center; justify-content: space-between; position: relative; padding: 22px 0 6px; }
+html.tg-m .exp-head::before { content: ""; position: absolute; top: 4px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 4px; background: var(--toggle-off); }
+html.tg-m .exp-head h3 { margin: 0; font: 500 22px/28px var(--font-display); }
+html.tg-m .exp-head .icon-btn { width: 36px; height: 36px; background: var(--raised); color: var(--fg); }
+html.tg-m .popover .sec { padding: 12px 0 4px; gap: 12px; border: 0; }
+html.tg-m .popover .sec-head h3 { font-size: 17px; color: var(--fg); letter-spacing: 0; }
+html.tg-m .popover .group.inline { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+html.tg-m .popover .seg-label { font-size: 13px; color: var(--label); }
+html.tg-m .popover .seg { display: flex; flex-wrap: wrap; gap: 8px; }
+html.tg-m .popover .seg button { flex: none; height: 36px; padding: 0 18px; border-radius: 999px; background: var(--raised); color: var(--fg); font-size: 13px; }
+html.tg-m .popover .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+html.tg-m .popover .btn { height: 52px; border-radius: 999px; border-color: transparent; background: var(--raised); color: var(--fg); font-size: 15px; }
+html.tg-m .popover .btn.primary { background: var(--accent); color: var(--accent-ink); }
+
 /* встроенный режим iOS: интерфейс рисует нативное приложение, здесь остаётся только холст */
 body.ios { background: #000; overflow: hidden; padding-top: 0; }
 body.ios .tabbar { display: none !important; }
@@ -579,7 +655,7 @@ body.ios .frame { box-shadow: none; }
 <div class="lock" id="gate" role="dialog" aria-modal="true" aria-label="Вход">
   <div class="lock-card">
     <div class="gate-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true" fill="currentColor"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" /><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" /><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" /><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" /><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" /><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" /><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" /><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" /><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" /><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" /><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" /><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" /><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" /><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" /><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" /><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" /><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" /><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" /><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" /><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" /><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" /><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" /><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" /><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" /></svg><b>HRVD</b></div>
-    <p class="gate-beta">Beta 1.2.1</p>
+    <p class="gate-beta">Beta 1.3</p>
     <p class="hint">Закрытая бета. Войдите, чтобы открыть редактор</p>
     <form class="gate-form" novalidate>
       <input class="text-input" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Логин" aria-label="Логин">
@@ -689,6 +765,15 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 1.9-1 1.4-2-.5-1 .1-2.2 1.3-2.2H17a3.5 3.5 0 0 0 3.5-3.5C20.5 7.2 16.7 3.5 12 3.5Z"/><circle cx="8" cy="11" r="1"/><circle cx="11" cy="7.5" r="1"/><circle cx="15.5" cy="8.5" r="1"/></symbol>
   <symbol id="i-move" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M12 3l-2.5 2.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/></symbol>
   <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14c.9 1.3 2.1 2 3.5 2s2.6-.7 3.5-2"/><circle cx="9.2" cy="10" r=".6"/><circle cx="14.8" cy="10" r=".6"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5.5 13.5H11L10 21l7.5-10.5H12L13 3Z"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5s6 6.2 6 10.5a6 6 0 0 1-12 0c0-4.3 6-10.5 6-10.5Z"/></symbol>
+  <symbol id="i-tv" viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="12" rx="2.5"/><path d="m8.5 3.5 3.5 3.5 3.5-3.5"/></symbol>
+  <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 3.5v17M4.6 7.75l14.8 8.5M4.6 16.25l14.8-8.5"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M10 4.5 11.8 10l5.5 1.8-5.5 1.8L10 19l-1.8-5.4-5.5-1.8L8.2 10 10 4.5Z"/><path d="M18.5 3.5v4M16.5 5.5h4"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M4 8.5h16M4 15.5h16M9 3.5v17M15 3.5v17"/></symbol>
+  <symbol id="i-half" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M12 8h3M12 12h5M12 16h3"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 12v0M8 8.5v7M12 5v14M16 8.5v7M20 12v0"/></symbol>
+  <symbol id="i-sphere" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><ellipse cx="12" cy="12" rx="3.8" ry="8.5"/><path d="M3.5 12h17"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
 </svg>
 
@@ -700,6 +785,7 @@ body.ios .frame { box-shadow: none; }
 
 <div class="app">
   <header class="top">
+    <button class="icon-btn" id="backBtn" type="button" title="Все проекты" aria-label="Назад к проектам"><svg class="i"><use href="#i-chev"/></svg></button>
     <div class="brand">
       <button class="avatar" id="avatarBtn" type="button" title="Профиль и настройки" aria-label="Меню профиля" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-user"/></svg><span class="av-letter"></span></button>
       <button class="pj-name" id="pjName" type="button" title="Переименовать проект">Проект</button>
@@ -721,6 +807,7 @@ body.ios .frame { box-shadow: none; }
   <nav class="rail" role="tablist" aria-label="Разделы" id="rail"></nav>
 
   <aside class="panel" id="panel" role="tabpanel"></aside>
+  <nav class="subbar" id="subbar" role="tablist" aria-label="Настройки раздела"></nav>
 
   <main class="stage" id="stage">
     <div class="frame-wrap">
@@ -735,6 +822,7 @@ body.ios .frame { box-shadow: none; }
       </div>
       <div class="frame-meta"><span id="metaFormat"></span><span id="metaSize"></span></div>
     </div>
+    <div class="stage-mini" id="stageMini"></div>
     <div class="stage-hint">Тяните — вращать · правая кнопка — двигать · колесо — приблизить · клик по объекту — выделить и двигать · перетащите шрифт или PNG в окно</div>
   </main>
 </div>
@@ -4126,7 +4214,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const id = 'f-' + k;
     const range = h('input', { type: 'range', id, min: def.min, max: def.max, step: def.step, value: get() });
     const num = h('input', { class: 'num', type: 'text', inputmode: 'decimal', value: fmtVal(def, get()) + (def.unit ? ' ' + def.unit : ''), 'aria-label': def.label + ', значение' });
-    const show = v => { num.value = fmtVal(def, v) + (def.unit ? ' ' + def.unit : ''); };
+    const show = v => { num.value = fmtVal(def, v) + (def.unit ? ' ' + def.unit : ''); if (range.parentNode) range.parentNode.style.setProperty('--p', Math.max(0, Math.min(1, (v - def.min) / ((def.max - def.min) || 1))).toFixed(4)); };
     range.addEventListener('input', () => { set(+range.value); show(+range.value); });
     const commit = () => {
       let v = parseFloat(num.value.replace(',', '.'));
@@ -4147,7 +4235,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     });
     const lbl = h('label', { for: id, title: 'Двойной клик — сбросить' }, def.label);
     if (def.v != null) lbl.addEventListener('dblclick', () => { range.value = def.v; set(def.v); show(def.v); });
-    return h('div', { class: 'field' }, lbl, num, range);
+    const field = h('div', { class: 'field' }, lbl, num, range); show(+range.value);
+    return field;
   }
   // hex из строки: #RRGGBB, RRGGBB или короткий #RGB → '#rrggbb', иначе null
   const parseHex = s => { s = String(s).trim().replace(/^#/, ''); if (/^[0-9a-f]{3}$/i.test(s)) s = s.replace(/./g, c => c + c); return /^[0-9a-f]{6}$/i.test(s) ? '#' + s.toLowerCase() : null; };
@@ -4216,25 +4305,26 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     'Стикеры': 'image', 'Слой': 'image', 'Слои': 'image', 'Видео': 'video', 'Пресеты': 'light', 'Основной свет': 'light', 'Контровой свет': 'light', 'Общий свет': 'light',
     'Шум': 'fx', 'Пиксели': 'grid', 'Бит': 'music', 'Глитч VHS': 'fx', 'Бензин': 'fx', 'Глитч под бит': 'fx', 'Летающий пепел': 'fx', 'Трек': 'music', 'Отрывок': 'music', 'Спектр на фоне': 'music', 'Сфера частиц': 'music',
     'Фон': 'scene', 'Тени': 'scene', 'Камера': 'cam', 'Добавить фигуру': 'shape' };
+  const isTgm = () => document.documentElement.classList.contains('tg-m'); // Mini App на телефоне
   const secIcon = title => (title === 'Пресеты' && st.tab === 'fx' ? 'fx' : title === 'Слои' && st.tab === 'text' ? 'scene' : SEC_ICONS[title]) || (/^Фигура/.test(title) ? 'shape' : (TABS.find(t => t[0] === st.tab) || [])[2] || 'dots');
   function section(title, kids, resetKeys, opts) {
     const reset = resetKeys && h('button', { class: 'link', type: 'button', onclick: () => {
       if (typeof resetKeys === 'function') { resetKeys(); renderPanel(); return; }
       const o = {}; resetKeys.forEach(k => o[k] = (S[k] || COLORS[k] || TOGGLES[k]).v); setMany(o);
     } }, 'Сбросить');
-    if (opts && opts.plain) return h('section', { class: 'sec plain' }, h('div', { class: 'sec-head' }, h('h3', {}, title), reset), ...kids);
+    if (opts && opts.plain) return h('section', { class: 'sec plain', 'data-sec': title }, h('div', { class: 'sec-head' }, h('h3', {}, title), reset), ...kids);
     // группа-эффект: тогл справа от названия; включён — ниже настройки и кнопка «Сбросить», выключен — только заголовок
     if (opts && opts.toggle) {
       const on = !!opts.toggle.get();
       const sw = h('input', { type: 'checkbox', role: 'switch', 'aria-label': title + ': включить или выключить' }); sw.checked = on;
       sw.addEventListener('change', () => { opts.toggle.set(sw.checked); renderPanel(); });
       const doReset = () => { if (typeof resetKeys === 'function') resetKeys(); else if (resetKeys) { const o = {}; resetKeys.forEach(k => o[k] = (S[k] || COLORS[k] || TOGGLES[k]).v); setMany(o); } renderPanel(); };
-      return h('section', { class: 'sec' }, h('div', { class: 'sec-head' },
+      return h('section', { class: 'sec', 'data-sec': title }, h('div', { class: 'sec-head' },
         h('h3', {}, h('span', { class: 'sec-toggle static' }, h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title))),
         h('label', { class: 'toggle switch-only' }, sw)),
         ...(on ? [h('div', { class: 'sec-body' }, ...kids, resetKeys ? h('button', { class: 'btn small block', type: 'button', onclick: doReset }, 'Сбросить') : null)] : []));
     }
-    const key = st.tab + ':' + title, was = OPENED[key], closed = was === undefined ? !(opts && opts.open) : !was; // opts.open — развёрнута, пока пользователь не свернул
+    const key = st.tab + ':' + title, was = OPENED[key], closed = isTgm() ? false : was === undefined ? !(opts && opts.open) : !was; // opts.open — развёрнута, пока пользователь не свернул
     const body = h('div', { class: 'sec-body' }, ...kids); body.hidden = closed;
     const btn = h('button', { class: 'sec-toggle', type: 'button', 'aria-expanded': String(!closed), title: closed ? 'Развернуть' : 'Свернуть' },
       h('span', { class: 'sec-ic' }, icon(secIcon(title))), h('span', { class: 'sec-title' }, title), icon('chev'));
@@ -4245,7 +4335,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       OPENED[key] = open ? 1 : 0; // 0 нужен группам, которые по умолчанию развёрнуты
       try { localStorage.setItem('horovod.opened', JSON.stringify(OPENED)); } catch (e) {}
     };
-    return h('section', { class: 'sec' }, h('div', { class: 'sec-head' }, h('h3', {}, btn), reset), body);
+    return h('section', { class: 'sec', 'data-sec': title }, h('div', { class: 'sec-head' }, h('h3', {}, btn), reset), body);
   }
   function presetChips(map, active, onPick) {
     const box = h('div', { class: 'chips' });
@@ -4265,7 +4355,63 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   ];
   function renderRail() {
     const rail = $('rail'); rail.innerHTML = '';
-    TABS.forEach(([id, name, ic]) => rail.append(h('button', { class: 'tab', role: 'tab', id: 'tab-' + id, 'aria-selected': String(st.tab === id), 'aria-controls': 'panel', onclick: () => selectTab(id) }, icon(ic), name)));
+    TABS.forEach(([id, name, ic]) => rail.append(h('button', { class: 'tab', role: 'tab', id: 'tab-' + id, title: name, 'aria-label': name, 'aria-selected': String(st.tab === id), 'aria-controls': 'panel', onclick: () => selectTab(id) }, icon(ic), name)));
+  }
+  /* Mini App 1.3: разделы справа от холста, а настройки раздела делятся на вкладки внизу.
+     Каждая вкладка показывает свои группы настроек: m — названия групп (строка или RegExp), группа без вкладки уходит в первую. */
+  const SUBS = {
+    text: [
+      { id: 'layers', label: 'Слои', ic: 'scene', m: ['Слои', /^Текст/] },
+      { id: 'font', label: 'Шрифт', ic: 'text', m: ['Шрифт', 'Пропорции', 'Объём', 'Материал'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём'], ['Материал', 'Материал']] },
+      { id: 'color', label: 'Цвет', ic: 'palette', m: ['Цвет'] },
+      { id: 'form', label: 'Форма', ic: 'shape', m: ['Форма', 'Положение'] },
+      { id: 'motion', label: 'Движение', ic: 'cam', m: ['Анимация'] },
+      { id: 'fx', label: 'Эффекты', ic: 'fx', m: ['Пиксели', 'Бит'] }],
+    images: [
+      { id: 'stickers', label: 'Стикеры', ic: 'smile', m: ['Стикеры'] },
+      { id: 'layers', label: 'Слои', ic: 'scene', m: ['Слои', 'Слой'] },
+      { id: 'place', label: 'Место', ic: 'move', m: ['Размещение'] },
+      { id: 'view', label: 'Вид', ic: 'eye', m: ['Отображение', 'Пиксели'] },
+      { id: 'beat', label: 'Бит', ic: 'bolt', m: ['Бит'] }],
+    shapes: [
+      { id: 'add', label: 'Добавить', ic: 'plus', m: ['Добавить фигуру', /^Фигура/] },
+      { id: 'place', label: 'Место', ic: 'move', m: ['Позиция'] },
+      { id: 'form', label: 'Форма', ic: 'shape', m: ['Форма', 'Поворот'] },
+      { id: 'fill', label: 'Заливка', ic: 'half', m: ['Заливка', 'Пиксели'] },
+      { id: 'beat', label: 'Бит', ic: 'bolt', m: ['Бит'] }],
+    light: [
+      { id: 'presets', label: 'Пресеты', ic: 'spark', m: ['Пресеты'] },
+      { id: 'key', label: 'Основной', ic: 'light', m: ['Основной свет'] },
+      { id: 'rim', label: 'Контровой', ic: 'half', m: ['Контровой свет'] },
+      { id: 'amb', label: 'Общий', ic: 'sliders', m: ['Общий свет'] }],
+    fx: [
+      { id: 'presets', label: 'Пресеты', ic: 'spark', m: ['Пресеты'] },
+      { id: 'noise', label: 'Шум', ic: 'film', m: ['Шум'] },
+      { id: 'pixels', label: 'Пиксели', ic: 'grid', m: ['Пиксели'] },
+      { id: 'vhs', label: 'VHS', ic: 'tv', m: ['Глитч VHS', 'Глитч под бит'] },
+      { id: 'petrol', label: 'Бензин', ic: 'drop', m: ['Бензин'] },
+      { id: 'ash', label: 'Пепел', ic: 'snow', m: ['Летающий пепел'] }],
+    music: [
+      { id: 'track', label: 'Трек', ic: 'music', m: ['Трек'] },
+      { id: 'clip', label: 'Отрывок', ic: 'sliders', m: ['Отрывок'] },
+      { id: 'spectrum', label: 'Спектр', ic: 'wave', m: ['Спектр на фоне'] },
+      { id: 'sphere', label: 'Сфера', ic: 'sphere', m: ['Сфера частиц'] }],
+    scene: [
+      { id: 'bg', label: 'Фон', ic: 'image', m: ['Фон'] },
+      { id: 'shadow', label: 'Тени', ic: 'half', m: ['Тени'] },
+      { id: 'cam', label: 'Камера', ic: 'cam', m: ['Камера'] }],
+  };
+  const SUBSEL = {}; // выбранная вкладка по разделам
+  const subIndex = (list, node) => {
+    const t = node.dataset && node.dataset.sec; if (t == null) return 0;
+    const i = list.findIndex(x => x.m.some(m => m instanceof RegExp ? m.test(t) : m === t));
+    return i < 0 ? 0 : i;
+  };
+  function renderSubbar(list, cur) {
+    const bar = $('subbar'); bar.innerHTML = '';
+    list.forEach(x => bar.append(h('button', { class: 'sb', type: 'button', role: 'tab', 'aria-selected': String(x === cur), 'aria-label': x.label,
+      onclick: () => { if (SUBSEL[st.tab] === x.id) return; SUBSEL[st.tab] = x.id; renderPanel(); $('panel').scrollTop = 0; } },
+      h('span', { class: 'sb-ic' }, icon(x.ic)), h('span', { class: 'sb-name' }, x.label))));
   }
   function selectTab(id) { st.tab = id; renderRail(); renderPanel(); $('panel').scrollTop = 0; }
 
@@ -4678,10 +4824,29 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const panel = $('panel'); const y = panel.scrollTop;
     panel.innerHTML = '';
     panel.setAttribute('aria-labelledby', 'tab-' + st.tab);
+    const tgm = isTgm(), all = SUBS[st.tab] || [];
+    if (tgm && st.tab === 'text') st.textSub = SUBSEL.text === 'font' ? 'font' : 'text'; // «Шрифт» — отдельный набор настроек
     const sub = st.tab === 'text' ? h('div', { class: 'subtabs', role: 'tablist', 'aria-label': 'Текст или буквы' },
       [['text', 'Текст'], ['font', 'Шрифт']].map(([id, label]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(st.textSub === id),
         onclick: () => { if (st.textSub === id) return; st.textSub = id; renderPanel(); panel.scrollTop = 0; } }, label))) : null;
-    panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc), sub), ...BUILD[st.tab]().filter(Boolean));
+    let nodes = BUILD[st.tab]().filter(Boolean);
+    if (tgm && all.length) {
+      const have = new Set(nodes.map(n => subIndex(all, n)));
+      const list = st.tab === 'text' ? all : all.filter((x, i) => have.has(i));
+      const cur = list.find(x => x.id === SUBSEL[st.tab]) || list[0];
+      if (cur) {
+        const keep = nodes.filter(n => all[subIndex(all, n)] === cur);
+        if (st.tab !== 'text' || keep.length) nodes = keep;
+        if (cur.chips) {
+          const want = SUBSEL.inner, pick = (cur.chips.find(c => c[0] === want) || cur.chips[0])[0];
+          nodes = [h('div', { class: 'chips sub-chips', role: 'group', 'aria-label': 'Группа настроек' }, cur.chips.map(([t, label]) =>
+            h('button', { class: 'chip', type: 'button', 'aria-pressed': String(t === pick), onclick: () => { SUBSEL.inner = t; renderPanel(); } }, label))),
+            ...nodes.filter(n => n.dataset.sec === pick)];
+        }
+        renderSubbar(list, cur);
+      }
+    }
+    panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc), sub), ...nodes);
     panel.scrollTop = y;
   }
 
@@ -4812,7 +4977,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
   const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
-  const APP_VERSION = '1.2.1'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
+  const APP_VERSION = '1.3'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
   const SEND_URL = 'https://6c9f4a2a9573d2.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   let downloads = null;
@@ -5195,6 +5360,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const vdimsText = h('p', { class: 'hint' });
     const updVDims = () => { const [w, hh] = exportDims(exp.vlong); vdimsText.textContent = `${st.format} · ${w} × ${hh} px · ${exp.fps} к/с`; };
     updVDims();
+    if (isTgm()) pop.append(h('div', { class: 'exp-head' }, h('h3', {}, isCircle() ? 'Экспорт · Кружок' : 'Экспорт'),
+      h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Закрыть', title: 'Закрыть', onclick: closeExport }, icon('x'))));
     pop.append(
       section('Картинка PNG', [
         seg('Размер', sizes.map(([v, n]) => [v, n]), () => exp.long, v => { exp.long = v; updDims(); }),
@@ -5213,7 +5380,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           vdimsText,
           h('p', { class: 'hint' }, 'Видео собирается покадрово: быстрее реального времени, кадры не пропадают, частота постоянная.'),
         ] : canRenderOffline() ? [] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
-        h('button', { class: 'btn block', type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (isCircle() ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
+        h('button', { class: 'btn block' + (isCircle() ? ' primary' : ''), type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (isCircle() ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
       ], null, { plain: true }) : null,
     );
   }
@@ -6381,9 +6548,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     TG.onEvent('viewportChanged', () => resize());
 
     // телефон: панель инструментов камеры уезжает на холст, настройки — в нижнюю шторку
-    const tools = h('div', { class: 'stage-tools' });
+    const mini = $('stageMini');
     const grip = h('div', { class: 'sheet-grip', role: 'button', tabindex: '0', 'aria-label': 'Высота панели настроек' });
-    $('panel').before(grip); $('stage').append(tools);
+    $('panel').before(grip);
     const root = document.documentElement, SH = { i: 1, f: .4 };
     const stageH = () => { const v = getComputedStyle(root).getPropertyValue('--tg-viewport-stable-height').trim(); return /px$/.test(v) ? parseFloat(v) : innerHeight; }; // до расширения SDK отдаёт «100vh»
     // остановки шторки: свёрнута, половина, высокая; над высокой всегда остаётся место для холста (шапка, ручка и навигация занимают около 290 px)
@@ -6400,9 +6567,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const mq = matchMedia('(max-width: 700px)');
     const layoutMode = () => {
       root.classList.toggle('tg-m', mq.matches);
-      if (mq.matches) tools.append($('lockBtn'), $('camBtn'), $('playBtn'), $('muteBtn'));
+      // телефон: сброс и замок в верхней панели, воспроизведение и звук — на холсте; на планшете всё в одной панели
+      if (mq.matches) { $('exportBtn').before($('camBtn'), $('lockBtn')); mini.append($('playBtn'), $('muteBtn')); }
       else $('exportBtn').before($('lockBtn'), $('camBtn'), $('playBtn'), $('muteBtn'));
-      resize();
+      renderPanel(); resize();
     };
     mq.addEventListener('change', layoutMode); layoutMode();
     let drag = null;
@@ -6422,14 +6590,11 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     };
     grip.addEventListener('pointerup', endDrag); grip.addEventListener('pointercancel', endDrag);
     grip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); snapTo((SH.i + 1) % 3); } });
-    // нижняя навигация: повторное касание активного раздела сворачивает шторку, касание другого разворачивает её
-    $('rail').addEventListener('click', e => {
-      const t = e.target.closest && e.target.closest('.tab'); if (!t || !mq.matches) return;
-      if (SH.i === 0) snapTo(1); else if (t.getAttribute('aria-selected') === 'true') snapTo(0);
-    }, true);
+    // на телефоне назад из проекта ведёт кнопка в панели инструментов, шапка Telegram остаётся с «Закрыть»
+    $('backBtn').addEventListener('click', () => goHome());
     // кнопка «Назад» в шапке Telegram закрывает то, что открыто поверх, и ведёт на главный экран
     const editing = () => !!PJ.id && !homeOpen && !profileOpen; // открыт проект, а не главный экран или профиль
-    const backNeeded = () => !!openMenu || !$('modal').hidden || !$('exportPop').hidden || profileOpen || editing();
+    const backNeeded = () => !!openMenu || !$('modal').hidden || !$('exportPop').hidden || profileOpen || (editing() && !mq.matches);
     const back = () => {
       if (!$('modal').hidden) closeModal();
       else if (openMenu) closeMenu();
