@@ -681,6 +681,16 @@ html.tg-m .popover .seg button[aria-pressed="true"] { background: var(--accent);
 html.tg-m .popover .btn { height: 52px; border-radius: 999px; border-color: transparent; background: var(--raised); color: var(--fg); font-size: 15px; }
 html.tg-m .popover .btn.primary { background: var(--accent); color: var(--accent-ink); }
 
+/* главный экран «Проекты»: шапка 40 px, заголовок 32/36, сетка из двух карточек 3:4 с шагом 16 px */
+html.tg-m .home-top { height: 56px; padding-top: 8px; padding-bottom: 8px; border-bottom: 0; }
+html.tg-m .home-top .logo { width: 26px; height: 26px; }
+html.tg-m .home-top .avatar { width: 40px; height: 40px; }
+html.tg-m .home-body { padding-top: 12px; gap: 20px; }
+html.tg-m .home-head h1 { margin: 0 0 4px; font: 500 32px/36px var(--font-display); }
+html.tg-m .home-head p { font-size: 13px; line-height: 17px; }
+html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+html.tg-m .pcard { gap: 8px; }
+
 /* ввод текста (макет «Добавить текст»): тап по значку текста открывает поле с клавиатурой, шрифты, цвет, форму */
 html.tg-m .te { position: fixed; z-index: 70; left: 0; right: 0; top: var(--te-top, 0px); height: var(--te-h, 100dvh); display: flex; flex-direction: column; background: linear-gradient(180deg, #1f1f1f 0, #0f0f0f 460px), #151515; color: var(--fg); }
 html.tg-m .te[hidden] { display: none; }
