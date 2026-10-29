@@ -859,15 +859,16 @@ html.tg-m .pcard { gap: 8px; }
 /* ввод текста (макет «Добавить текст»): тап по значку текста открывает поле с клавиатурой, шрифты, цвет, форму */
 html.tg-m .te { position: fixed; z-index: 70; left: 0; right: 0; top: var(--te-top, 0px); height: var(--te-h, 100dvh); display: flex; flex-direction: column; background: transparent; color: var(--fg); } /* прозрачный фон: сверху виден постер, и текст меняется на нём вживую */
 html.tg-m .te[hidden] { display: none; }
-html.tg-m .te-top { flex: none; height: 58px; background: var(--panel); display: flex; align-items: center; justify-content: space-between; padding: 0 41px 0 16px; }
+html.tg-m .te-top { flex: none; box-sizing: border-box; height: calc(58px + var(--tg-top, 0px)); background: var(--panel); display: flex; align-items: center; justify-content: space-between; padding: var(--tg-top, 0px) 41px 0 16px; } /* «Отмена» и «Готово» стоят ниже шапки Telegram */
 html.tg-m .te-cancel { border: 0; background: none; color: var(--fg); font: 400 17px/22px var(--font-body); padding: 8px 0; text-shadow: 0 0 6px rgba(0, 0, 0, .6); }
 html.tg-m .te-done { border: 0; background: none; color: var(--fg); font: 600 17px/22px var(--font-body); padding: 8px 0; text-shadow: 0 0 6px rgba(0, 0, 0, .6); }
 html.tg-m .te-stage { position: relative; flex: 1 1 auto; min-height: 120px; display: grid; place-items: center; padding: 0 44px; }
-html.tg-m .te-input { width: 100%; max-height: 100%; border: 0; outline: 0; resize: none; background: transparent; color: transparent; caret-color: var(--fg); text-align: center; font: 700 40px/1.2 var(--font-display); overflow: hidden; padding: 0; min-height: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-html.tg-m .te-size { position: absolute; left: 0; top: 28px; width: 32px; height: 230px; touch-action: none; }
-html.tg-m .te-size .trk { position: absolute; left: 14px; top: 0; width: 4px; height: 200px; border-radius: 2px; background: rgba(255, 255, 255, .4); box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); }
+html.tg-m .te-input { position: absolute; left: 44px; bottom: 0; width: calc(100% - 88px); height: 44px; min-height: 0; margin: 0; border: 0; outline: 0; resize: none; background: transparent; color: transparent; caret-color: transparent; opacity: .01; font: 16px/1.2 var(--font-body); overflow: hidden; padding: 0; } /* поле только принимает буквы с клавиатуры: сам текст виден на постере */
+html.tg-m .te-input::selection { background: transparent; color: transparent; }
+html.tg-m .te-size { position: absolute; left: 0; top: 10px; bottom: 10px; max-height: 230px; width: 32px; touch-action: none; }
+html.tg-m .te-size .trk { position: absolute; left: 14px; top: 0; bottom: 30px; width: 4px; border-radius: 2px; background: rgba(255, 255, 255, .4); box-shadow: 0 0 0 1px rgba(0, 0, 0, .25); }
 html.tg-m .te-size .thumb { position: absolute; left: 5px; width: 22px; height: 22px; margin-top: -11px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, .5); }
-html.tg-m .te-size .lbl { position: absolute; left: 4px; top: 216px; font: 400 10px/normal 'Onest', var(--font-body); color: var(--fg); text-shadow: 0 0 4px rgba(0, 0, 0, .7); }
+html.tg-m .te-size .lbl { position: absolute; left: 4px; bottom: 6px; font: 400 10px/normal 'Onest', var(--font-body); color: var(--fg); text-shadow: 0 0 4px rgba(0, 0, 0, .7); }
 html.tg-m .te-bottom { flex: none; padding-top: 12px; background: #0b0b0b; }
 html.tg-m .te-panel { flex: none; height: 40px; margin-bottom: 12px; padding-left: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 html.tg-m .te-panel::-webkit-scrollbar { display: none; }
@@ -885,7 +886,7 @@ html.tg-m .te-tool svg { width: 26px; height: 26px; fill: none; stroke: currentC
 html.tg-m .te-tool .aa { font: 600 20px/1 var(--font-body); }
 html.tg-m .te-tool .wheel { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(#ff5c5c, #ffd84d, #4dffa6, #22d3ee, #7a6bff, #ff5cd1, #ff5c5c); }
 /* пока открыт ввод, холст уменьшается и стоит между верхней и нижней панелью, чтобы текст было видно над клавиатурой */
-html.tg-m.te-on .stage { transform-origin: 50% 0; transform: translateY(var(--te-ty, 0px)) scale(var(--te-sc, 1)); transition: transform .18s ease; }
+html.tg-m.te-on .frame { transform: translateY(var(--te-ty, 0px)) scale(var(--te-sc, 1)); transition: transform .18s ease; }
 html.tg-m.te-on .rail, html.tg-m.te-on .stage-mini { visibility: hidden; }
 html.tg-m .te-actions { flex: none; height: 44px; display: flex; align-items: center; justify-content: space-around; background: #2a2a2c; padding-bottom: 0; }
 html.tg-m .te-act { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: #fff; font: 500 15px/1 var(--font-body); padding: 0 8px; height: 44px; }
@@ -4524,19 +4525,20 @@ const STICKERS = '__STICKERS__';
     el.style.setProperty('--te-top', (vv ? vv.offsetTop : 0) + 'px');
     if (el.hidden) return;
     const stg = document.querySelector('.stage'), top = $('textEdit').querySelector('.te-top').offsetHeight, bot = (vv ? vv.height : innerHeight) - $('teBottom').offsetHeight;
-    const hS = stg.offsetHeight, room = Math.max(120, bot - top - 8), k = Math.max(.35, Math.min(1, room / hS));
+    const hF = frame.offsetHeight, room = Math.max(100, bot - top - 12), k = Math.max(.3, Math.min(1, room / hF));
+    const cy = stg.offsetTop + frame.offsetTop + hF / 2; // где кадр стоит без сдвига
     document.documentElement.style.setProperty('--te-sc', k.toFixed(3));
-    document.documentElement.style.setProperty('--te-ty', Math.round(top + 4 + (room - hS * k) / 2 - stg.offsetTop) + 'px');
+    document.documentElement.style.setProperty('--te-ty', Math.round(top + 6 + room / 2 - cy) + 'px');
+    teDrawSize(teBlock()); // высота ползунка зависит от свободного места
   }
   function teFitText() {
-    const ta = $('teInput'), n = ta.value.length, lines = ta.value.split('\n').length;
-    ta.style.fontSize = (n > 40 || lines > 2 ? 22 : n > 16 || lines > 1 ? 28 : 40) + 'px';
-    ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, ta.parentNode.clientHeight - 16) + 'px';
+    // поле невидимо, подгонять его размер не нужно: буквы показывает постер
   }
   function teSetText(B, v) { if (B.main) { TEXT = v; queueLayout(); } else { B.text = v; layoutBlock(B); } }
+  const teTrackH = () => Math.max(60, $('teSize').querySelector('.trk').offsetHeight || 200); // высота ползунка зависит от свободного места над клавиатурой
   function teDrawSize(B) {
     const d = teSizeDef(), f = (teSizeGet(B) - d.min) / ((d.max - d.min) || 1);
-    $('teThumb').style.top = ((1 - Math.max(0, Math.min(1, f))) * 200) + 'px';
+    $('teThumb').style.top = ((1 - Math.max(0, Math.min(1, f))) * teTrackH()) + 'px';
   }
   function teRender() {
     const B = teBlock(), ta = $('teInput');
@@ -4588,7 +4590,7 @@ const STICKERS = '__STICKERS__';
     if (st.mainOff && !texts.length) { addTextBlock(); fresh = true; }
     TE.fresh = fresh ? [teBlock()] : []; TE.snap = fresh ? null : teSnap(teBlock());
     const el = $('textEdit'); TE.tool = 'font'; TE.emoji = false;
-    el.hidden = false; document.documentElement.classList.add('te-on'); teRender(); teFit();
+    el.hidden = false; document.documentElement.classList.add('te-on'); teFit(); teRender();
     const ta = $('teInput'); ta.focus(); try { ta.setSelectionRange(ta.value.length, ta.value.length); } catch (e) {}
   }
   function teClose() {
@@ -4606,7 +4608,7 @@ const STICKERS = '__STICKERS__';
     $('teCancel').addEventListener('click', () => { const dropped = TE.fresh.length > 0; teRevert(); if (dropped) SUBSEL.text = 'layers'; teClose(); }); // отмена: возвращаем текст, размер, шрифт, цвет и форму, новые тексты убираем
     const setFrom = e => {
       const B = teBlock(), d = teSizeDef(), r = size.getBoundingClientRect();
-      const f = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / 200));
+      const f = Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / teTrackH()));
       let v = d.min + f * (d.max - d.min); v = Math.round(v / d.step) * d.step; v = Math.max(d.min, Math.min(d.max, v));
       if (B.main) setParam('size', v); else setBlock(B, 'size', v);
       teDrawSize(B);
