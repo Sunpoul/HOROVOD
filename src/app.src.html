@@ -582,6 +582,7 @@ html.tg-m .tab svg.i-od { display: none; }
 html.tg-m .tab svg.i-dn { display: block; }
 html.tg-m .tab#tab-images svg.i-dn { width: 22px; height: 22px; }
 html.tg-m .tab:hover { background: transparent; }
+html.tg-m .tab:not([aria-selected="true"]) { color: rgba(255, 255, 255, .62); } /* невыбранные значки разделов чуть темнее выбранного */
 html.tg-m .tab[aria-selected="true"] { background: rgba(16, 16, 16, .34); color: var(--fg); }
 html.tg-m .stage-mini { position: absolute; z-index: 5; left: 14px; bottom: 16px; display: flex; align-items: center; gap: 11px; padding: 5px 11px 5px 5px; background: #222; border-radius: 11px; }
 html.tg-m .player { display: none; }
