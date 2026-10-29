@@ -728,6 +728,37 @@ html.tg-m .mx-strip { display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px;
 html.tg-m .mx-strip::-webkit-scrollbar { display: none; }
 html.tg-m .mx-strip > * { flex: 0 0 auto; min-width: 140px; width: auto; height: 32px; }
 html.tg-m .mx-strip > .field { width: 114px; min-width: 114px; height: 32px; }
+html.tg-m [class*="mx-tab-images-"], html.tg-m [class*="mx-tab-shapes-"]:not(.mx-tab-shapes-place), html.tg-m [class*="mx-tab-music-"] { gap: 8px; }
+html.tg-m .mx-drop { display: flex; align-items: center; justify-content: center; gap: 8px; height: 36px; border: 1px dashed var(--line); border-radius: 10px; background: transparent; color: var(--fg); font: 400 13px/1 'Onest', var(--font-body); }
+html.tg-m .mx-drop svg.i { width: 18px; height: 18px; }
+html.tg-m .mx-thumb { flex: none; width: 24px; height: 24px; display: grid; place-items: center; border-radius: 6px; object-fit: cover; background: var(--raised); color: var(--label); }
+html.tg-m .mx-thumb svg.i { width: 14px; height: 14px; }
+html.tg-m .mx-act.off { opacity: .4; }
+html.tg-m .mx-card img { width: 28px; height: 28px; object-fit: contain; border-radius: 4px; }
+html.tg-m .mx-card svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.6; color: var(--label); }
+html.tg-m .mx-card.sel svg.i { color: var(--fg); }
+html.tg-m .mx-sep.tall { height: 48px; }
+html.tg-m .mx-media { height: 40px; padding: 0 8px 0 6px; gap: 10px; }
+html.tg-m .mx-media .mx-thumb { width: 28px; height: 28px; }
+html.tg-m .mx-mini { flex: none; height: 26px; padding: 0 10px; border: 0; border-radius: 999px; background: var(--raised); color: var(--fg); font: 400 11px/1 'Onest', var(--font-body); }
+html.tg-m .mx-dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 76px; border: 1px dashed var(--line); border-radius: 14px; background: transparent; color: var(--fg); }
+html.tg-m .mx-dropzone svg.i { width: 20px; height: 20px; }
+html.tg-m .mx-dropzone b { font: 500 13px/16px var(--font-body); }
+html.tg-m .mx-dropzone small { font: 400 11px/14px 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .mx-player { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 16px; background: var(--well); }
+html.tg-m .mx-cover { flex: none; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 10px; background: var(--raised); color: var(--label); overflow: hidden; }
+html.tg-m .mx-cover img { width: 100%; height: 100%; object-fit: cover; }
+html.tg-m .mx-player .mx-name { gap: 2px; }
+html.tg-m .mx-player .mx-name b { font-size: 14px; line-height: 17px; }
+html.tg-m .mx-player .mx-name small { font-size: 11px; line-height: 14px; }
+html.tg-m .mx-prog { display: block; height: 3px; margin-top: 6px; border-radius: 2px; background: var(--toggle-off); overflow: hidden; }
+html.tg-m .mx-prog i { display: block; height: 100%; background: var(--fg); }
+html.tg-m .mx-play { flex: none; width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
+html.tg-m .mx-play svg.i { width: 18px; height: 18px; }
+html.tg-m .mx-wave { position: relative; display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 8px; border-radius: 10px; background: var(--well); overflow: hidden; }
+html.tg-m .mx-wave i { width: 3px; border-radius: 2px; background: #4a4a4a; }
+html.tg-m .mx-wave i.on { background: var(--fg); }
+html.tg-m .mx-sel { position: absolute; top: 0; bottom: 0; border: 1.5px solid var(--fg); border-radius: 8px; pointer-events: none; }
 html.tg-m .mx-native { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 html.tg-m .tp-strip.multi > .toggle { grid-column: span 2; } /* длинная подпись переключателя («Отбрасывать тени») не обрезается */
 /* 1.3.0: список слоёв занимает всю ширину, «Добавить …» — главная белая кнопка, как во флоу макета */
@@ -4219,6 +4250,125 @@ const STICKERS = '__STICKERS__';
     shadow() { return [mxPTog('floor', 'Поверхность для теней'), mxTiles([mxLabel('shadowOp', 'Плотность тени')], 1)]; },
     cam() { return [mxTiles([mxLabel('fov', 'Угол обзора камеры')], 1), mxAction('Вернуть камеру по центру', 'cam', resetCam)]; },
   };
+
+  /* Mini App 1.3.0: картинки, фигуры, музыка по макетам */
+  const mxObjSlider = (o, defs, k, label, onSet) => slider(k, Object.assign({}, defs[k], label ? { label } : {}), () => o[k], v => { o[k] = v; onSet && onSet(k, v); });
+  const ORDER3 = [['back', 'За текстом'], ['space', 'В пространстве'], ['front', 'Перед текстом']];
+  const mxDrop = (label, onclick) => h('button', { class: 'mx-drop', type: 'button', onclick }, icon('plus'), label);
+  const mxNeed = (what, add) => [h('p', { class: 'mx-empty' }, 'Сначала ' + what + ' — настройки появятся здесь.'), add];
+  // эффекты объекта (картинка, фигура): «Бит» и «Пиксели» — две плашки с выбором, под ними плитки выбранного
+  function mxObjFx(o, upd) {
+    const sel = SUBSEL.objFx === 'px' ? 'px' : 'beat';
+    const pills = h('div', { class: 'mx-pills' },
+      mxPill('d-zap', 'Бит', !!o.btOn, v => { o.btOn = v; SUBSEL.objFx = 'beat'; upd && upd(); renderPanel(); }, { sel: sel === 'beat', onSelect: () => { SUBSEL.objFx = 'beat'; renderPanel(); } }),
+      mxPill('d-grid', 'Пиксели', !!o.pxOn, v => { o.pxOn = v; SUBSEL.objFx = 'px'; upd && upd(); renderPanel(); }, { sel: sel === 'px', onSelect: () => { SUBSEL.objFx = 'px'; renderPanel(); } }));
+    const tiles = sel === 'beat'
+      ? mxTiles([mxObjSlider(o, BTS, 'btPulse'), mxObjSlider(o, BTS, 'btGlitch'), slider('beatSens')], 3)
+      : mxTiles([mxObjSlider(o, PXS, 'pxSize', 'Пиксель'), mxObjSlider(o, PXS, 'pxGap', 'Зазор'), mxObjSlider(o, PXS, 'pxRound'), mxObjSlider(o, PXS, 'pxLevels', 'Градации'), mxObjSlider(o, PXS, 'pxMono')]);
+    return [pills, mxOff(tiles, sel === 'beat' ? !o.btOn : !o.pxOn)];
+  }
+  const TGI = {
+    stickers() {
+      return [h('div', { class: 'mx-cards' }, stickerList.map(x => h('button', { class: 'mx-card', type: 'button', title: 'Добавить стикер: ' + x.label, onclick: () => addSticker(x.id) },
+        h('img', { src: x.src, alt: '' }), h('small', {}, x.label))))];
+    },
+    layers() {
+      const add = mxDrop('Добавить PNG или GIF', () => $('imgInput').click());
+      if (!layers.length) return [add, h('p', { class: 'mx-empty' }, 'Пока нет картинок. Добавьте PNG с логотипом или иконкой.')];
+      return [add, h('div', { class: 'mx-layers' }, layers.slice().reverse().map(L => h('div', { class: 'mx-layer' + (L === selLayer ? ' sel' : ''), role: 'button', tabindex: '0', onclick: () => { selLayer = L; renderPanel(); } },
+        h('img', { class: 'mx-thumb', src: L.url, alt: '' }), h('span', { class: 'mx-name' }, h('b', {}, L.name)),
+        h('button', { class: 'mx-act' + (L.visible ? '' : ' off'), type: 'button', 'aria-label': L.visible ? 'Скрыть' : 'Показать', onclick: e => { e.stopPropagation(); L.visible = !L.visible; buildLayer(L); renderPanel(); } }, icon('eye')),
+        h('button', { class: 'mx-act', type: 'button', 'aria-label': 'Удалить', onclick: e => { e.stopPropagation(); removeLayer(L); } }, icon('trash')))))];
+    },
+    place() {
+      const L = selLayer; if (!L) return mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click()));
+      const upd = () => buildLayer(L);
+      const ls = (k, label) => mxObjSlider(L, LS, k, label, () => { if (L.mode === 'ring') L.ringTouched = true; upd(); });
+      const chips = mxChips([['center', 'Одна картинка'], ['ring', 'Копии по кругу']], L.mode, v => {
+        L.mode = v; if (v === 'ring' && !L.ringTouched) { L.size = Math.min(L.size, +(P.size * 1.1).toFixed(1)); L.ringR = +(P.radius + P.size * 1.6).toFixed(1); } upd(); renderPanel(); });
+      chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!L.spins), onclick: () => { L.spins = !L.spins; upd(); renderPanel(); } }, 'Зафиксировать'));
+      return [chips, mxTiles(L.mode === 'ring' ? [ls('size'), ls('count'), ls('ringR'), ls('z'), ls('rot')] : [ls('size'), ls('x'), ls('y'), ls('z'), ls('rot')], 3)];
+    },
+    view() {
+      const L = selLayer; if (!L) return mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click()));
+      const upd = () => buildLayer(L);
+      return [mxChips(ORDER3, L.order, v => { L.order = v; if (v === 'front') L.stack = bumpFront(); upd(); renderPanel(); }),
+        mxPair(mxPill(null, 'Реагирует на свет', !!L.lit, v => { L.lit = v; upd(); renderPanel(); }),
+          L.mode === 'center' ? mxPill(null, 'Смотрит в камеру', !!L.billboard, v => { L.billboard = v; upd(); renderPanel(); }) : mxObjSlider(L, LS, 'opacity', null, upd))];
+    },
+    beat() { const L = selLayer; if (!L) return mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click())); return mxObjFx(L, () => buildLayer(L)); },
+  };
+  const TGH = {
+    add() {
+      const cards = h('div', { class: 'mx-cards' }, Object.entries(SHAPE_TYPES).map(([type, d]) => { const b = h('button', { class: 'mx-card', type: 'button', title: 'Добавить: ' + d.label, onclick: () => { addShape(type); renderPanel(); } });
+        b.innerHTML = `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${SHAPE_ICONS[type]}</svg>`; b.append(h('small', {}, d.label)); return b; }));
+      if (shapes.length) { cards.append(h('span', { class: 'mx-sep tall' }));
+        shapes.slice().reverse().forEach(S => { const b = h('button', { class: 'mx-card' + (S === selShape ? ' sel' : ''), type: 'button', title: S.name, onclick: () => { selShape = S; renderPanel(); } });
+          if (S.mediaThumb) b.append(h('img', { src: S.mediaThumb, alt: '' })); else b.insertAdjacentHTML('beforeend', `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${SHAPE_ICONS[S.type]}</svg>`);
+          b.append(h('small', {}, S.name)); cards.append(b); }); }
+      return [cards];
+    },
+    place() {
+      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
+      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
+      const chips = mxChips(ORDER3, S.order, v => { setShape(S, 'order', v); renderPanel(); });
+      chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!!S.fixed), onclick: () => { setShape(S, 'fixed', !S.fixed); renderPanel(); } }, 'Зафиксировать'),
+        h('button', { class: 'mx-chip', type: 'button', onclick: () => duplicateShape(S) }, 'Дублировать'), h('button', { class: 'mx-chip', type: 'button', onclick: () => removeShape(S) }, 'Удалить'));
+      return [chips, mxTiles([ss('x'), ss('y'), ss('z')], 3)];
+    },
+    form() {
+      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
+      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
+      const flat = SHAPE_TYPES[S.type].flat;
+      return [mxTiles([ss('size'), ss('w'), ss('h')], 3), mxTiles([S.type === 'square' || S.type === 'rect' ? ss('corner', 'Скругление') : flat ? null : ss('d'), ss('rotX'), ss('rotY'), ss('rotZ', 'Поворот')], 3)];
+    },
+    fill() {
+      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
+      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
+      const media = h('div', { class: 'mx-pill mx-media' },
+        S.mediaThumb ? h('img', { class: 'mx-thumb', src: S.mediaThumb, alt: '' }) : h('span', { class: 'mx-thumb' }, icon('image')),
+        h('span', { class: 'mx-pill-name' }, S.mediaKind ? (S.mediaKind === 'video' ? 'Видео: ' : 'Фото: ') + S.mediaName : 'Пока без фото и видео'),
+        h('button', { class: 'mx-mini', type: 'button', onclick: () => { shapeTarget = S; $('shapeMediaInput').click(); } }, S.mediaKind ? 'Заменить' : 'Фото или видео'),
+        S.mediaKind === 'video' ? h('span', { class: 'mx-hex' }, 'Звук') : null,
+        S.mediaKind === 'video' ? mxSwitch(!!S.videoSound, v => setShape(S, 'videoSound', v)) : null);
+      const row2 = S.mediaKind ? mxChips([['cover', 'Заполнить'], ['stretch', 'Растянуть'], ['tile', 'Повторить']], S.fit, v => { setShape(S, 'fit', v); renderPanel(); })
+        : mxPair(mxColor('Цвет', () => S.color, v => setShape(S, 'color', v)), ss('opacity'));
+      return [media, row2];
+    },
+    beat() { const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); })); return mxObjFx(S, () => buildShape(S)); },
+  };
+  const TGM = {
+    track() {
+      if (!MU.audio) return [h('button', { class: 'mx-dropzone', type: 'button', onclick: () => $('audioInput').click() }, icon('music'), h('b', {}, 'Загрузить музыку'), h('small', {}, 'MP3 — название, исполнитель и обложка возьмутся из файла'))];
+      const playing = !MU.audio.paused;
+      const d = MU.audio.duration, t = MU.audio.currentTime || 0, fmt = x => isFinite(x) ? Math.floor(x / 60) + ':' + String(Math.floor(x % 60)).padStart(2, '0') : '–';
+      const card = h('div', { class: 'mx-player' },
+        h('span', { class: 'mx-cover', onclick: () => $('coverInput').click(), title: 'Сменить обложку' }, MU.coverImg ? h('img', { src: MU.coverUrl, alt: '' }) : icon('music')),
+        h('span', { class: 'mx-name' }, h('b', {}, MU.title || 'Без названия'), h('small', {}, (MU.artist || 'Исполнитель') + ' · ' + fmt(t) + ' / ' + fmt(d)), h('i', { class: 'mx-prog' }, h('i', { style: `width:${isFinite(d) && d ? Math.round(t / d * 100) : 0}%` }))),
+        h('button', { class: 'mx-play', type: 'button', 'aria-label': playing ? 'Пауза' : 'Играть', onclick: () => { $('playBtn').click(); setTimeout(renderPanel, 60); } }, icon(playing ? 'pause' : 'play')));
+      return [card, mxPair(mxPill(null, TOGGLES.cardOn.label, !!P.cardOn, v => { setParam('cardOn', v); renderPanel(); }), mxAction('Другой трек', 'music', () => $('audioInput').click()))];
+    },
+    clip() {
+      if (!MU.audio || !isFinite(MU.audio.duration)) return TGM.track();
+      const d = MU.audio.duration, a = MU.clipStart / d, b = MU.clipLen ? Math.min(1, (MU.clipStart + MU.clipLen) / d) : 1;
+      const wave = h('div', { class: 'mx-wave' }); for (let i = 0; i < 58; i++) { const x = (i + .5) / 58; wave.append(h('i', { class: x >= a && x <= b ? 'on' : '', style: `height:${Math.round(6 + 20 * Math.abs(Math.sin(i * .7) * Math.cos(i * .23)))}px` })); }
+      wave.append(h('span', { class: 'mx-sel', style: `left:${(a * 100).toFixed(2)}%;width:${((b - a) * 100).toFixed(2)}%` }));
+      return [wave, mxTiles([
+        slider('clipStart', { label: 'Начало', min: 0, max: Math.max(1, Math.floor(d - 1)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipStart, v => { setClip(v, MU.clipLen); }),
+        slider('clipLen', { label: 'Длина (0 — до конца)', min: 0, max: Math.max(1, Math.ceil(d)), step: 0.5, dec: 1, unit: 'с' }, () => MU.clipLen, v => { setClip(MU.clipStart, v); })], 2)];
+    },
+    spectrum() {
+      const chips = mxChips([['bars', 'Полосы'], ['gram', 'Спектрограмма'], ['sphere', 'Сфера']], st.specMode, v => {
+        st.specMode = v; sctx.clearRect(0, 0, specCv.width, specCv.height); if (v === 'sphere' && !spherePts) { buildSphere(); if (P.specColor === COLORS.specColor.v) P.specColor = '#ffffff'; } applySphere(); renderPanel(); });
+      chips.prepend(h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!!P.specOn), onclick: () => { setParam('specOn', !P.specOn); renderPanel(); } }, P.specOn ? 'Вкл' : 'Выкл'), h('span', { class: 'mx-sep' }));
+      chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!!P.specGrad), onclick: () => { setParam('specGrad', !P.specGrad); renderPanel(); } }, 'Градиент'));
+      return [chips, mxOff(mxTiles([mxLabel('specOp', 'Яркость спектра'), st.specMode === 'sphere' ? null : mxLabel('specH', 'Высота'), st.specMode === 'sphere' ? null : mxLabel('specY', 'Положение'), color('specColor'), P.specGrad ? color('specColor2') : null, P.specGrad ? color('specColor3') : null], 3), !P.specOn)];
+    },
+    sphere() {
+      return [mxChips(ORDER3, st.sphereOrder, v => { st.sphereOrder = v; applySphere(); renderPanel(); }),
+        mxTiles([mxLabel('sphereR', 'Размер сферы'), mxLabel('sphereAmp', 'Деформация'), mxLabel('sphereSpec', 'Реакция на музыку'), mxLabel('sphereSpeed', 'Скорость'), mxLabel('sphereSize', 'Размер частиц'), mxLabel('sphereCount', 'Количество'), slider('sphereLayers')], 3)];
+    },
+  };
   function renderPanel() {
     emitState();
     const [, name, , desc] = TABS.find(t => t[0] === st.tab);
@@ -4230,8 +4380,8 @@ const STICKERS = '__STICKERS__';
     const sub = st.tab === 'text' ? h('div', { class: 'subtabs', role: 'tablist', 'aria-label': 'Текст или буквы' },
       [['text', 'Текст'], ['font', 'Шрифт']].map(([id, label]) => h('button', { type: 'button', role: 'tab', 'aria-selected': String(st.textSub === id),
         onclick: () => { if (st.textSub === id) return; st.textSub = id; renderPanel(); panel.scrollTop = 0; } }, label))) : null;
-    if (tgm && (st.tab === 'light' || st.tab === 'scene')) {
-      const cur = all.find(x => x.id === SUBSEL[st.tab]) || all[0], R = st.tab === 'light' ? TGL : TGS;
+    if (tgm && ['light', 'scene', 'images', 'shapes', 'music'].includes(st.tab)) {
+      const cur = all.find(x => x.id === SUBSEL[st.tab]) || all[0], R = { light: TGL, scene: TGS, images: TGI, shapes: TGH, music: TGM }[st.tab];
       renderSubbar(all, cur);
       panel.append(h('div', { class: 'panel-head' }, h('h2', {}, name), h('p', {}, desc)), h('div', { class: 'mx-panel mx-tab-' + st.tab + '-' + cur.id }, ...R[cur.id]().filter(Boolean)));
       panel.scrollTop = y; return;
