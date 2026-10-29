@@ -862,7 +862,8 @@ html.tg-m .te[hidden] { display: none; }
 html.tg-m .te-top { flex: none; box-sizing: border-box; height: calc(58px + var(--tg-top, 0px)); background: var(--panel); display: flex; align-items: center; justify-content: space-between; padding: var(--tg-top, 0px) 41px 0 16px; } /* «Отмена» и «Готово» стоят ниже шапки Telegram */
 html.tg-m .te-cancel { border: 0; background: none; color: var(--fg); font: 400 17px/22px var(--font-body); padding: 8px 0; text-shadow: 0 0 6px rgba(0, 0, 0, .6); }
 html.tg-m .te-done { border: 0; background: none; color: var(--fg); font: 600 17px/22px var(--font-body); padding: 8px 0; text-shadow: 0 0 6px rgba(0, 0, 0, .6); }
-html.tg-m .te-stage { position: relative; flex: 1 1 auto; min-height: 120px; display: grid; place-items: center; padding: 0 44px; }
+html.tg-m .te-stage { position: relative; flex: 1 1 auto; min-height: 120px; display: grid; place-items: center; padding: 0 44px; background: var(--stage-bg, #2c2c2c); overflow: hidden; }
+html.tg-m .te-prev { position: absolute; left: 44px; top: 8px; width: calc(100% - 88px); height: calc(100% - 16px); object-fit: contain; pointer-events: none; } /* живая копия кадра: текст меняется на ней сразу */
 html.tg-m .te-input { position: absolute; left: 44px; bottom: 0; width: calc(100% - 88px); height: 44px; min-height: 0; margin: 0; border: 0; outline: 0; resize: none; background: transparent; color: transparent; caret-color: transparent; opacity: .01; font: 16px/1.2 var(--font-body); overflow: hidden; padding: 0; } /* поле только принимает буквы с клавиатуры: сам текст виден на постере */
 html.tg-m .te-input::selection { background: transparent; color: transparent; }
 html.tg-m .te-size { position: absolute; left: 0; top: 10px; bottom: 10px; max-height: 230px; width: 32px; touch-action: none; }
@@ -886,7 +887,6 @@ html.tg-m .te-tool svg { width: 26px; height: 26px; fill: none; stroke: currentC
 html.tg-m .te-tool .aa { font: 600 20px/1 var(--font-body); }
 html.tg-m .te-tool .wheel { width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(#ff5c5c, #ffd84d, #4dffa6, #22d3ee, #7a6bff, #ff5cd1, #ff5c5c); }
 /* пока открыт ввод, холст уменьшается и стоит между верхней и нижней панелью, чтобы текст было видно над клавиатурой */
-html.tg-m.te-on .frame { transform: translateY(var(--te-ty, 0px)) scale(var(--te-sc, 1)); transition: transform .18s ease; }
 html.tg-m.te-on .rail, html.tg-m.te-on .stage-mini { visibility: hidden; }
 html.tg-m .te-actions { flex: none; height: 44px; display: flex; align-items: center; justify-content: space-around; background: #2a2a2c; padding-bottom: 0; }
 html.tg-m .te-act { display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; color: #fff; font: 500 15px/1 var(--font-body); padding: 0 8px; height: 44px; }
@@ -1162,6 +1162,7 @@ body.ios .frame { box-shadow: none; }
 <div class="te" id="textEdit" hidden role="dialog" aria-label="Текст">
   <div class="te-top"><button class="te-cancel" id="teCancel" type="button">Отмена</button><button class="te-done" id="teDone" type="button">Готово</button></div>
   <div class="te-stage">
+    <canvas class="te-prev" id="tePrev" aria-label="Постер"></canvas>
     <div class="te-size" id="teSize" role="slider" aria-label="Размер текста" aria-orientation="vertical"><span class="trk"></span><span class="thumb" id="teThumb"></span><span class="lbl">Размер</span></div>
     <textarea class="te-input" id="teInput" rows="1" spellcheck="false" autocapitalize="characters" aria-label="Текст"></textarea>
   </div>
@@ -4524,12 +4525,14 @@ const STICKERS = '__STICKERS__';
     el.style.setProperty('--te-h', (vv ? vv.height : innerHeight) + 'px');
     el.style.setProperty('--te-top', (vv ? vv.offsetTop : 0) + 'px');
     if (el.hidden) return;
-    const stg = document.querySelector('.stage'), top = $('textEdit').querySelector('.te-top').offsetHeight, bot = (vv ? vv.height : innerHeight) - $('teBottom').offsetHeight;
-    const hF = frame.offsetHeight, room = Math.max(100, bot - top - 12), k = Math.max(.3, Math.min(1, room / hF));
-    const cy = stg.offsetTop + frame.offsetTop + hF / 2; // где кадр стоит без сдвига
-    document.documentElement.style.setProperty('--te-sc', k.toFixed(3));
-    document.documentElement.style.setProperty('--te-ty', Math.round(top + 6 + room / 2 - cy) + 'px');
     teDrawSize(teBlock()); // высота ползунка зависит от свободного места
+  }
+  // копия кадра в окне ввода: рисуем WebGL-холст сразу после его отрисовки
+  function tePaint() {
+    const cv = $('tePrev'), src = renderer.domElement; if (!src.width || !src.height) return;
+    const k = Math.min(1, 720 / Math.max(src.width, src.height)), w = Math.round(src.width * k), h = Math.round(src.height * k);
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    cv.getContext('2d').drawImage(src, 0, 0, w, h);
   }
   function teFitText() {
     // поле невидимо, подгонять его размер не нужно: буквы показывает постер
@@ -5494,6 +5497,7 @@ const STICKERS = '__STICKERS__';
     stepScene(dt, t);
     controls.update();
     renderFrame();
+    if (!$('textEdit').hidden) tePaint();
     updateSelFrame();
     requestAnimationFrame(tick);
   }
