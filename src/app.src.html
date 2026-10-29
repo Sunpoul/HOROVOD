@@ -790,22 +790,56 @@ html.tg-m .sb .sb-ic svg.i { width: 24px; height: 24px; }
 html.tg-m .sb .sb-fx { font: 500 15px/1 var(--font-body); }
 html.tg-m .sb[aria-selected="true"], html.tg-m .sb[aria-selected="true"] .sb-ic { color: var(--fg); }
 html.tg-m .toasts { bottom: calc(190px + var(--tg-bot)); }
-/* окно экспорта — нижняя шторка с заголовком и крестиком */
-.exp-head { display: none; }
-html.tg-m .popover { padding: 8px 20px calc(16px + var(--tg-bot)); border-radius: 28px 28px 0 0; background: var(--float); }
-html.tg-m .exp-head { display: flex; align-items: center; justify-content: space-between; position: relative; padding: 22px 0 6px; }
-html.tg-m .exp-head::before { content: ""; position: absolute; top: 4px; left: 50%; width: 40px; height: 4px; margin-left: -20px; border-radius: 4px; background: var(--toggle-off); }
-html.tg-m .exp-head h3 { margin: 0; font: 500 22px/28px var(--font-display); }
-html.tg-m .exp-head .icon-btn { width: 36px; height: 36px; background: var(--raised); color: var(--fg); }
-html.tg-m .popover .sec { padding: 12px 0 4px; gap: 12px; border: 0; }
-html.tg-m .popover .sec-head h3 { font-size: 17px; color: var(--fg); letter-spacing: 0; }
+/* окно экспорта — нижняя шторка по макету «Экспорт»: ручка, заголовок 20/600, чипы 28 px, кнопки 44 px, затемнение 60% */
+.exp-head, .exp-grip, .rec-bar { display: none; }
+html.tg-m .popover { padding: 10px 20px max(34px, var(--tg-bot)); border-radius: 28px 28px 0 0; background: var(--float); border: 0; box-shadow: none; }
+/* у шторок, окон и меню нет светлой обводки по краю */
+html.tg-m .dialog, html.tg-m .pmenu, html.tg-m .fmt-menu, html.tg-m .dd-menu, html.tg-m .busy span, html.tg-m .toast { border: 0; }
+html.tg-m body:has(#exportPop:not([hidden]))::after { content: ""; position: fixed; inset: 0; z-index: 59; background: rgba(0, 0, 0, .6); }
+html.tg-m .exp-grip { display: block; width: 36px; height: 4px; margin: 0 0 18px; border-radius: 2px; background: var(--toggle-off); }
+html.tg-m .exp-head { display: flex; align-items: center; justify-content: space-between; padding: 0; margin: 0 0 18px; }
+html.tg-m .exp-head h3 { margin: 0; font: 600 20px/normal var(--font-display); }
+html.tg-m .exp-head .icon-btn { width: 32px; height: 32px; background: var(--raised); color: var(--fg); }
+html.tg-m .exp-head .icon-btn svg.i { width: 16px; height: 16px; }
+html.tg-m .popover .sec { padding: 0; gap: 10px; border: 0; }
+html.tg-m .popover .sec + .sec { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); gap: 12px; }
+html.tg-m .popover .sec-head:has(h3:empty) { display: none; }
+html.tg-m .popover .sec-head h3 { font: 600 15px/normal var(--font-display); color: var(--fg); letter-spacing: 0; text-transform: none; }
 html.tg-m .popover .group.inline { grid-template-columns: minmax(0, 1fr); gap: 8px; }
-html.tg-m .popover .seg-label { font-size: 13px; color: var(--label); }
+html.tg-m .popover .seg-label { font: 400 12px/normal 'Onest', var(--font-body); color: var(--label); }
 html.tg-m .popover .seg { display: flex; flex-wrap: wrap; gap: 8px; }
-html.tg-m .popover .seg button { flex: none; height: 36px; padding: 0 18px; border-radius: 999px; background: var(--raised); color: var(--fg); font-size: 13px; }
+html.tg-m .popover .seg button { flex: none; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--raised); color: var(--fg); font: 400 12px/normal 'Onest', var(--font-body); }
 html.tg-m .popover .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-html.tg-m .popover .btn { height: 52px; border-radius: 999px; border-color: transparent; background: var(--raised); color: var(--fg); font-size: 15px; }
+html.tg-m .popover .hint { display: block; margin: 0; font: 400 11px/normal 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .popover .row { display: flex; gap: 8px; }
+html.tg-m .popover .btn { height: 44px; border-radius: 999px; border-color: transparent; background: var(--raised); color: var(--fg); font: 500 14px/normal var(--font-body); gap: 8px; }
+html.tg-m .popover .btn svg.i { width: 18px; height: 18px; }
 html.tg-m .popover .btn.primary { background: var(--accent); color: var(--accent-ink); }
+html.tg-m .exp-circle { height: 170px; display: grid; place-items: center; }
+html.tg-m .exp-circle canvas { width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #2b2b2b, #0a0a0a); }
+/* идёт рендер: затемнение 35%, плашка со статусом и отменой, полоса прогресса 4 px */
+html.tg-m body:has(.rec)::after { content: ""; position: fixed; inset: 0; z-index: 59; background: rgba(0, 0, 0, .35); }
+html.tg-m .rec { z-index: 60; top: 21px; left: 40px; transform: none; gap: 10px; padding: 6px 6px 6px 14px; border: 0; background: var(--raised); font: 400 12px/normal 'Onest', var(--font-body); }
+html.tg-m .rec .btn.small { height: 30px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--toggle-off); color: var(--fg); font: 500 14px/normal var(--font-body); }
+html.tg-m .rec-bar { display: block; position: absolute; left: -24px; top: calc(100% + 6px); width: calc(100vw - 32px); height: 4px; border-radius: 2px; overflow: hidden; background: var(--toggle-off); }
+html.tg-m .rec-bar i { display: block; width: 0; height: 100%; background: var(--fg); }
+/* окно «Видео готово»: затемнение 72%, карточка 24 px, превью 300 px с плашкой формата и кнопкой воспроизведения */
+html.tg-m .modal:has(.dlg-done) { background: rgba(0, 0, 0, .72); }
+html.tg-m .dialog.dlg-done { width: 100%; gap: 14px; padding: 22px 20px 20px; border: 0; border-radius: 24px; }
+html.tg-m .dlg-done h3 { font: 600 20px/normal var(--font-display); text-wrap: initial; }
+html.tg-m .dlg-prev { position: relative; height: 300px; border-radius: 16px; overflow: hidden; background: linear-gradient(180deg, #2b2b2b, #0a0a0a); }
+html.tg-m .dlg-prev video, html.tg-m .dlg-prev img { display: block; width: 100%; height: 100%; object-fit: contain; }
+html.tg-m .dlg-badge { position: absolute; left: 10px; top: 10px; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .6); color: #fff; font: 500 10px/normal 'Onest', var(--font-body); }
+html.tg-m .dlg-play { position: absolute; left: 50%; bottom: 8px; width: 52px; height: 52px; margin-left: -26px; display: grid; place-items: center; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .6); color: #fff; }
+html.tg-m .dlg-play[hidden] { display: none; }
+html.tg-m .dlg-play svg.i { width: 20px; height: 20px; }
+html.tg-m .dlg-done .hint { margin: 0; font: 400 11px/normal 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .dlg-done .hint[style] { display: none; } /* строка диагностики звука не входит в макет */
+html.tg-m .dlg-done .dlg-actions { display: grid; grid-template-columns: 1fr; gap: 8px; }
+html.tg-m .dlg-done .dlg-actions.dlg-3 { grid-template-columns: 1fr 1fr; }
+html.tg-m .dlg-done .dlg-actions .btn { height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--raised); color: var(--fg); font: 500 14px/normal var(--font-body); gap: 8px; }
+html.tg-m .dlg-done .dlg-actions .btn svg.i { width: 18px; height: 18px; }
+html.tg-m .dlg-done .dlg-actions .btn.primary { grid-column: 1 / -1; order: -1; background: var(--accent); color: var(--accent-ink); }
 
 /* главный экран «Проекты»: шапка 40 px, заголовок 32/36, сетка из двух карточек 3:4 с шагом 16 px */
 html.tg-m .home-top { height: 56px; padding-top: 8px; padding-bottom: 8px; border-bottom: 0; }
@@ -1005,7 +1039,7 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-d-scale" viewBox="0 0 24 24"><path d="M5 9L2 12L5 15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 5L12 2L15 5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 19L12 22L9 19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19 9L22 12L19 15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M2 12H22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 2V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-eye" viewBox="0 0 24 24"><path d="M2 12C2 12 5.5 5 12 5C18.5 5 22 12 22 12C22 12 18.5 19 12 19C5.5 19 2 12 2 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-zap" viewBox="0 0 24 24"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
-  <symbol id="i-d-plus" viewBox="0 0 24 24"><path d="M12 5V19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M5 12H19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-send" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 1.5L11.25 16.5L8.25 9.75L1.5 6.75L16.5 1.5Z"/><path d="M16.5 1.5L8.25 9.75"/></symbol><symbol id="i-d-plus" viewBox="0 0 24 24"><path d="M12 5V19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M5 12H19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-shapes" viewBox="0 0 24 24"><path d="M13 8C13 10.7614 10.7614 13 8 13C5.23858 13 3 10.7614 3 8C3 5.23858 5.23858 3 8 3C10.7614 3 13 5.23858 13 8Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12.5 11H19.5C20.3284 11 21 11.6716 21 12.5V19.5C21 20.3284 20.3284 21 19.5 21H12.5C11.6716 21 11 20.3284 11 19.5V12.5C11 11.6716 11.6716 11 12.5 11Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-fill" viewBox="0 0 24 24"><path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 3V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 7H18.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 11H20.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 15H20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 19H16.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-sparkles" viewBox="0 0 24 24"><path d="M12 3L13.9 8.1L19 10L13.9 11.9L12 17L10.1 11.9L5 10L10.1 8.1L12 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19 17V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 19H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
@@ -4911,10 +4945,11 @@ const STICKERS = '__STICKERS__';
     if (!vcfg || (hasSound && !acfg)) { lastExport.why = !vcfg ? 'кодировщик видео не принял размер' : 'кодировщик звука не принял формат'; toast('Этот размер или звук не поддерживается кодировщиком — идёт запись в реальном времени.'); recordVideo(); return; }
 
     const job = renderJob = { cancel: false };
+    const recBar = h('div', { class: 'rec-bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': '100' }, h('i'));
     const badge = h('div', { class: 'rec', role: 'status' }, h('span', { class: 'dot' }), h('span', { id: 'recTime' }, 'Готовлю…'),
-      h('button', { class: 'btn small', type: 'button', onclick: () => { job.cancel = true; } }, 'Отмена'));
+      h('button', { class: 'btn small', type: 'button', onclick: () => { job.cancel = true; } }, 'Отмена'), recBar);
     $('stage').append(badge);
-    const info = txt => { const el = $('recTime'); if (el) el.textContent = txt; };
+    const info = txt => { const el = $('recTime'); if (el) el.textContent = txt; const m = /(\d+)%/.exec(txt); if (m) { recBar.firstChild.style.width = m[1] + '%'; recBar.setAttribute('aria-valuenow', m[1]); } };
     // что было до рендера: возвращаем после
     const musicWasPlaying = withAudio && !MU.audio.paused;
     const vids = [...shapes.filter(S => S.video).map(S => ({ v: S.video, tex: S.tex, hold: !!S.paused })), ...(bgVideo ? [{ v: bgVideo, tex: bgTex, hold: false }] : [])]
@@ -5044,7 +5079,7 @@ const STICKERS = '__STICKERS__';
         while (venc.encodeQueueSize > 6) await yieldNow();
         if (i % 2 === 0) {
           const left = (performance.now() - t0) / (i + 1) * (frames - i - 1) / 1000;
-          info(`Рендер ${Math.round((i + 1) / frames * 100)}% · кадр ${i + 1} из ${frames}` + (i > 8 ? ` · осталось ~${Math.max(1, Math.round(left))} с` : ''));
+          info(`Рендер ${Math.round((i + 1) / frames * 100)}% · кадр ${i + 1} из ${frames}` + (i > 8 && !isTgm() ? ` · осталось ~${Math.max(1, Math.round(left))} с` : ''));
           await yieldNow();
         }
       }
@@ -5086,9 +5121,16 @@ const STICKERS = '__STICKERS__';
     ...(bgVideo && bgSound && bgFile ? [{ file: bgFile, name: bgFile.name }] : [])];
   function soundNote() {
     const vs = soundingVideos().length;
+    if (MU.audio && MU.file && isTgm()) { const nm = MU.title || MU.file.name.replace(/\.[^.]+$/, ''); return vs ? `В ролик попадёт звук трека «${nm}» и звук видео из сцены.` : `В ролик попадёт звук трека «${nm}».`; }
     if (MU.audio && MU.file) return vs ? 'Видео пишется со звуком трека и со звуком видео из сцены.' : 'Видео пишется со звуком трека.';
     if (vs) return 'Видео пишется со звуком видео из сцены.';
     return 'В ролике не будет звука: добавьте музыку на вкладке «Музыка» или включите «Звук видео» у фигуры с видео.';
+  }
+  // превью кружка: центральный квадрат кадра, обрезанный по кругу (так он попадёт в видео)
+  function circlePreview() {
+    const cv = h('canvas', { width: 300, height: 300, 'aria-label': 'Превью кружка' });
+    try { renderFrame(); const src = renderer.domElement, side = Math.min(src.width, src.height); cv.getContext('2d').drawImage(src, (src.width - side) / 2, (src.height - side) / 2, side, side, 0, 0, 300, 300); } catch (e) {}
+    return h('div', { class: 'exp-circle' }, cv);
   }
   function renderExport() {
     const pop = $('exportPop'); pop.innerHTML = '';
@@ -5099,31 +5141,33 @@ const STICKERS = '__STICKERS__';
     // видео: размер по длинной стороне (9:16 при 1920 — это 1080×1920, как в сторис), чётные стороны нужны кодеку
     const vsizes = [[1280, '720p'], [1920, '1080p'], [2560, '2K'], [3840, '4K']];
     const vdimsText = h('p', { class: 'hint' });
-    const updVDims = () => { const [w, hh] = exportDims(exp.vlong); vdimsText.textContent = `${st.format} · ${w} × ${hh} px · ${exp.fps} к/с`; };
+    const updVDims = () => { const [w, hh] = exportDims(exp.vlong); vdimsText.textContent = `${st.format} · ${w} × ${hh} px · ${exp.fps} к/с` + (isTgm() ? '. Видео собирается покадрово: быстрее реального времени, кадры не пропадают.' : ''); };
     updVDims();
-    if (isTgm()) pop.append(h('div', { class: 'exp-head' }, h('h3', {}, isCircle() ? 'Экспорт · Кружок' : 'Экспорт'),
+    if (isTgm()) pop.append(h('div', { class: 'exp-grip' }), h('div', { class: 'exp-head' }, h('h3', {}, isCircle() ? 'Экспорт · Кружок' : 'Экспорт'),
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Закрыть', title: 'Закрыть', onclick: closeExport }, icon('x'))));
-    pop.append(
-      section('Картинка PNG', [
-        seg('Размер', sizes.map(([v, n]) => [v, n]), () => exp.long, v => { exp.long = v; updDims(); }),
+    const phoneCircle = isTgm() && isCircle() && canRenderOffline(); // по макету у кружка нет блока PNG: превью, длительность, подпись и кнопка
+    pop.append(...[
+      phoneCircle ? null : section('Картинка PNG', [
+        seg(isTgm() ? '' : 'Размер', sizes.map(([v, n]) => [v, n]), () => exp.long, v => { exp.long = v; updDims(); }),
         dimsText,
         h('div', { class: 'row' },
           canSave() ? h('button', { class: 'btn primary', type: 'button', style: 'flex:1', onclick: () => { closeExport(); exportPng(); } }, icon('down'), 'Скачать PNG') : null,
           h('button', { class: 'btn', type: 'button', style: 'flex:1', onclick: () => { closeExport(); copyPng(); } }, 'Скопировать')),
       ], null, { plain: true }),
-      canSave() ? section('Видео', [
+      canSave() ? section(phoneCircle ? '' : 'Видео', [
+        ...(phoneCircle ? [circlePreview()] : []),
         seg('Длительность', (isCircle() ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
-        h('p', { class: 'hint' }, soundNote()),
+        ...(phoneCircle && !/^В ролике не будет/.test(soundNote()) ? [] : [h('p', { class: 'hint' }, soundNote())]),
         ...(canRenderOffline() && isCircle() ? [h('p', { class: 'hint' }, `Формат «Кружок»: кадр 9:16, в видео идёт центральный круг ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Прозрачного фона в кружках Telegram нет: фоном остаётся цвет сцены.`)] : []),
         ...(canRenderOffline() && !isCircle() ? [
           seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
           seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
           vdimsText,
-          h('p', { class: 'hint' }, 'Видео собирается покадрово: быстрее реального времени, кадры не пропадают, частота постоянная.'),
+          ...(isTgm() ? [] : [h('p', { class: 'hint' }, 'Видео собирается покадрово: быстрее реального времени, кадры не пропадают, частота постоянная.')]),
         ] : canRenderOffline() ? [] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
         h('button', { class: 'btn block' + (isCircle() ? ' primary' : ''), type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (isCircle() ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
       ], null, { plain: true }) : null,
-    );
+    ].filter(Boolean));
   }
   function openExport() { renderExport(); $('exportPop').hidden = false; $('exportBtn').setAttribute('aria-expanded', 'true'); }
   function closeExport() { $('exportPop').hidden = true; $('exportBtn').setAttribute('aria-expanded', 'false'); }
@@ -6230,7 +6274,7 @@ const STICKERS = '__STICKERS__';
     const url = URL.createObjectURL(blob);
     let canShare = false; try { canShare = !!(navigator.canShare && navigator.canShare({ files: [file] })); } catch (e) {}
     const isVideo = /^video\//.test(file.type), isImage = /^image\//.test(file.type);
-    const mb = (blob.size / 1048576).toFixed(1);
+    const mb = (blob.size / 1048576).toFixed(1).replace('.', ',');
     const close = () => { closeModal(); setTimeout(() => URL.revokeObjectURL(url), 60000); };
     // что реально записано и что умеет это устройство: по этой строке видно, почему в файле может не быть звука
     const diag = h('p', { class: 'hint', style: 'font-size:11px;opacity:.8' });
@@ -6267,15 +6311,22 @@ const STICKERS = '__STICKERS__';
       const a = h('a', { href: url, download: filename }); document.body.append(a); a.click(); a.remove(); // запасной путь: обычная загрузка
       toast('Если файл не сохранился, откройте приложение в браузере: ⋯ → «Открыть в браузере».');
     };
-    modal(d => d.append(...[
+    // плашка в углу превью: «1080p · 60 к/с» (из имени файла), у кружка — размер и частота
+    const sm = /-(\d+)x(\d+)-(\d+)fps/.exec(filename), nm = /kruzhok-(\d+)/.exec(filename);
+    const spec = sm ? `${Math.min(+sm[1], +sm[2])}p · ${sm[3]} к/с` : nm ? `${nm[1]} × ${nm[1]} · 30 к/с` : '';
+    const phone = isTgm();
+    const vid = isVideo ? h('video', { src: url, playsinline: '', preload: 'metadata', ...(phone ? {} : { controls: '' }) }) : null;
+    const playBtn = phone && vid ? h('button', { class: 'dlg-play', type: 'button', 'aria-label': 'Смотреть', onclick: () => { vid.paused ? vid.play() : vid.pause(); } }, icon('play')) : null;
+    if (vid && playBtn) { vid.addEventListener('play', () => { playBtn.hidden = true; }); vid.addEventListener('pause', () => { playBtn.hidden = false; }); vid.addEventListener('ended', () => { playBtn.hidden = false; }); vid.addEventListener('click', () => { if (!vid.paused) vid.pause(); }); }
+    modal(d => { d.classList.add('dlg-done'); d.append(...[
       h('h3', { id: 'dlgTitle' }, note ? 'Кружок готов' : isVideo ? 'Видео готово' : 'Картинка готова'),
-      isVideo ? h('video', { src: url, controls: '', playsinline: '', preload: 'metadata', style: 'width:100%;max-height:48vh;border-radius:12px;background:#000' }) : null,
-      isImage ? h('img', { src: url, alt: filename, style: 'width:100%;max-height:48vh;object-fit:contain;border-radius:12px;background:#000' }) : null,
+      isVideo ? h('div', { class: 'dlg-prev' }, vid, spec && phone ? h('span', { class: 'dlg-badge' }, spec) : null, playBtn) : null,
+      isImage ? h('div', { class: 'dlg-prev' }, h('img', { src: url, alt: filename })) : null,
       h('p', { class: 'hint' }, `${filename} · ${mb} МБ` + (isVideo ? '. Если в предпросмотре нет звука, значит, его нет и в файле.' : '')),
       isVideo ? diag : null,
-      h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Закрыть'),
-        h('button', { class: 'btn' + (canSend ? '' : ' primary'), type: 'button', onclick: save }, canShare ? 'Сохранить' : 'Скачать'),
-        canSend ? h('button', { class: 'btn primary', type: 'button', onclick: e => send(e.currentTarget) }, 'Отправить в Telegram') : null)].filter(Boolean)));
+      h('div', { class: 'dlg-actions' + (canSend ? ' dlg-3' : '') }, h('button', { class: 'btn', type: 'button', onclick: close }, 'Закрыть'),
+        h('button', { class: 'btn' + (canSend ? '' : ' primary'), type: 'button', onclick: save }, phone ? icon('down') : null, phone || canShare ? 'Сохранить' : 'Скачать'),
+        canSend ? h('button', { class: 'btn primary', type: 'button', onclick: e => send(e.currentTarget) }, phone ? icon('d-send') : null, 'Отправить в Telegram') : null)].filter(Boolean)); });
   }
   function initTelegram() {
     document.documentElement.classList.add('tg'); document.body.classList.add('tg');
