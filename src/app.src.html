@@ -2691,7 +2691,7 @@ const STICKERS = '__STICKERS__';
       if (m.userData.gk !== gk) { m.geometry.dispose(); m.geometry = shapeGeometry(S); m.userData.gk = gk; }
     }
     const r = Math.PI / 180;
-    m.rotation.set(S.rotX * r, (S.rotY + (S.spinPh || 0)) * r, S.rotZ * r, 'YXZ'); // собственное вращение — вокруг вертикальной оси, поверх заданного наклона
+    m.rotation.set(S.rotX * r, S.rotY * r, (S.rotZ - (S.spinPh || 0)) * r, 'YXZ'); // собственное вращение — в плоскости фигуры, как у пластинки; положительная скорость — по часовой, как у текста
   }
   // включить или выключить вращение фигуры; скорость при выключении запоминается
   function setShapeSpinOn(S, on) {
@@ -4009,7 +4009,7 @@ const STICKERS = '__STICKERS__';
       out.push(section('Анимация', [
         toggle('Вращение', () => S.spin !== 0, v => { setShapeSpinOn(S, v); renderPanel(); }, 'sh-spinOn'),
         ss('spin'),
-        h('p', { class: 'hint' }, 'Фигура вращается вокруг вертикальной оси сама по себе, независимо от текста.')], () => resetShapeSpin(S)));
+        h('p', { class: 'hint' }, 'Фигура вращается в своей плоскости, как пластинка: плюс — по часовой, минус — против. Независимо от текста.')], () => resetShapeSpin(S)));
       out.push(section('Заливка', [
         mediaRow,
         ...(S.mediaKind ? [
