@@ -2586,7 +2586,7 @@ const STICKERS = '__STICKERS__';
     rect: '<rect x="7" y="3" width="10" height="18" rx="1.5"/>',
     sphere: '<circle cx="12" cy="12" r="8"/><ellipse cx="12" cy="12" rx="8" ry="3"/>',
   };
-  const SHAPE_DEF = { x: 0, y: 0, z: 0, size: 4, w: 100, h: 100, d: 100, rotX: 0, rotY: 0, rotZ: 0, corner: 0,
+  const SHAPE_DEF = { x: 0, y: 0, z: 0, size: 4, w: 100, h: 100, d: 100, rotX: 0, rotY: 0, rotZ: 0, corner: 0, spin: 0, lastSpin: 0,
     color: '#ffffff', opacity: 100, metal: 0, rough: 0.5, lit: false, fit: 'cover', tiles: 3, open: false,
     order: 'space', stack: 0, fixed: true, visible: true, videoSound: false, ...PX_DEF, ...BT_DEF };
   const SS = {
@@ -2601,6 +2601,7 @@ const STICKERS = '__STICKERS__';
     rotX:     { label: 'Наклон вперёд', min: -180, max: 180, step: 1, unit: '°', v: 0 },
     rotY:     { label: 'Поворот вбок', min: -180, max: 180, step: 1, unit: '°', v: 0 },
     rotZ:     { label: 'Поворот в плоскости', min: -180, max: 180, step: 1, unit: '°', v: 0 },
+    spin:     { label: 'Скорость вращения', min: -90, max: 90, step: 1, unit: '°/с', v: 0 },
     opacity:  { label: 'Непрозрачность', min: 0, max: 100, step: 1, unit: '%', v: 100 },
     metal:    { label: 'Металл', min: 0, max: 1, step: 0.01, dec: 2, v: 0 },
     rough:    { label: 'Шероховатость', min: 0.02, max: 1, step: 0.01, dec: 2, v: 0.5 },
@@ -2690,8 +2691,15 @@ const STICKERS = '__STICKERS__';
       if (m.userData.gk !== gk) { m.geometry.dispose(); m.geometry = shapeGeometry(S); m.userData.gk = gk; }
     }
     const r = Math.PI / 180;
-    m.rotation.set(S.rotX * r, S.rotY * r, S.rotZ * r, 'YXZ');
+    m.rotation.set(S.rotX * r, (S.rotY + (S.spinPh || 0)) * r, S.rotZ * r, 'YXZ'); // собственное вращение — вокруг вертикальной оси, поверх заданного наклона
   }
+  // включить или выключить вращение фигуры; скорость при выключении запоминается
+  function setShapeSpinOn(S, on) {
+    if ((S.spin !== 0) === on) return;
+    if (on) S.spin = S.lastSpin || 20; else { S.lastSpin = S.spin; S.spin = 0; }
+  }
+  // сброс анимации: вращение выключено, фигура возвращается в исходное положение
+  function resetShapeSpin(S) { S.spin = 0; S.lastSpin = 0; S.spinPh = 0; placeShape(S); }
   function addShape(type) {
     const S = Object.assign({ id: 's' + Date.now() + Math.random().toString(36).slice(2, 6), type, name: SHAPE_TYPES[type].label }, SHAPE_DEF);
     if (!SHAPE_TYPES[type].flat) { S.lit = true; S.color = '#d9dde2'; }
@@ -3653,6 +3661,7 @@ const STICKERS = '__STICKERS__';
       { id: 'add', label: 'Добавить', ic: 'plus', m: ['Добавить фигуру', /^Фигура/] },
       { id: 'place', label: 'Место', ic: 'scale', m: ['Позиция'] },
       { id: 'form', label: 'Форма', ic: 'shapes', m: ['Форма', 'Поворот'] },
+      { id: 'motion', label: 'Движение', ic: 'rotate', m: ['Анимация'] },
       { id: 'fill', label: 'Заливка', ic: 'fill', m: ['Заливка', 'Пиксели'] },
       { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит'] }],
     light: [
@@ -3997,6 +4006,10 @@ const STICKERS = '__STICKERS__';
       ], null));
       out.push(section('Форма', [ss('size'), ss('w'), ss('h'), ...(S.type === 'square' || S.type === 'rect' ? [ss('corner')] : []), ...(flat ? [] : [ss('d')])]));
       out.push(section('Поворот', [ss('rotX'), ss('rotY'), ss('rotZ')]));
+      out.push(section('Анимация', [
+        toggle('Вращение', () => S.spin !== 0, v => { setShapeSpinOn(S, v); renderPanel(); }, 'sh-spinOn'),
+        ss('spin'),
+        h('p', { class: 'hint' }, 'Фигура вращается вокруг вертикальной оси сама по себе, независимо от текста.')], () => resetShapeSpin(S)));
       out.push(section('Заливка', [
         mediaRow,
         ...(S.mediaKind ? [
@@ -4385,6 +4398,11 @@ const STICKERS = '__STICKERS__';
       const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
       const flat = SHAPE_TYPES[S.type].flat;
       return [mxTiles([ss('size'), ss('w'), ss('h')], 3), mxTiles([S.type === 'square' || S.type === 'rect' ? ss('corner', 'Скругление') : flat ? null : ss('d'), ss('rotX'), ss('rotY'), ss('rotZ', 'Поворот')], 3)];
+    },
+    motion() {
+      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
+      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
+      return [mxPill('d-rotate', 'Вращение', S.spin !== 0, v => { setShapeSpinOn(S, v); renderPanel(); }), mxTiles([ss('spin', 'Скорость')], 3)];
     },
     fill() {
       const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
@@ -4880,7 +4898,7 @@ const STICKERS = '__STICKERS__';
       lastExport = { path: 'запись в реальном времени (' + type.split(';')[0] + ')', audio: withAudio ? 'дорожка трека подключена к записи' : 'без звука (трек не загружен)', why: lastExport.why };
       saveFile(`krug-${st.format.replace(':', 'x')}-${w}x${hh}.${ext}`, blob);
     };
-    if (!MU.audio && (P.spin === 0 || !canSpin(st.mode)) && P.rimOrbit === 0 && P.petrol === 0 && P.vhs === 0 && P.glitch === 0 && P.noise === 0) toast('Сцена неподвижна. Включите вращение пробелом, чтобы видео ожило.');
+    if (!MU.audio && (P.spin === 0 || !canSpin(st.mode)) && P.rimOrbit === 0 && P.petrol === 0 && P.vhs === 0 && P.glitch === 0 && P.noise === 0 && !shapes.some(S => S.spin) && !texts.some(B => B.spin && canSpin(B.mode))) toast('Сцена неподвижна. Включите вращение пробелом, чтобы видео ожило.');
     recorder.start(250);
     post({ type: 'rec', recording: true, total });
   }
@@ -5482,6 +5500,7 @@ const STICKERS = '__STICKERS__';
     texts.forEach(B => {
       spinText(B, B.spin * Math.PI / 180 * dt);
     });
+    shapes.forEach(S => { if (S.spin) { S.spinPh = ((S.spinPh || 0) + S.spin * dt) % 360; placeShape(S); } });
     updateGifs(dt);
     updateAsh(dt, t);
     layers.forEach(L => { if (L.mode === 'center' && L.billboard && L.group.children[0]) {
