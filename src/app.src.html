@@ -298,7 +298,8 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .sel-btn { position: absolute; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #8c8c8c; color: #fff; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; touch-action: none; cursor: pointer; }
 .sel-btn::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
 .sel-btn svg.i { width: 16px; height: 16px; }
-.sel-rot { right: 0; top: -38px; cursor: grab; } .sel-del { right: -28px; top: 10px; }
+.sel-rot { right: 0; top: -38px; cursor: grab; } .sel-del { right: -28px; top: 10px; } .sel-edit { right: -28px; top: 46px; }
+.sel-btn[hidden] { display: none; }
 .sel-frame i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #8c8c8c; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; }
 .sel-frame i::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; } /* зона касания шире самого маркера */
 .sel-frame i:nth-child(1) { left: -6px; top: -6px; } .sel-frame i:nth-child(2) { right: -6px; top: -6px; }
@@ -908,6 +909,8 @@ html.tg-m .te-bottom { flex: none; padding-top: 12px; background: #0b0b0b; }
 html.tg-m .te-panel { flex: none; height: 40px; margin-bottom: 12px; padding-left: 12px; display: flex; align-items: center; gap: 8px; overflow-x: auto; scrollbar-width: none; }
 html.tg-m .te-panel::-webkit-scrollbar { display: none; }
 html.tg-m .te-chip { flex: none; height: 40px; display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(0, 0, 0, .6); color: var(--fg); font-size: 16px; white-space: nowrap; }
+html.tg-m .te-field { flex: none; width: 260px; height: 36px; }
+html.tg-m .te-field .field { height: 36px; }
 html.tg-m .te-chip svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 html.tg-m .te-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 html.tg-m .te-grad { flex: none; height: 32px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(0, 0, 0, .6); color: var(--fg); font-size: 13px; }
@@ -3689,6 +3692,7 @@ const STICKERS = '__STICKERS__';
      Каждая вкладка показывает свои группы настроек: m — названия групп (строка или RegExp), группа без вкладки уходит в первую. */
   const SUBS = {
     text: [
+      { id: 'add', label: 'Добавить', ic: 'plus', s: 22, m: [], act: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(true); } }, // не вкладка, а действие: новый текст и сразу ввод
       { id: 'layers', label: 'Слои', ic: 'layers', s: 22, m: ['Слои', /^Текст/] },
       { id: 'font', label: 'Шрифт', ic: 'text', s: 22, m: ['Шрифт', 'Пропорции', 'Объём'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём']] },
       { id: 'form', label: 'Форма', ic: 'form', s: 22, m: ['Форма'] },
@@ -4640,6 +4644,8 @@ const STICKERS = '__STICKERS__';
   const teBlock = () => { if (st.mainOff && selText === MAIN) selText = texts[0] || MAIN; return selText; };
   const teSizeDef = () => S.size;
   const teSizeGet = B => B.main ? P.size : B.size;
+  const teGapGet = B => B.main ? P.gap : B.gap;
+  const teGapSet = (B, v) => { if (B.main) setParam('gap', v); else setBlock(B, 'gap', v); };
   function teFit() {
     const el = $('textEdit'), vv = window.visualViewport;
     el.style.setProperty('--te-h', (vv ? vv.height : innerHeight) + 'px');
@@ -4674,7 +4680,7 @@ const STICKERS = '__STICKERS__';
     mk('font', 'Шрифт', h('span', { class: 'aa' }, 'Aa'));
     mk('color', 'Цвет', h('span', { class: 'wheel' }));
     mk('form', 'Форма', icon('d-te-form'));
-    mk('align', 'Положение', icon('d-te-align'), () => teLeave('place'));
+    mk('align', 'Интервал', icon('d-te-align'));
     mk('fx', 'Эффекты', icon('d-te-fx'), () => teLeave('beat'));
     const panel = $('tePanel'); panel.innerHTML = '';
     if (TE.emoji) {
@@ -4689,6 +4695,11 @@ const STICKERS = '__STICKERS__';
       const cur = String(B.color || '').toLowerCase();
       TE_COLORS.forEach(c => panel.append(h('button', { class: 'te-dot', type: 'button', 'aria-label': c, 'aria-pressed': String(cur === c), style: 'background:' + c,
         onclick: () => { setBlock(B, 'color', c); teRender(); } })));
+    } else if (TE.tool === 'align') {
+      // межстрочный интервал: у кругов и цилиндра это шаг между кольцами, у плоского текста — расстояние между строками
+      const d = Object.assign({}, S.gap, { label: 'Межстрочный интервал' });
+      panel.append(h('div', { class: 'te-field' }, slider('gap', d, () => teGapGet(B), v => teGapSet(B, v))));
+      if (B.mode === 'plain') [['left', 'Слева'], ['center', 'По центру'], ['right', 'Справа']].forEach(([v, l]) => panel.append(h('button', { class: 'te-chip', type: 'button', 'aria-pressed': String(B.align === v), onclick: () => { setBlock(B, 'align', v); teRender(); } }, l)));
     } else if (TE.tool === 'form') {
       [['flat', 'Круг'], ['square', 'Квадрат'], ['cyl', 'Цилиндр'], ['plain', 'Плоский']].forEach(([k, label]) => {
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); g.setAttribute('viewBox', '0 0 24 24'); g.innerHTML = MODE_ICONS[k];
@@ -4697,12 +4708,14 @@ const STICKERS = '__STICKERS__';
     }
   }
   function teLeave(sub) { SUBSEL.text = sub; teClose(); }
-  function teSnap(B) { return { B, text: B.main ? TEXT : B.text, size: teSizeGet(B), fontId: B.font && B.font.id, color: B.color, grad: B.grad, mode: B.mode }; }
+  function teSnap(B) { return { B, text: B.main ? TEXT : B.text, size: teSizeGet(B), gap: teGapGet(B), align: B.align, fontId: B.font && B.font.id, color: B.color, grad: B.grad, mode: B.mode }; }
   function teRevert() {
     TE.fresh.slice().reverse().forEach(B => { if (texts.includes(B)) removeTextBlock(B); }); // новые тексты убираем
     const n = TE.snap; if (!n) return;
     teSetText(n.B, n.text);
     if (teSizeGet(n.B) !== n.size) { if (n.B.main) setParam('size', n.size); else setBlock(n.B, 'size', n.size); }
+    if (teGapGet(n.B) !== n.gap) teGapSet(n.B, n.gap);
+    if (n.B.align !== n.align) setBlock(n.B, 'align', n.align);
     if (n.fontId && n.B.font && n.B.font.id !== n.fontId) setBlock(n.B, 'fontId', n.fontId);
     if (n.B.color !== n.color) setBlock(n.B, 'color', n.color);
     if (n.B.grad !== n.grad) setBlock(n.B, 'grad', n.grad);
@@ -5381,11 +5394,12 @@ const STICKERS = '__STICKERS__';
   const pkTabs = ['text', 'images', 'shapes'];
   const pkFrame = document.createElement('div');
   pkFrame.className = 'sel-frame'; pkFrame.hidden = true; pkFrame.innerHTML = '<i></i><i></i><i></i><i></i>';
-  const pkRot = document.createElement('button'), pkDel = document.createElement('button');
-  pkRot.type = pkDel.type = 'button'; pkRot.className = 'sel-btn sel-rot'; pkDel.className = 'sel-btn sel-del';
+  const pkRot = document.createElement('button'), pkDel = document.createElement('button'), pkEdit = document.createElement('button');
+  pkRot.type = pkDel.type = pkEdit.type = 'button'; pkRot.className = 'sel-btn sel-rot'; pkDel.className = 'sel-btn sel-del'; pkEdit.className = 'sel-btn sel-edit'; pkEdit.hidden = true;
   pkRot.title = pkRot.ariaLabel = 'Повернуть: тяните по кругу'; pkDel.title = pkDel.ariaLabel = 'Удалить';
-  pkRot.append(icon('d-rotate')); pkDel.append(icon('x'));
-  pkFrame.append(pkRot, pkDel);
+  pkEdit.title = pkEdit.ariaLabel = 'Изменить текст';
+  pkRot.append(icon('d-rotate')); pkDel.append(icon('x')); pkEdit.append(icon('pencil'));
+  pkFrame.append(pkRot, pkDel, pkEdit);
   frame.append(pkFrame);
   function pkDelete(it) {
     PK.on = false;
@@ -5393,6 +5407,7 @@ const STICKERS = '__STICKERS__';
     renderPanel(); toast('Объект удалён. Вернуть его можно отменой действия');
   }
   pkDel.addEventListener('click', () => { const it = pkCurrent(); if (it) pkDelete(it); });
+  pkEdit.addEventListener('click', () => { const it = pkCurrent(); if (it && it.kind === 'text') { selText = it.o; openTextEdit(); } }); // шторка ввода: правим текст, размер, шрифт, цвет, интервал
   // поворот: у текста это «Поворот текста» (angle, по часовой), у фигуры — «Поворот в плоскости» (rotZ), у картинки — «Поворот» (rot); оба против часовой
   const pkRotGet = it => it.kind === 'shapes' ? it.o.rotZ : it.kind === 'images' ? it.o.rot : (it.o.main ? P.angle : it.o.angle);
   const pkWrap = v => { v = ((v + 180) % 360 + 360) % 360 - 180; return Math.round(v); };
@@ -5516,12 +5531,12 @@ const STICKERS = '__STICKERS__';
     const it = pkCurrent(), r = it && pkRect(it), W = frame.clientWidth, H = frame.clientHeight;
     if (!r || !W || !H) { if (!pkFrame.hidden) pkFrame.hidden = true; return; }
     const pad = 4, x0 = (r.x0 + 1) / 2 * W - pad, x1 = (r.x1 + 1) / 2 * W + pad, y0 = (1 - r.y1) / 2 * H - pad, y1 = (1 - r.y0) / 2 * H + pad;
-    pkFrame.hidden = false;
+    pkFrame.hidden = false; pkEdit.hidden = !(it.kind === 'text' && isTgm()); // править текст шторкой — только на телефоне
     pkFrame.style.cssText = `left:${x0}px;top:${y0}px;width:${Math.max(8, x1 - x0)}px;height:${Math.max(8, y1 - y0)}px`;
   }
   frame.addEventListener('pointerdown', e => {
     if (e.button > 0 || PK.drag || homeOpen || exporting || !pkTabs.includes(st.tab)) return;
-    const rotBtn = e.target.closest && e.target.closest('.sel-rot'), delBtn = e.target.closest && e.target.closest('.sel-del');
+    const rotBtn = e.target.closest && e.target.closest('.sel-rot'), delBtn = e.target.closest && e.target.closest('.sel-del, .sel-edit');
     if (delBtn) { e.stopPropagation(); return; }
     if (rotBtn) { // кнопка поворота: тянем по кругу вокруг центра рамки
       const it0 = pkCurrent(); if (!it0) return;
