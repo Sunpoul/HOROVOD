@@ -470,6 +470,9 @@ html.gate-ok #gate { display: none; }
 .pempty { color: var(--muted); }
 .pempty svg.i { width: 28px; height: 28px; }
 .pfmt { position: absolute; left: 8px; top: 8px; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .66); color: #eeeeee; }
+.home-new { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 420px; height: 52px; border: 0; border-radius: 26px; background: var(--accent); color: var(--accent-ink); font: 500 15px var(--font-body); }
+.home-new svg.i { width: 20px; height: 20px; stroke-width: 2; }
+.home-new:active { transform: scale(.985); }
 .pnew .pthumb { border-style: dashed; border-width: 1.5px; border-color: var(--line); background: transparent; }
 .pnew:hover .pthumb { border-color: var(--accent); }
 .pplus { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: var(--accent-ink); }
@@ -569,9 +572,9 @@ html.tg-m button:has(> .dsn) > svg.i:not(.dsn) { display: none; }
 html.tg-m .top .icon-btn { width: 44px; height: 44px; color: var(--fg); }
 html.tg-m .top .icon-btn svg.i { width: 24px; height: 24px; }
 html.tg-m #backBtn svg { transform: rotate(90deg); }
+html.tg-m.tg-back #backBtn { display: none; } /* UX #24: назад к проектам — системной кнопкой Telegram, своя «<» убрана */
 html.tg-m .fmtsel { margin: 0; flex: none; }
-html.tg-m .fmt-btn { width: 69px; height: 36px; padding: 0 12px 0 14px; gap: 8px; background: var(--well); }
-html.tg-m .fmt-btn > span:not(.shape-slot) { display: none; }
+html.tg-m .fmt-btn { width: auto; height: 36px; padding: 0 12px 0 14px; gap: 8px; background: var(--well); font: 500 14px/1 var(--font-body); }
 html.tg-m .fmtsel .shape-slot { width: 16px; height: 16px; }
 html.tg-m .fmtsel .shape { transform: scale(1.33); }
 html.tg-m .fmt-menu { left: 0; transform: none; }
@@ -590,6 +593,10 @@ html.tg-m .tab#tab-images svg.i-dn { width: 22px; height: 22px; }
 html.tg-m .tab:hover { background: transparent; }
 html.tg-m .tab:not([aria-selected="true"]) { color: rgba(255, 255, 255, .62); } /* невыбранные значки разделов чуть темнее выбранного */
 html.tg-m .tab[aria-selected="true"] { background: rgba(16, 16, 16, .34); color: var(--fg); }
+/* подпись активного раздела слева от значка (UX #2) */
+html.tg-m .tab { position: relative; }
+html.tg-m .tab[aria-selected="true"]::before { content: attr(title); position: absolute; right: 42px; top: 50%; transform: translateY(-50%); padding: 5px 12px; border-radius: 999px; background: rgba(12, 12, 12, .72);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: var(--fg); font: 500 12px/14px var(--font-body); white-space: nowrap; pointer-events: none; }
 html.tg-m .stage-mini { position: absolute; z-index: 5; left: 14px; bottom: 16px; display: flex; align-items: center; gap: 11px; padding: 5px 11px 5px 5px; background: #222; border-radius: 11px; }
 html.tg-m .player { display: none; }
 html.tg-m .stage-mini { flex-wrap: nowrap; gap: 4px; padding: 5px; } /* компактная плашка: только play и громкость, без времени и перемотки */
@@ -664,24 +671,23 @@ html.tg-m .mx-panel { display: flex; flex-direction: column; gap: 12px; }
 html.tg-m .mx-tab-motion, html.tg-m .mx-tab-fx, html.tg-m .mx-tab-layers { gap: 8px; }
 html.tg-m .mx-chips, html.tg-m .mx-cards, html.tg-m .mx-swatches { display: flex; align-items: center; gap: 8px; margin: 0 -16px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
 html.tg-m .mx-chips::-webkit-scrollbar, html.tg-m .mx-cards::-webkit-scrollbar, html.tg-m .mx-swatches::-webkit-scrollbar, html.tg-m .mx-tiles::-webkit-scrollbar { display: none; }
-html.tg-m .mx-chip { flex: none; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--well); color: #d9d9d9; font: 400 12px/15px 'Onest', var(--font-body); white-space: nowrap; }
+html.tg-m .mx-chip { flex: none; height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: var(--well); color: #d9d9d9; font: 400 13px/16px 'Onest', var(--font-body); white-space: nowrap; }
 html.tg-m .mx-chip[aria-pressed="true"] { background: #f4f4f4; color: #000; }
 html.tg-m .mx-chip.has-ic { display: inline-flex; align-items: center; gap: 4px; padding: 0 10px 0 7px; }
 html.tg-m .mx-chip svg { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 html.tg-m .mx-sep { flex: none; width: 1px; height: 16px; background: var(--line); }
-html.tg-m .mx-tiles { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - (var(--cols, 4) - 1) * 8px) / var(--cols, 4)); grid-template-rows: 34px; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+html.tg-m .mx-tiles { display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr)); grid-auto-rows: 34px; gap: 8px; }
 html.tg-m .mx-tiles .field label { padding-top: 3px; }
 html.tg-m .mx-pills { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-html.tg-m .mx-pill { display: flex; align-items: center; gap: 8px; height: 32px; min-height: 0; padding: 0 8px 0 10px; border-radius: 12px; background: var(--well); cursor: pointer; }
-html.tg-m .mx-pills .mx-pill { height: 36px; }
+html.tg-m .mx-pill { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 4px 10px 4px 12px; border-radius: 12px; background: var(--well); cursor: pointer; }
 html.tg-m .mx-pill.sel { background: var(--raised); box-shadow: inset 0 0 0 1.5px var(--fg); }
 html.tg-m .mx-pill svg.i { width: 16px; height: 16px; flex: none; color: var(--muted); }
 html.tg-m .mx-pill.on svg.i { color: var(--fg); }
-html.tg-m .mx-pill-name { flex: 1; min-width: 0; font: 400 13px/16px 'Onest', var(--font-body); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-html.tg-m .mx-pill.on .mx-pill-name { color: var(--fg); }
-html.tg-m .mx-pill input { width: 32px; height: 20px; }
-html.tg-m .mx-pill input::after { top: 3px; left: 3px; width: 14px; height: 14px; }
-html.tg-m .mx-pill input:checked::after { transform: translateX(12px); }
+html.tg-m .mx-pill-name { flex: 1; min-width: 0; font: 500 14px/18px var(--font-body); color: var(--fg); }
+html.tg-m .mx-pill-name small { margin-left: 8px; font: 400 12px/15px 'Onest', var(--font-body); color: var(--muted); }
+html.tg-m .mx-pill input { flex: none; width: 40px; height: 24px; }
+html.tg-m .mx-pill input::after { top: 3px; left: 3px; width: 18px; height: 18px; }
+html.tg-m .mx-pill input:checked::after { transform: translateX(16px); }
 html.tg-m .mx-layers { flex: none; display: flex; flex-direction: column; gap: 8px; max-height: 80px; overflow-y: auto; scrollbar-width: none; }
 html.tg-m .mx-panel > * { flex: none; }
 html.tg-m .mx-layer { flex: none; display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 6px 0 10px; border-radius: 10px; background: var(--well); cursor: pointer; }
@@ -710,9 +716,20 @@ html.tg-m .mx-sw i { width: 28px; height: 28px; display: grid; place-items: cent
 html.tg-m .mx-sw i.grad { background: linear-gradient(135deg, #ff6b6b, #7359ff); }
 html.tg-m .mx-sw.plus i { background: var(--well); box-shadow: none; color: var(--fg); }
 html.tg-m .mx-sw.plus svg.i { width: 16px; height: 16px; }
+html.tg-m .mx-chip.has-dot { display: inline-flex; align-items: center; gap: 6px; padding: 0 14px 0 10px; }
+html.tg-m .mx-st { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+html.tg-m .mx-st.on { background: #34d17c; }
+html.tg-m .mx-chip[aria-pressed="true"] .mx-st:not(.on) { background: #777; }
+html.tg-m .mx-tapon { cursor: pointer; }
+html.tg-m .mx-tapon > .is-off { pointer-events: none; }
+html.tg-m .mx-info { display: flex; align-items: flex-start; gap: 6px; }
+html.tg-m .mx-info svg.i { flex: none; width: 14px; height: 14px; margin-top: 1px; }
+html.tg-m .mx-st-ic { flex: none; width: 24px; height: 24px; display: grid; place-items: center; color: var(--label); }
+html.tg-m .mx-st-ic svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+html.tg-m .mx-beatrow svg.i { color: var(--label); }
 html.tg-m .mx-hint { margin: 0; font: 400 11px/15px 'Onest', var(--font-body); color: var(--muted); }
 html.tg-m .mx-row { display: flex; align-items: center; gap: 8px; }
-html.tg-m .mx-row > .mx-pill { flex: 0 0 150px; height: 28px; }
+html.tg-m .mx-row > .mx-pill { flex: 0 0 170px; }
 html.tg-m .mx-chips.mx-inline { margin: 0; padding: 0; }
 html.tg-m .mx-tiles .swatch { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; border-radius: 10px; background: var(--well); }
 html.tg-m .mx-tiles .swatch label { flex: none; font: 400 10px/13px 'Onest', var(--font-body); color: var(--label); }
@@ -792,12 +809,26 @@ html.tg-m .subbar { grid-area: sub; display: flex; justify-content: safe center;
 html.tg-m .subbar::-webkit-scrollbar { display: none; }
 html.tg-m .sb { flex: none; width: 64px; height: 57px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0; border: 0; background: none; color: #888; font: 500 10.5px/normal var(--font-body); white-space: nowrap; }
 html.tg-m .sb .sb-ic { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--nav-circle); color: #888; }
+html.tg-m .sb .sb-ic { position: relative; }
 html.tg-m .sb .sb-ic svg.i { width: 24px; height: 24px; }
+html.tg-m .sb-st { position: absolute; top: 2px; right: 2px; width: 7px; height: 7px; border-radius: 50%; background: #5a5a5a; }
+html.tg-m .sb-st.on { background: #34d17c; }
 html.tg-m .sb .sb-fx { font: 500 15px/1 var(--font-body); }
 html.tg-m .sb[aria-selected="true"], html.tg-m .sb[aria-selected="true"] .sb-ic { color: var(--fg); }
+html.tg-m .sb[aria-selected="true"] .sb-ic { background: var(--accent); color: var(--accent-ink); } /* выбранная вкладка — белый кружок по макету */
 html.tg-m .toasts { bottom: calc(190px + var(--tg-bot)); }
 /* окно экспорта — нижняя шторка по макету «Экспорт»: ручка, заголовок 20/600, чипы 28 px, кнопки 44 px, затемнение 60% */
 .exp-head, .exp-grip, .rec-bar { display: none; }
+.exp-modes { display: flex; gap: 2px; padding: 3px; margin-bottom: 14px; border-radius: 12px; background: var(--well); }
+.exp-modes button { flex: 1; height: 32px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font: 500 13px/1 var(--font-body); }
+.exp-modes button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.exp-modes + .group, .exp-modes ~ .group, .exp-modes ~ .hint, .exp-modes ~ .btn, .exp-modes ~ .row { margin-top: 12px; }
+html.tg-m .exp-modes { height: 48px; padding: 4px; margin-bottom: 4px; border-radius: 14px; background: #2a2a2a; }
+html.tg-m .exp-modes button { height: 40px; border-radius: 11px; font-size: 14px; }
+html.tg-m .popover { display: flex; flex-direction: column; gap: 8px; }
+html.tg-m .popover .exp-head { margin-bottom: 8px; }
+html.tg-m .popover .exp-modes ~ * { margin-top: 0 !important; }
+html.tg-m .popover .exp-note { font-size: 11px; }
 html.tg-m .popover { padding: 10px 20px max(34px, var(--tg-bot)); border-radius: 28px 28px 0 0; background: var(--float); border: 0; box-shadow: none; }
 /* у шторок, окон и меню нет светлой обводки по краю */
 html.tg-m .dialog, html.tg-m .pmenu, html.tg-m .fmt-menu, html.tg-m .dd-menu, html.tg-m .busy span, html.tg-m .toast { border: 0; }
@@ -814,7 +845,7 @@ html.tg-m .popover .sec-head h3 { font: 600 15px/normal var(--font-display); col
 html.tg-m .popover .group.inline { grid-template-columns: minmax(0, 1fr); gap: 8px; }
 html.tg-m .popover .seg-label { font: 400 12px/normal 'Onest', var(--font-body); color: var(--label); }
 html.tg-m .popover .seg { display: flex; flex-wrap: wrap; gap: 8px; }
-html.tg-m .popover .seg button { flex: none; height: 28px; padding: 0 12px; border-radius: 999px; background: var(--raised); color: var(--fg); font: 400 12px/normal 'Onest', var(--font-body); }
+html.tg-m .popover .seg button { flex: none; height: 32px; padding: 0 14px; border-radius: 999px; background: var(--raised); color: var(--fg); font: 400 13px/normal 'Onest', var(--font-body); }
 html.tg-m .popover .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 html.tg-m .popover .hint { display: block; margin: 0; font: 400 11px/normal 'Onest', var(--font-body); color: var(--muted); }
 html.tg-m .popover .row { display: flex; gap: 8px; }
@@ -854,6 +885,9 @@ html.tg-m .home-top .avatar { width: 40px; height: 40px; }
 html.tg-m .home-body { padding-top: 12px; gap: 20px; }
 html.tg-m .home-head h1 { margin: 0 0 4px; font: 500 32px/36px var(--font-display); }
 html.tg-m .home-head p { font-size: 13px; line-height: 17px; }
+html.tg-m .home-new { max-width: none; }
+html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+html.tg-m .pmore { width: 44px; height: 44px; bottom: -4px; background: var(--raised); border-radius: 50%; }
 html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 html.tg-m .pcard { gap: 8px; }
 
@@ -923,7 +957,7 @@ body.ios .frame { box-shadow: none; }
 <div class="lock" id="gate" role="dialog" aria-modal="true" aria-label="Вход">
   <div class="lock-card">
     <div class="gate-brand"><svg class="logo" viewBox="0 0 297 297" aria-hidden="true" fill="currentColor"><rect x="250.053" y="143.981" width="7.65171" height="26.781" transform="rotate(90 250.053 143.981)" /><rect x="235.747" y="197.699" width="7.65171" height="26.781" transform="rotate(122.234 235.747 197.699)" /><rect x="198.594" y="233.397" width="7.65171" height="26.781" transform="rotate(152.145 198.594 233.397)" /><rect x="148.114" y="245.714" width="7.65171" height="26.781" transform="rotate(-177.484 148.114 245.714)" /><rect x="98.7573" y="231.191" width="7.65171" height="26.781" transform="rotate(-147.554 98.7573 231.191)" /><rect x="63.2725" y="193.986" width="7.65171" height="26.781" transform="rotate(-117.644 63.2725 193.986)" /><rect x="51.1279" y="143.399" width="7.65171" height="26.781" transform="rotate(-87.2623 51.1279 143.399)" /><rect x="65.7019" y="94.3145" width="7.65171" height="26.781" transform="rotate(-57.3435 65.7019 94.3145)" /><rect x="102.979" y="58.8701" width="7.65171" height="26.781" transform="rotate(-27.4326 102.979 58.8701)" /><rect x="153.818" y="46.8164" width="7.65171" height="26.781" transform="rotate(2.95882 153.818 46.8164)" /><rect x="202.757" y="61.5215" width="7.65171" height="26.781" transform="rotate(32.8674 202.757 61.5215)" /><rect x="238.158" y="99.0186" width="7.65171" height="26.781" transform="rotate(62.7786 238.158 99.0186)" /><rect x="236.402" y="168.174" width="8.86016" height="17.7203" transform="rotate(105 236.402 168.174)" /><rect x="213.64" y="208.276" width="8.86016" height="17.7203" transform="rotate(135.15 213.64 208.276)" /><rect x="174.043" y="231.453" width="8.86016" height="17.7203" transform="rotate(165.061 174.043 231.453)" /><rect x="127.343" y="231.521" width="8.86016" height="17.7203" transform="rotate(-164.336 127.343 231.521)" /><rect x="87.5315" y="208.312" width="8.86016" height="17.7203" transform="rotate(-134.217 87.5315 208.312)" /><rect x="64.7434" y="168.238" width="8.86016" height="17.7203" transform="rotate(-104.094 64.7434 168.238)" /><rect x="65.2717" y="121.735" width="8.86016" height="17.7203" transform="rotate(-73.6731 65.2717 121.735)" /><rect x="88.8452" y="82.2861" width="8.86016" height="17.7203" transform="rotate(-43.5849 88.8452 82.2861)" /><rect x="129.192" y="59.8994" width="8.86016" height="17.7203" transform="rotate(-13.4593 129.192 59.8994)" /><rect x="175.767" y="60.9414" width="8.86016" height="17.7203" transform="rotate(16.9902 175.767 60.9414)" /><rect x="214.875" y="84.9023" width="8.86016" height="17.7203" transform="rotate(47.0466 214.875 84.9023)" /><rect x="236.855" y="125.54" width="8.86016" height="17.7203" transform="rotate(77.1761 236.855 125.54)" /></svg><b>HRVD</b></div>
-    <p class="gate-beta">Beta 1.3.0</p>
+    <p class="gate-beta">Beta 1.3.1</p>
     <p class="hint">Закрытая бета. Войдите, чтобы открыть редактор</p>
     <form class="gate-form" novalidate>
       <input class="text-input" type="text" name="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="Логин" aria-label="Логин">
@@ -995,6 +1029,7 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-font" viewBox="0 0 24 24"><path d="M4 20 10 4h1l6 16M6.5 14h8"/><path d="M17 11.5a2.5 2.5 0 1 1 0 5v-5Zm0 0V20"/></symbol>
   <symbol id="i-shape" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4.5"/><rect x="11" y="11" width="9.5" height="9.5" rx="1.5"/></symbol>
   <symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 10.5 5-3v9l-5-3"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="1.6" stroke="currentColor" fill="none"/><path d="M12 11v5.2M12 7.8v.1" stroke-width="1.8" stroke-linecap="round" stroke="currentColor" fill="none"/></symbol>
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/></symbol>
   <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5-5 4 4 2.5-2.5L20 19"/></symbol>
   <symbol id="i-light" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
@@ -1050,6 +1085,8 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-d-send" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 1.5L11.25 16.5L8.25 9.75L1.5 6.75L16.5 1.5Z"/><path d="M16.5 1.5L8.25 9.75"/></symbol><symbol id="i-d-plus" viewBox="0 0 24 24"><path d="M12 5V19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M5 12H19" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-shapes" viewBox="0 0 24 24"><path d="M13 8C13 10.7614 10.7614 13 8 13C5.23858 13 3 10.7614 3 8C3 5.23858 5.23858 3 8 3C10.7614 3 13 5.23858 13 8Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12.5 11H19.5C20.3284 11 21 11.6716 21 12.5V19.5C21 20.3284 20.3284 21 19.5 21H12.5C11.6716 21 11 20.3284 11 19.5V12.5C11 11.6716 11.6716 11 12.5 11Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-fill" viewBox="0 0 24 24"><path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 3V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 7H18.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 11H20.8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 15H20" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 19H16.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-flame" viewBox="0 0 24 24"><path d="M12 3c.6 3.2 4.5 5 4.5 9.5A4.5 4.5 0 0 1 12 17a4.5 4.5 0 0 1-4.5-4.5c0-1.7.8-2.8 1.7-3.8.2 1.2.9 1.9 1.6 2C10.4 8 11 5.2 12 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor" fill="none"/><path d="M9 17.5c.8 1.2 1.9 1.8 3 1.8" stroke-width="1.5" stroke-linecap="round" stroke="currentColor" fill="none"/></symbol>
+  <symbol id="i-d-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" stroke-width="1.5" stroke="currentColor" fill="none"/><path d="M6 6l12 12" stroke-width="1.5" stroke-linecap="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-sparkles" viewBox="0 0 24 24"><path d="M12 3L13.9 8.1L19 10L13.9 11.9L12 17L10.1 11.9L5 10L10.1 8.1L12 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19 17V21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17 19H21" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-sun" viewBox="0 0 24 24"><path d="M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 2V4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 20V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M4.90002 4.90039L6.30002 6.30039" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M17.7 17.7L19.1 19.1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M2 12H4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 12H22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M6.3 17.7L4.9 19.1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M19.1 4.90039L17.7 6.30039" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-moon" viewBox="0 0 24 24"><path d="M12 3C10.22 3 8.47991 3.52784 6.99987 4.51677C5.51983 5.50571 4.36627 6.91131 3.68508 8.55585C3.0039 10.2004 2.82567 12.01 3.17293 13.7558C3.5202 15.5016 4.37737 17.1053 5.63604 18.364C6.89471 19.6226 8.49836 20.4798 10.2442 20.8271C11.99 21.1743 13.7996 20.9961 15.4442 20.3149C17.0887 19.6337 18.4943 18.4802 19.4832 17.0001C20.4722 15.5201 21 13.78 21 12C19.7434 12.467 18.3792 12.5633 17.0695 12.2776C15.7598 11.9919 14.5597 11.3361 13.6118 10.3882C12.6639 9.44031 12.0081 8.24018 11.7224 6.93047C11.4367 5.62076 11.533 4.25655 12 3Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
@@ -1082,7 +1119,7 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-d-r-light" viewBox="0 0 24 24"><path d="M16 12C16 14.2091 14.2091 16 12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M12 2.5V4.5M12 19.5V21.5M2.5 12H4.5M19.5 12H21.5M5.3 5.3L6.7 6.7M17.3 17.3L18.7 18.7M5.3 18.7L6.7 17.3M17.3 6.7L18.7 5.3" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-r-fx" viewBox="0 0 24 24"><path d="M4.5 17.5V12M4.5 12V6.5H10.5M4.5 12H9.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M13.5 6.5L16.5 12M16.5 12L19.5 17.5M16.5 12L19.5 6.5M16.5 12L13.5 17.5" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-r-music" viewBox="0 0 24 24"><path d="M9 18V5.5L20 3.5V16" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M9 18C9 19.3807 7.88071 20.5 6.5 20.5C5.11929 20.5 4 19.3807 4 18C4 16.6193 5.11929 15.5 6.5 15.5C7.88071 15.5 9 16.6193 9 18Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20 16C20 17.3807 18.8807 18.5 17.5 18.5C16.1193 18.5 15 17.3807 15 16C15 14.6193 16.1193 13.5 17.5 13.5C18.8807 13.5 20 14.6193 20 16Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
-  <symbol id="i-d-r-scene" viewBox="0 0 24 24"><path d="M12 3L3 8L12 13L21 8L12 3Z" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M3 13L12 18L21 13" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
+  <symbol id="i-d-r-scene" viewBox="0 0 24 24"><rect x="3.75" y="3.75" width="16.5" height="16.5" rx="3" stroke-width="1.7" stroke="currentColor"/><path d="M3.75 9.5H20.25M9.5 9.5V20.25" stroke-width="1.7" stroke-linecap="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-te-form" viewBox="0 0 26 26"><path d="M21.4511 11.0706C21.5922 11.6911 21.6667 12.3368 21.6667 13C21.6667 13.6632 21.5922 14.3089 21.4511 14.9294M20.3393 8.38852C19.6462 7.28774 18.7123 6.35383 17.6115 5.66072M14.9294 4.54888C14.3089 4.40782 13.6632 4.33333 13 4.33333C12.3368 4.33333 11.6911 4.40782 11.0706 4.54888M8.38852 5.66072C7.28774 6.35383 6.35383 7.28773 5.66072 8.38851M4.54888 11.0706C4.40782 11.6911 4.33333 12.3368 4.33333 13C4.33333 13.6632 4.40782 14.3089 4.54888 14.9294M5.66072 17.6115C6.35383 18.7123 7.28773 19.6462 8.38851 20.3393M11.0706 21.4511C11.6911 21.5922 12.3368 21.6667 13 21.6667C13.6632 21.6667 14.3089 21.5922 14.9294 21.4511M17.6115 20.3393C18.7123 19.6462 19.6462 18.7123 20.3393 17.6115" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-te-align" viewBox="0 0 26 26"><path d="M4.33333 6.5H21.6667" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M7.58333 13H18.4167" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M5.41667 19.5H20.5833" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
   <symbol id="i-d-te-fx" viewBox="0 0 26 26"><path d="M13 3.25L15.0583 8.775L20.5833 10.8333L15.0583 12.8917L13 18.4167L10.9417 12.8917L5.41667 10.8333L10.9417 8.775L13 3.25Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M20.5833 18.4167V22.75" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/> <path d="M18.4167 20.5833H22.75" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke="currentColor"/></symbol>
@@ -1146,6 +1183,7 @@ body.ios .frame { box-shadow: none; }
     <button class="avatar" id="avatarBtnHome" type="button" title="Профиль и настройки" aria-label="Меню профиля" aria-haspopup="menu" aria-expanded="false"><svg class="i"><use href="#i-user"/></svg><span class="av-letter"></span></button></header>
   <div class="home-body">
     <div class="home-head"><h1 id="homeTitle">Проекты</h1><p id="homeSub"></p></div>
+    <button class="home-new" id="homeNew" type="button"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Новый постер</button>
     <p class="home-warn" id="homeWarn" hidden>Браузер не даёт сохранять данные на этой странице. Проекты останутся только до закрытия вкладки.</p>
     <div class="pgrid" id="pgrid"></div>
   </div>
@@ -4572,6 +4610,13 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const lbl = h('label', { for: id, title: 'Двойной клик — сбросить' }, def.label);
     if (def.v != null) lbl.addEventListener('dblclick', () => { range.value = def.v; set(def.v); show(def.v); });
     const field = h('div', { class: 'field' }, lbl, num, range); show(+range.value);
+    if (def.v != null) { // телефон: долгое нажатие на плитку без движения сбрасывает значение
+      let t = 0, x0 = 0, y0 = 0; const stop = () => { clearTimeout(t); t = 0; };
+      field.addEventListener('pointerdown', e => { if (!isTgm()) return; x0 = e.clientX; y0 = e.clientY; stop();
+        t = setTimeout(() => { t = 0; range.value = def.v; set(def.v); show(def.v); try { TG.HapticFeedback.notificationOccurred('success'); } catch (er) {} toast(def.label + ': вернули ' + fmtVal(def, def.v) + (def.unit ? ' ' + def.unit : '')); }, 650); });
+      field.addEventListener('pointermove', e => { if (t && Math.hypot(e.clientX - x0, e.clientY - y0) > 6) stop(); });
+      ['pointerup', 'pointercancel', 'pointerleave'].forEach(n => field.addEventListener(n, stop));
+    }
     return field;
   }
   // hex из строки: #RRGGBB, RRGGBB или короткий #RGB → '#rrggbb', иначе null
@@ -4687,7 +4732,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     ['images', 'Картинки', 'image', 'PNG-слои: логотип в центре или иконки по кругу'],
     ['shapes', 'Фигуры', 'shape', 'Круг, квадрат, прямоугольник 9:16 и сфера с вашими фото и видео'],
     ['light', 'Свет', 'light', 'Три источника света и отражения'],
-    ['fx', 'Эффекты', 'fx', 'Шум, глитч VHS и бензиновый перелив'],
+    ['fx', 'Эффекты кадра', 'fx', 'Шум, глитч VHS, пиксели, бензин и пепел на весь кадр'],
     ['music', 'Музыка', 'music', 'Трек и спектр на фоне'],
     ['scene', 'Сцена', 'scene', 'Фон, тени и камера'],
   ];
@@ -4704,26 +4749,24 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
      Каждая вкладка показывает свои группы настроек: m — названия групп (строка или RegExp), группа без вкладки уходит в первую. */
   const SUBS = {
     text: [
-      { id: 'add', label: 'Добавить', ic: 'plus', s: 22, m: [], act: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(true); } }, // не вкладка, а действие: новый текст и сразу ввод
       { id: 'layers', label: 'Слои', ic: 'layers', s: 22, m: ['Слои', /^Текст/] },
-      { id: 'font', label: 'Шрифт', ic: 'text', s: 22, m: ['Шрифт', 'Пропорции', 'Объём', 'Материал'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём'], ['Материал', 'Материал']] },
-      { id: 'color', label: 'Цвет', ic: 'palette', s: 22, m: ['Цвет'] },
-      { id: 'form', label: 'Форма', ic: 'form', s: 22, m: ['Форма', 'Положение'] },
-      { id: 'motion', label: 'Движение', ic: 'rotate', s: 22, m: ['Анимация'] },
-      { id: 'fx', label: 'Эффекты', ic: 'fx', s: 22, m: ['Пиксели', 'Бит'] }],
+      { id: 'font', label: 'Шрифт', ic: 'text', s: 22, m: ['Шрифт', 'Пропорции', 'Объём'], chips: [['Шрифт', 'Выбор'], ['Пропорции', 'Пропорции'], ['Объём', 'Объём']] },
+      { id: 'form', label: 'Форма', ic: 'form', s: 22, m: ['Форма'] },
+      { id: 'view', label: 'Вид', ic: 'palette', s: 22, m: ['Цвет', 'Материал'] },
+      { id: 'place', label: 'Место', ic: 'scale', s: 22, m: ['Положение', 'Анимация'] },
+      { id: 'beat', label: 'Бит', ic: 'zap', s: 22, m: ['Пиксели', 'Бит'] }],
     images: [
-      { id: 'stickers', label: 'Стикеры', ic: 'sticker', m: ['Стикеры'] },
-      { id: 'layers', label: 'Слои', ic: 'layers', m: ['Слои', 'Слой'] },
-      { id: 'place', label: 'Место', ic: 'scale', m: ['Размещение'] },
-      { id: 'view', label: 'Вид', ic: 'eye', m: ['Отображение', 'Пиксели'] },
-      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит'] }],
+      { id: 'layers', label: 'Слои', ic: 'layers', m: ['Слои', 'Слой', 'Стикеры'] },
+      { id: 'form', label: 'Форма', ic: 'form', m: ['Размещение'] },
+      { id: 'view', label: 'Вид', ic: 'palette', m: ['Отображение'] },
+      { id: 'place', label: 'Место', ic: 'scale', m: ['Положение'] },
+      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит', 'Пиксели'] }],
     shapes: [
-      { id: 'add', label: 'Добавить', ic: 'plus', m: ['Добавить фигуру', /^Фигура/] },
-      { id: 'place', label: 'Место', ic: 'scale', m: ['Позиция'] },
-      { id: 'form', label: 'Форма', ic: 'shapes', m: ['Форма', 'Поворот'] },
-      { id: 'motion', label: 'Движение', ic: 'rotate', m: ['Анимация'] },
-      { id: 'fill', label: 'Заливка', ic: 'fill', m: ['Заливка', 'Пиксели'] },
-      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит'] }],
+      { id: 'layers', label: 'Слои', ic: 'layers', m: ['Добавить фигуру', /^Фигура/] },
+      { id: 'form', label: 'Форма', ic: 'form', m: ['Форма', 'Поворот'] },
+      { id: 'view', label: 'Вид', ic: 'palette', m: ['Заливка'] },
+      { id: 'place', label: 'Место', ic: 'scale', m: ['Позиция', 'Анимация'] },
+      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит', 'Пиксели'] }],
     light: [
       { id: 'presets', label: 'Пресеты', ic: 'sparkles', m: ['Пресеты'] },
       { id: 'key', label: 'Основной', ic: 'sun', m: ['Основной свет'] },
@@ -4731,16 +4774,16 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       { id: 'amb', label: 'Общий', ic: 'ambient', m: ['Общий свет'] }],
     fx: [
       { id: 'presets', label: 'Пресеты', ic: 'sparkles', m: ['Пресеты'] },
-      { id: 'noise', label: 'Шум', ic: 'film', m: ['Шум'] },
-      { id: 'pixels', label: 'Пиксели', ic: 'grid', m: ['Пиксели'] },
-      { id: 'vhs', label: 'VHS', ic: 'tv', m: ['Глитч VHS', 'Глитч под бит'] },
-      { id: 'petrol', label: 'Бензин', ic: 'droplet', m: ['Бензин'] },
-      { id: 'ash', label: 'Пепел', ic: 'snow', m: ['Летающий пепел'] }],
+      { id: 'noise', label: 'Шум', ic: 'film', m: ['Шум'], on: () => fxOn('noise') },
+      { id: 'pixels', label: 'Пиксели', ic: 'grid', m: ['Пиксели'], on: () => fxOn('pixel') },
+      { id: 'vhs', label: 'VHS', ic: 'tv', m: ['Глитч VHS', 'Глитч под бит'], on: () => fxOn('vhs') },
+      { id: 'petrol', label: 'Бензин', ic: 'droplet', m: ['Бензин'], on: () => fxOn('petrol') },
+      { id: 'ash', label: 'Пепел', ic: 'snow', m: ['Летающий пепел'], on: () => !!P.ashOn }],
     music: [
       { id: 'track', label: 'Трек', ic: 'music', m: ['Трек'] },
       { id: 'clip', label: 'Отрывок', ic: 'scissors', m: ['Отрывок'] },
-      { id: 'spectrum', label: 'Спектр', ic: 'bars', m: ['Спектр на фоне'] },
-      { id: 'sphere', label: 'Сфера', ic: 'sphere', m: ['Сфера частиц'] }],
+      { id: 'spectrum', label: 'Спектр', ic: 'bars', m: ['Спектр на фоне', 'Сфера частиц'] },
+      { id: 'beat', label: 'Бит', ic: 'zap', m: ['Бит'] }],
     scene: [
       { id: 'bg', label: 'Фон', ic: 'bg', m: ['Фон'] },
       { id: 'shadow', label: 'Тени', ic: 'shadow', m: ['Тени'] },
@@ -4756,7 +4799,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const bar = $('subbar'); bar.innerHTML = '';
     list.forEach(x => bar.append(h('button', { class: 'sb', type: 'button', role: 'tab', 'aria-selected': String(x === cur), 'aria-label': x.label,
       onclick: () => { if (x.act) { x.act(); return; } if (SUBSEL[st.tab] === x.id) return; SUBSEL[st.tab] = x.id; renderPanel(); $('panel').scrollTop = 0; } },
-      h('span', { class: 'sb-ic' }, x.ic === 'fx' ? h('span', { class: 'sb-fx' }, 'FX') : (() => { const g = icon('d-' + x.ic); if (x.s) g.style.width = g.style.height = x.s + 'px'; return g; })()), h('span', { class: 'sb-name' }, x.label))));
+      h('span', { class: 'sb-ic' }, x.ic === 'fx' ? h('span', { class: 'sb-fx' }, 'FX') : (() => { const g = icon('d-' + x.ic); if (x.s) g.style.width = g.style.height = x.s + 'px'; return g; })(), x.on ? h('i', { class: 'sb-st' + (x.on() ? ' on' : '') }) : null), h('span', { class: 'sb-name' }, x.label))));
   }
   // Mini App: настройки раздела собираются в компактные ряды без вертикальной прокрутки — переключатели, чипы выбора,
   // карточки и сетка плиток; всё, что не помещается по ширине, листается вбок.
@@ -4941,6 +4984,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           ...(B.grad ? [color(B.main ? 'matColor2' : 'bColor2', COLORS.matColor2, () => B.color2, v => setBlock(B, 'color2', v)),
             seg('Направление', [[0, 'Сверху вниз'], [1, 'Слева направо'], [2, 'Вокруг круга']], () => B.gradMode, v => setBlock(B, 'gradMode', v))] : []),
         ], B.main ? ['matColor', 'matColor2', 'matGrad'] : () => { setBlock(B, 'color', P.matColor); B.grad = false; applyBlockMaterial(B); }),
+        section('Материал', [
+          slider('metal'), slider('rough'),
+          h('p', { class: 'hint' }, 'Металл и шероховатость — общие для всех текстов. Цвет у каждого текста свой: «Текст → Цвет».'),
+        ], ['metal', 'rough']),
         section('Форма', [
           seg('', [['flat', 'Круг', 'Круг', MODE_ICONS.flat], ['square', 'Квадрат', 'Квадрат', MODE_ICONS.square], ['cyl', 'Цилиндр', 'Цилиндр', MODE_ICONS.cyl], ['plain', 'Плоский текст', 'Плоский текст: обычные строки без круга', MODE_ICONS.plain]], () => B.mode, v => { setBlock(B, 'mode', v); renderPanel(); }),
           ...(B.mode === 'square' ? [ts('boxW'), ts('boxH'), ts('corner')] : []),
@@ -4973,10 +5020,6 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         ]),
         section('Пропорции', ['size', 'stretchY', 'width', 'tracking'].map(k => B.main ? slider(k) : slider(k, S[k], () => B[k], v => setBlock(B, k, v))), B.main ? ['size', 'stretchY', 'width', 'tracking'] : () => { ['size', 'stretchY', 'width', 'tracking'].forEach(k => { B[k] = TEXT_DEF[k]; }); layoutBlock(B); }),
         section('Объём', [slider('depth'), slider('bevel')], ['depth', 'bevel']),
-        section('Материал', [
-          slider('metal'), slider('rough'),
-          h('p', { class: 'hint' }, 'Металл и шероховатость — общие для всех текстов. Цвет у каждого текста свой: «Текст → Цвет».'),
-        ], ['metal', 'rough']),
       ];
     },
     images() {
@@ -5163,6 +5206,14 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
           slider('sphereR'), slider('sphereAmp'), slider('sphereSpec'), slider('sphereSpeed'),
           slider('sphereSize'), slider('sphereCount'), slider('sphereLayers'),
         ], ['sphereR', 'sphereAmp', 'sphereSpec', 'sphereSpeed', 'sphereSize', 'sphereCount', 'sphereLayers']) : null,
+        // всё, что двигается под музыку, — одним списком: тумблер включает «Бит» у объекта
+        section('Бит', [
+          ...[...(st.mainOff ? [] : [MAIN]), ...texts].map((B, i) => toggle('Текст · ' + blockTitle(B), () => !!B.btOn, v => { B.btOn = v; }, 'mb-t' + i)),
+          ...layers.map((L, i) => toggle(L.name, () => !!L.btOn, v => { L.btOn = v; }, 'mb-l' + i)),
+          ...shapes.map((S, i) => toggle(S.name + (S.mediaKind === 'video' ? ' · видео' : ''), () => !!S.btOn, v => { S.btOn = v; }, 'mb-s' + i)),
+          slider('beatSens'),
+          h('p', { class: 'hint' }, 'Тумблер включает «Бит» у объекта. Силу пульса и глитча объекта настраивают на его вкладке «Бит».'),
+        ], ['beatSens']),
       ];
     },
     scene() {
@@ -5223,12 +5274,12 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const d = Object.assign({}, def || S[k], label ? { label } : {});
     return B.main && !def ? slider(k, d) : slider(k, d, () => B[k], v => setBlock(B, k, v));
   }
-  const mxTiles = (nodes, cols = 4) => { const t = h('div', { class: 'mx-tiles' }, nodes.filter(Boolean)); t.style.setProperty('--cols', cols); return t; };
+  const mxTiles = (nodes, cols = 3) => { const t = h('div', { class: 'mx-tiles' }, nodes.filter(Boolean)); t.style.setProperty('--cols', cols); return t; };
   function mxSwitch(on, set) { const i = h('input', { type: 'checkbox', role: 'switch' }); i.checked = on; i.addEventListener('click', e => e.stopPropagation()); i.addEventListener('change', () => set(i.checked)); return i; }
   // плашка-переключатель: значок, название, тумблер; sel — выбрана (белая рамка)
   function mxPill(ic, label, on, set, opts = {}) {
     const el = h('div', { class: 'toggle mx-pill' + (opts.sel ? ' sel' : '') + (on ? ' on' : ''), role: opts.onSelect ? 'button' : null, tabindex: opts.onSelect ? '0' : null, onclick: opts.onSelect || null },
-      ic ? icon(ic) : null, h('span', { class: 'mx-pill-name' }, label), mxSwitch(on, set));
+      ic ? icon(ic) : null, h('span', { class: 'mx-pill-name' }, label, opts.sub ? h('small', {}, opts.sub) : null), mxSwitch(on, set));
     return el;
   }
   const mxOff = (node, off) => { if (off && node) { node.classList.add('is-off'); node.inert = true; } return node; };
@@ -5248,8 +5299,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       return all.length ? [list, add] : [h('p', { class: 'mx-empty' }, 'Слоёв нет. Добавьте текст — он появится на сцене.'), add];
     },
     font(B) {
-      const inner = ['font', 'prop', 'vol', 'mat'].includes(SUBSEL.fontIn) ? SUBSEL.fontIn : 'font';
-      const chips = mxChips([['font', 'Шрифт'], ['prop', 'Пропорции'], ['vol', 'Объём'], ['mat', 'Материал']], inner, v => { SUBSEL.fontIn = v; renderPanel(); });
+      const inner = ['font', 'prop', 'vol'].includes(SUBSEL.fontIn) ? SUBSEL.fontIn : 'font';
+      const chips = mxChips([['font', 'Шрифт'], ['prop', 'Пропорции'], ['vol', 'Объём']], inner, v => { SUBSEL.fontIn = v; renderPanel(); });
       if (inner === 'font') {
         const cards = h('div', { class: 'mx-cards' },
           h('button', { class: 'mx-card add', type: 'button', onclick: () => $('fontInput').click() }, icon('upload'), h('span', {}, 'Свой'), h('small', {}, 'TTF · OTF')),
@@ -5258,10 +5309,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         return [chips, cards];
       }
       if (inner === 'prop') return [chips, mxTiles([mxSlider(B, 'size', 'Высота'), mxSlider(B, 'stretchY', 'Растяжение'), mxSlider(B, 'width', 'Ширина'), mxSlider(B, 'tracking', 'Трекинг'), slider('emojiScale', Object.assign({}, S.emojiScale, { label: 'Эмодзи' }))])];
-      if (inner === 'vol') return [chips, mxTiles([slider('depth'), slider('bevel')], 2)];
-      return [chips, mxTiles([slider('metal'), slider('rough')], 2)];
+      return [chips, mxTiles([slider('depth'), slider('bevel')], 2)]; // материал (металл, шероховатость) переехал во вкладку «Вид»
     },
-    color(B) {
+    view(B) {
       const grad = !!B.grad, stop = grad && SUBSEL.colorStop === 2 ? 2 : 1;
       const cur = String(stop === 2 ? B.color2 : B.color).toLowerCase(), key = stop === 2 ? 'color2' : 'color';
       const top = mxChips([['one', 'Один цвет'], ['grad', 'Градиент']], grad ? 'grad' : 'one', v => { setBlock(B, 'grad', v === 'grad'); renderPanel(); });
@@ -5274,7 +5324,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         MX_COLORS.map(c => h('button', { class: 'mx-sw' + (c === cur ? ' sel' : ''), type: 'button', 'aria-label': c, onclick: () => { setBlock(B, key, c); renderPanel(); } }, h('i', { style: 'background:' + c }))),
         h('button', { class: 'mx-sw' + (grad ? ' sel' : ''), type: 'button', 'aria-label': 'Градиент', onclick: () => { setBlock(B, 'grad', !grad); renderPanel(); } }, h('i', { class: 'grad' })),
         h('label', { class: 'mx-sw plus' + (custom ? ' sel' : ''), 'aria-label': 'Свой цвет', title: 'Свой цвет' }, h('i', { style: custom ? 'background:' + cur : '' }, custom ? null : icon('plus')), pickIn));
-      return [top, row];
+      return [top, row, mxTiles([slider('metal'), slider('rough')], 2)];
     },
     form(B) {
       const plain = B.mode === 'plain';
@@ -5287,10 +5337,10 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       if (B.mode === 'square') out.push(mxTiles([mxSlider(B, 'boxW', 'Ширина'), mxSlider(B, 'boxH', 'Высота'), mxSlider(B, 'corner', 'Скругление')], 3));
       return out;
     },
-    motion(B) {
+    place(B) {
       const spin = canSpin(B.mode);
       const on = spin && B.spin !== 0;
-      const pill = spin ? mxPill('d-rotate', B.mode === 'square' ? 'Движение по контуру' : 'Вращение', on, v => { setSpinOn(B, v); renderPanel(); }) : null;
+      const pill = spin ? mxPill('d-rotate', B.mode === 'square' ? 'Движение по контуру' : 'Вращение', on, v => { setSpinOn(B, v); renderPanel(); }, { sub: B.mode === 'square' ? 'Буквы бегут по контуру' : B.mode === 'cyl' ? 'Текст крутится вокруг оси' : 'Текст крутится по кругу' }) : null;
       const tiles = mxTiles([
         spin ? mxSlider(B, 'spin', 'Скорость') : null,
         B.mode === 'square' || B.mode === 'plain' ? null : mxSlider(B, 'radius', 'Радиус'),
@@ -5298,17 +5348,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         mxSlider(B, 'posX', 'По горизонтали'), mxSlider(B, 'gap', B.mode === 'plain' ? 'Интервал' : 'Шаг колец')]);
       return [pill, tiles].filter(Boolean);
     },
-    fx(B) {
-      const sel = SUBSEL.textFx === 'beat' ? 'beat' : 'px';
-      const pills = h('div', { class: 'mx-pills' },
-        mxPill('d-grid', 'Пиксели', !!B.pxOn, v => { B.pxOn = v; SUBSEL.textFx = 'px'; renderPanel(); }, { sel: sel === 'px', onSelect: () => { SUBSEL.textFx = 'px'; renderPanel(); } }),
-        mxPill('d-zap', 'Бит', !!B.btOn, v => { B.btOn = v; SUBSEL.textFx = 'beat'; renderPanel(); }, { sel: sel === 'beat', onSelect: () => { SUBSEL.textFx = 'beat'; renderPanel(); } }));
-      const sl = (k, def, label) => slider(k, Object.assign({}, def[k], label ? { label } : {}), () => B[k], v => { B[k] = v; });
-      const tiles = sel === 'px'
-        ? mxTiles([sl('pxSize', PXS, 'Пиксель'), sl('pxGap', PXS, 'Зазор'), sl('pxRound', PXS), sl('pxLevels', PXS, 'Градации'), sl('pxMono', PXS)])
-        : mxTiles([sl('btPulse', BTS), sl('btGlitch', BTS), slider('beatSens')], 3);
-      return sel === 'beat' ? [pills, mxBeatSrc(B, !B.btOn), mxOff(tiles, !B.btOn)] : [pills, mxOff(tiles, !B.pxOn)];
-    },
+    beat(B) { return mxObjFx(B, null, 'Текст'); },
   };
 
   /* Mini App 1.3.0: эффекты сцены по макетам — плашка-переключатель и плитки эффекта (бледные, когда эффект выключен) */
@@ -5316,25 +5356,38 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const fxShow = k => { for (const [u, U] of Object.entries(FX_UNITS)) if (U.keys.includes(k) && !fxOn(u)) { const m = FX_MEM[u] && U.main.some(x => FX_MEM[u][x] > 0) ? FX_MEM[u] : U.on; if (m[k] != null) return m[k]; } return P[k]; };
   const mxLabel = (k, label) => slider(k, Object.assign({}, S[k], { label }), () => fxShow(k));
   function mxFxTab(ic, label, on, set, tiles, cols, extra) {
-    const pill = mxPill(ic, label, on, v => { set(v); renderPanel(); });
+    const [name, sub] = label.split(' · ');
+    const pill = mxPill(ic, name, on, v => { set(v); renderPanel(); }, { sub: sub ? sub[0].toUpperCase() + sub.slice(1) : null });
     const head = extra ? h('div', { class: 'mx-row' }, pill, extra) : pill;
-    return [head, mxOff(mxTiles(tiles, cols), !on)];
+    return [head, mxTapOn(mxTiles(tiles, cols), on, () => { set(true); renderPanel(); })];
   }
+  // карточки пресетов: значок и название, выбранный — с белой рамкой
+  const PRESET_ICONS = { 'Студия': 'sun', 'Неон': 'sparkles', 'Закат': 'flame', 'Хром': 'ambient', 'Драма': 'moon', 'Чисто': 'ban', 'Плёночный шум': 'film', 'VHS': 'tv', 'Бензин': 'droplet', 'Всё сразу': 'sparkles', 'Пиксели': 'grid' };
+  const mxPresetCards = (map, cur, pick) => h('div', { class: 'mx-cards' }, Object.keys(map).map(n => h('button', { class: 'mx-card' + (n === cur ? ' sel' : ''), type: 'button', onclick: () => pick(n) }, icon('d-' + (PRESET_ICONS[n] || 'sparkles')), h('small', {}, n))));
+  // выключатели источников света: «выкл» обнуляет яркость и запоминает её, «вкл» возвращает
+  const LT_MEM = {};
+  const ltOn = k => P[k] > 0;
+  const ltSet = (k, on) => { if (on) setMany({ [k]: LT_MEM[k] || S[k].v }); else { LT_MEM[k] = P[k]; setMany({ [k]: 0 }); } };
+  const ltShow = k => ltOn(k) ? P[k] : (LT_MEM[k] || S[k].v);
+  const ltRow = (title, k) => mxPill(null, title, ltOn(k), v => { ltSet(k, v); renderPanel(); }, { sub: ltOn(k) ? 'Включён' : 'Выключен' });
+  const ltTiles = (k, tiles, cols) => mxTapOn(mxTiles(tiles, cols), ltOn(k), () => { ltSet(k, true); renderPanel(); });
+  const ltInt = k => slider(k, Object.assign({}, S[k], { label: 'Яркость' }), () => ltShow(k));
   const TGF = {
     presets() {
-      return [mxChips(Object.keys(FX_PRESETS).map(n => [n, n]), activeFxPreset, n => { activeFxPreset = n; setMany(FX_PRESETS[n]); renderPanel(); }),
-        h('p', { class: 'mx-hint' }, 'Пресет включает набор эффектов сразу. Каждый подстраивается на своей вкладке.')];
+      const on = [['noise', 'Шум'], ['pixel', 'Пиксели'], ['vhs', 'VHS'], ['petrol', 'Бензин']].filter(([u]) => fxOn(u)).map(x => x[1]); if (P.ashOn) on.push('Пепел');
+      return [mxPresetCards(FX_PRESETS, activeFxPreset, n => { activeFxPreset = n; setMany(FX_PRESETS[n]); renderPanel(); }),
+        mxInfo('Зелёная точка на вкладке — эффект включён. Сейчас: ' + (on.length ? on.join(', ') : 'ничего не включено'))];
     },
-    noise() { return mxFxTab(null, 'Шум', fxOn('noise'), v => fxSet('noise', v), [mxLabel('noise', 'Сила'), mxLabel('grain', 'Размер зерна')], 2); },
+    noise() { return mxFxTab(null, 'Шум · плёночное зерно', fxOn('noise'), v => fxSet('noise', v), [mxLabel('noise', 'Сила'), mxLabel('grain', 'Размер зерна')], 2); },
     pixels() { return mxFxTab(null, 'Пиксели · как светодиодный экран', fxOn('pixel'), v => fxSet('pixel', v),
       [mxLabel('pixel', 'Сила'), mxLabel('pixelSize', 'Размер пикселя'), mxLabel('pixelGap', 'Зазор'), mxLabel('pixelRound', 'Скругление'), mxLabel('pixelLevels', 'Градации'), mxLabel('pixelMono', 'Один цвет'), color('pixelTint'), color('pixelBack')], 3); },
-    vhs() { return mxFxTab(null, 'Глитч VHS', fxOn('vhs'), v => fxSet('vhs', v),
+    vhs() { return mxFxTab(null, 'VHS · искажение и срывы кадра', fxOn('vhs'), v => fxSet('vhs', v),
       [mxLabel('vhs', 'Искажение'), mxLabel('glitch', 'Срывы кадра'), mxLabel('aberr', 'Расслоение'), mxLabel('scan', 'Сканлайны')], 4); },
     petrol() { return mxFxTab(null, 'Бензин · радужная плёнка на буквах', fxOn('petrol'), v => fxSet('petrol', v),
       [mxLabel('petrol', 'Сила перелива'), mxLabel('petrolScale', 'Масштаб'), mxLabel('petrolSpeed', 'Течение')], 3); },
     ash() {
       const shape = mxChips([['flake', 'Хлопья'], ['emoji', 'Эмодзи']], st.ashShape, v => { st.ashShape = v; applyAsh(); renderPanel(); }, 'mx-inline');
-      const out = mxFxTab('d-snow', 'Пепел', !!P.ashOn, v => setParam('ashOn', v),
+      const out = mxFxTab('d-snow', 'Пепел · падающие частицы', !!P.ashOn, v => setParam('ashOn', v),
         [mxLabel('ashCount', 'Частицы'), mxLabel('ashSpeed', 'Падение'), mxLabel('ashSize', 'Размер'), mxLabel('ashWind', 'Ветер'), st.ashShape === 'emoji' ? null : color('ashColor')], 4, shape);
       if (st.ashShape === 'emoji') { const row = ashEmojiPicker().querySelector('.emoji-row'); row.classList.add('mx-emoji'); out.splice(1, 0, mxOff(row, !P.ashOn)); }
       return out;
@@ -5354,23 +5407,32 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const mxAction = (label, ic, onclick) => h('button', { class: 'mx-pill mx-action', type: 'button', onclick }, h('span', { class: 'mx-pill-name' }, label), icon(ic));
   const mxPair = (...kids) => h('div', { class: 'mx-pills' }, kids);
   const TGL = {
-    presets() { return [mxChips(Object.keys(LIGHT_PRESETS).map(n => [n, n]), activeLightPreset, n => { activeLightPreset = n; setMany(LIGHT_PRESETS[n]); renderPanel(); }),
-      h('p', { class: 'mx-hint' }, 'Пресет меняет свет, фон и материал букв. Дальше подстройте вручную.')]; },
-    key() { return [mxPair(mxPColor('keyColor', 'Цвет'), mxPTog('keyShadow', 'Отбрасывать тени')), mxTiles([mxLabel('keyInt', 'Яркость'), mxLabel('keyAz', 'Направление'), mxLabel('keyEl', 'Высота')], 3)]; },
-    rim() { return [mxPColor('rimColor', 'Цвет · блик по краям букв'), mxTiles([mxLabel('rimInt', 'Яркость'), mxLabel('rimAz', 'Направление'), mxLabel('rimEl', 'Высота'), mxLabel('rimOrbit', 'По кругу')], 4)]; },
-    amb() { return [mxPair(mxPColor('ambColor', 'Цвет'), mxPTog('helpers', 'Источники света')), mxTiles([mxLabel('ambInt', 'Яркость'), mxLabel('env', 'Отражения'), mxLabel('exposure', 'Экспозиция')], 3)]; },
+    presets() { return [mxPresetCards(LIGHT_PRESETS, activeLightPreset, n => { activeLightPreset = n; setMany(LIGHT_PRESETS[n]); renderPanel(); }),
+      mxInfo('Пресет меняет все три источника; донастройка — в соседних вкладках')]; },
+    key() { return [ltRow('Основной свет', 'keyInt'), mxPColor('keyColor', 'Цвет'),
+      ltTiles('keyInt', [ltInt('keyInt'), mxLabel('keyAz', 'Угол'), mxLabel('keyEl', 'Высота')], 3), mxPTog('keyShadow', 'Отбрасывать тени')]; },
+    rim() { return [ltRow('Контровой свет', 'rimInt'), mxPColor('rimColor', 'Цвет · блик по краям букв'),
+      ltTiles('rimInt', [ltInt('rimInt'), mxLabel('rimAz', 'Угол'), mxLabel('rimEl', 'Высота'), mxLabel('rimOrbit', 'По кругу')], 4)]; },
+    amb() { return [ltRow('Общий свет', 'ambInt'), mxPColor('ambColor', 'Цвет'),
+      ltTiles('ambInt', [ltInt('ambInt'), mxLabel('env', 'Отражения'), mxLabel('exposure', 'Экспозиция')], 3), mxPTog('helpers', 'Источники света')]; },
   };
   const TGS = {
     bg() {
-      const fill = mxChips([['color', 'Цвет'], ['linear', 'Линейный'], ['radial', 'Радиальный']], st.bgFill, v => { st.bgFill = v; applyScene(); renderPanel(); });
-      const row = h('div', { class: 'mx-strip' },
-        bgTex ? h('div', { class: 'mx-pill mx-action' }, h('span', { class: 'mx-pill-name' }, (bgKind === 'video' ? 'Видео: ' : 'Фото: ') + bgName), h('button', { class: 'mx-x', type: 'button', 'aria-label': 'Убрать фон', onclick: () => { clearBgMedia(); renderPanel(); } }, icon('x')))
-          : mxAction('Фото, видео', 'image', () => $('bgInput').click()),
-        bgKind === 'video' ? mxPill(null, 'Звук видео', !!bgSound, v => { bgSound = v; if (bgVideo) { bgVideo.muted = vMuted(v); if (v) bgVideo.play().catch(() => {}); } renderPanel(); }) : null,
-        mxPColor('bgColor', st.bgFill === 'color' ? 'Цвет' : 'Цвет 1'),
-        st.bgFill !== 'color' ? mxPColor('bgColor2', 'Цвет 2') : null,
-        st.bgFill === 'linear' ? mxLabel('bgAngle', 'Угол') : null);
-      return [fill, row];
+      // тип фона одним рядом чипов (макет «Сцена / Фон»): цвет, градиент, картинка, видео
+      const kind = bgTex ? bgKind : st.bgFill === 'color' ? 'color' : 'grad';
+      const pickFill = f => { clearBgMedia(); st.bgFill = f; applyScene(); renderPanel(); };
+      const chips = mxChips([['color', 'Цвет'], ['grad', 'Градиент'], ['image', 'Картинка'], ['video', 'Видео']], kind, v => {
+        if (v === 'color') pickFill('color'); else if (v === 'grad') pickFill(st.bgFill === 'radial' ? 'radial' : 'linear'); else $('bgInput').click(); });
+      if (kind === 'grad') chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(st.bgFill === 'radial'), onclick: () => { st.bgFill = st.bgFill === 'radial' ? 'linear' : 'radial'; applyScene(); renderPanel(); } }, 'Радиальный'));
+      const out = [chips];
+      if (bgTex) {
+        out.push(h('div', { class: 'mx-pill mx-action' }, h('span', { class: 'mx-pill-name' }, (bgKind === 'video' ? 'Видео: ' : 'Фото: ') + bgName), h('button', { class: 'mx-x', type: 'button', 'aria-label': 'Убрать фон', onclick: () => { clearBgMedia(); renderPanel(); } }, icon('x'))));
+        if (bgKind === 'video') out.push(mxPill(null, 'Звук видео', !!bgSound, v => { bgSound = v; if (bgVideo) { bgVideo.muted = vMuted(v); if (v) bgVideo.play().catch(() => {}); } renderPanel(); }));
+        return out;
+      }
+      if (kind === 'color') out.push(mxPColor('bgColor', 'Цвет'));
+      else { out.push(mxPair(mxPColor('bgColor', 'Сверху'), mxPColor('bgColor2', 'Снизу'))); if (st.bgFill === 'linear') out.push(mxTiles([mxLabel('bgAngle', 'Угол')], 3)); }
+      return out;
     },
     shadow() { return [mxPTog('floor', 'Поверхность для теней'), mxTiles([mxLabel('shadowOp', 'Плотность тени')], 1)]; },
     cam() { return [mxTiles([mxLabel('fov', 'Угол обзора камеры')], 1), mxAction('Вернуть камеру по центру', 'cam', resetCam)]; },
@@ -5383,101 +5445,127 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   const mxNeed = (what, add) => [h('p', { class: 'mx-empty' }, 'Сначала ' + what + ' — настройки появятся здесь.'), add];
   // эффекты объекта (картинка, фигура): «Бит» и «Пиксели» — две плашки с выбором, под ними плитки выбранного
   // «Бит»: откуда брать удар — из трека или из звука видео (в этой фигуре, в другой фигуре сцены, на фоне); для трека есть «Проверить удар»
-  function mxBeatSrc(o, off) {
+  function mxBeatSrc(o) {
     const srcs = [['music', 'Музыка']];
     if (o.mediaKind === 'video') srcs.push(['self', 'Видео фигуры']);
     const vshapes = shapes.filter(S => S !== o && S.mediaKind === 'video' && S.video);
     vshapes.forEach(S => { const same = vshapes.filter(x => x.name === S.name); srcs.push(['sh:' + S.id, 'Видео: ' + S.name + (same.length > 1 ? ' ' + (same.indexOf(S) + 1) : '')]); });
     if (bgVideo) srcs.push(['bg', 'Видео на фоне']);
+    if (srcs.length < 2) return null; // выбирать не из чего — ряд не нужен, остаётся трек
     const src = btSrcOf(o);
     const chips = mxChips(srcs, src, v => { o.btSrc = v; const vv = btVideoOf(o); if (vv) vaLevel(vv.file, vv.video); renderPanel(); }); // сразу запускаем разбор звука
     if (src === 'music') chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', onclick: () => { MU.pulse = 1; } }, 'Проверить удар'));
-    return mxOff(chips, off);
+    return chips;
   }
-  function mxObjFx(o, upd) {
+  // выключенные плитки бледные, тап по ним включает эффект (UX #9)
+  const mxTapOn = (tiles, on, enable) => { if (on) return tiles; tiles.classList.add('is-off'); tiles.inert = true; return h('div', { class: 'mx-tapon', onclick: enable }, tiles); };
+  const mxInfo = text => h('p', { class: 'mx-hint mx-info' }, icon('info'), text);
+  // «Бит» и «Пиксели» объекта: сверху чипы выбора с точкой-статусом, ниже один переключатель выбранного эффекта и его плитки (UX #7);
+  // what — как зовут объект в подсказке («Текст», «Картинка», «Фигура»)
+  function mxObjFx(o, upd, what) {
     const sel = SUBSEL.objFx === 'px' ? 'px' : 'beat';
-    const pills = h('div', { class: 'mx-pills' },
-      mxPill('d-zap', 'Бит', !!o.btOn, v => { o.btOn = v; SUBSEL.objFx = 'beat'; upd && upd(); renderPanel(); }, { sel: sel === 'beat', onSelect: () => { SUBSEL.objFx = 'beat'; renderPanel(); } }),
-      mxPill('d-grid', 'Пиксели', !!o.pxOn, v => { o.pxOn = v; SUBSEL.objFx = 'px'; upd && upd(); renderPanel(); }, { sel: sel === 'px', onSelect: () => { SUBSEL.objFx = 'px'; renderPanel(); } }));
+    const stat = { beat: !!o.btOn, px: !!o.pxOn };
+    const chips = h('div', { class: 'mx-chips' }, [['beat', 'Бит'], ['px', 'Пиксели']].map(([id, label]) =>
+      h('button', { class: 'mx-chip has-dot', type: 'button', 'aria-pressed': String(sel === id), onclick: () => { SUBSEL.objFx = id; renderPanel(); } }, h('i', { class: 'mx-st' + (stat[id] ? ' on' : '') }), label)));
+    const on = stat[sel];
+    const set = v => { if (sel === 'beat') o.btOn = v; else o.pxOn = v; upd && upd(); renderPanel(); };
+    const row = mxPill(null, sel === 'beat' ? 'Бит' : 'Пиксели', on, set, { sub: !on ? 'Выключен' : sel === 'beat' ? 'Включён · реагирует на трек' : 'Включён · как светодиодный экран' });
+    const sl = (defs, k, label) => slider(k, Object.assign({}, defs[k], label ? { label } : {}), () => o[k], v => { o[k] = v; });
     const tiles = sel === 'beat'
-      ? mxTiles([mxObjSlider(o, BTS, 'btPulse'), mxObjSlider(o, BTS, 'btGlitch'), slider('beatSens')], 3)
-      : mxTiles([mxObjSlider(o, PXS, 'pxSize', 'Пиксель'), mxObjSlider(o, PXS, 'pxGap', 'Зазор'), mxObjSlider(o, PXS, 'pxRound'), mxObjSlider(o, PXS, 'pxLevels', 'Градации'), mxObjSlider(o, PXS, 'pxMono')]);
-    return sel === 'beat' ? [pills, mxBeatSrc(o, !o.btOn), mxOff(tiles, !o.btOn)] : [pills, mxOff(tiles, !o.pxOn)];
+      ? mxTiles([sl(BTS, 'btPulse'), sl(BTS, 'btGlitch'), slider('beatSens')], 3)
+      : mxTiles([sl(PXS, 'pxSize', 'Пиксель'), sl(PXS, 'pxGap', 'Зазор'), sl(PXS, 'pxRound'), sl(PXS, 'pxLevels', 'Градации'), sl(PXS, 'pxMono')], 3);
+    const out = [chips, row];
+    if (sel === 'beat' && on) out.push(mxBeatSrc(o));
+    out.push(mxTapOn(tiles, on, () => set(true)));
+    if (!on) out.push(mxInfo(sel === 'beat' ? `Включите, чтобы настроить. ${what} будет дёргаться в такт музыке` : 'Включите, чтобы настроить. Пиксельная сетка ляжет только на этот объект'));
+    else if (sel === 'beat' && btSrcOf(o) === 'music' && !MU.audio) out.push(mxInfo('Добавьте музыку — без трека бит не слышен'));
+    return out.filter(Boolean);
   }
+  const ORDER_NAME = { back: 'за текстом', space: 'в пространстве', front: 'перед текстом' };
+  const mxNoImg = () => mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click()));
+  const mxNoShape = () => mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'layers'; renderPanel(); }));
+  // «Зафиксировать»: стоит на месте, пока текст крутится
+  const mxFixPill = (on, set) => mxPill(null, 'Зафиксировать', on, set, { sub: 'Стоит на месте, пока текст крутится' });
   const TGI = {
-    stickers() {
-      return [h('div', { class: 'mx-cards' }, stickerList.map(x => h('button', { class: 'mx-card', type: 'button', title: 'Добавить стикер: ' + x.label, onclick: () => addSticker(x.id) },
-        h('img', { src: x.src, alt: '' }), h('small', {}, x.label))))];
-    },
     layers() {
-      const add = mxDrop('Добавить PNG или GIF', () => $('imgInput').click());
-      if (!layers.length) return [add, h('p', { class: 'mx-empty' }, 'Пока нет картинок. Добавьте PNG с логотипом или иконкой.')];
-      return [add, h('div', { class: 'mx-layers' }, layers.slice().reverse().map(L => h('div', { class: 'mx-layer' + (L === selLayer ? ' sel' : ''), role: 'button', tabindex: '0', onclick: () => { selLayer = L; renderPanel(); } },
-        h('img', { class: 'mx-thumb', src: L.url, alt: '' }), h('span', { class: 'mx-name' }, h('b', {}, L.name)),
+      const cards = h('div', { class: 'mx-cards' },
+        h('button', { class: 'mx-card add', type: 'button', title: 'Загрузить PNG или GIF', onclick: () => $('imgInput').click() }, icon('upload'), h('span', {}, 'Загрузить')),
+        h('span', { class: 'mx-sep tall' }),
+        stickerList.map(x => h('button', { class: 'mx-card', type: 'button', title: 'Добавить стикер: ' + x.label, onclick: () => addSticker(x.id) }, h('img', { src: x.src, alt: '' }), h('small', {}, x.label))));
+      const list = layers.length ? h('div', { class: 'mx-layers' }, layers.slice().reverse().map(L => h('div', { class: 'mx-layer' + (L === selLayer ? ' sel' : ''), role: 'button', tabindex: '0', onclick: () => { selLayer = L; renderPanel(); } },
+        h('img', { class: 'mx-thumb', src: L.url, alt: '' }), h('span', { class: 'mx-name' }, h('b', {}, L.name), h('small', {}, (L.mode === 'ring' ? 'Копии по кругу' : 'Одна картинка') + ' · ' + ORDER_NAME[L.order])),
         h('button', { class: 'mx-act' + (L.visible ? '' : ' off'), type: 'button', 'aria-label': L.visible ? 'Скрыть' : 'Показать', onclick: e => { e.stopPropagation(); L.visible = !L.visible; buildLayer(L); renderPanel(); } }, icon('eye')),
-        h('button', { class: 'mx-act', type: 'button', 'aria-label': 'Удалить', onclick: e => { e.stopPropagation(); removeLayer(L); } }, icon('trash')))))];
+        h('button', { class: 'mx-act', type: 'button', 'aria-label': 'Удалить', onclick: e => { e.stopPropagation(); removeLayer(L); } }, icon('trash')))))
+        : h('p', { class: 'mx-empty' }, 'Пока нет картинок. Загрузите PNG с логотипом или выберите стикер.');
+      return [cards, list];
     },
-    place() {
-      const L = selLayer; if (!L) return mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click()));
+    form() {
+      const L = selLayer; if (!L) return mxNoImg();
       const upd = () => buildLayer(L);
       const ls = (k, label) => mxObjSlider(L, LS, k, label, () => { if (L.mode === 'ring') L.ringTouched = true; upd(); });
       const chips = mxChips([['center', 'Одна картинка'], ['ring', 'Копии по кругу']], L.mode, v => {
         L.mode = v; if (v === 'ring' && !L.ringTouched) { L.size = Math.min(L.size, +(P.size * 1.1).toFixed(1)); L.ringR = +(P.radius + P.size * 1.6).toFixed(1); } upd(); renderPanel(); });
-      chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!L.spins), onclick: () => { L.spins = !L.spins; upd(); renderPanel(); } }, 'Зафиксировать'));
-      return [chips, mxTiles(L.mode === 'ring' ? [ls('size'), ls('count'), ls('ringR'), ls('z'), ls('rot')] : [ls('size'), ls('x'), ls('y'), ls('z'), ls('rot')], 3)];
+      return [chips, mxTiles(L.mode === 'ring' ? [ls('size'), ls('count'), ls('ringR')] : [ls('size')], 3)];
     },
     view() {
-      const L = selLayer; if (!L) return mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click()));
+      const L = selLayer; if (!L) return mxNoImg();
       const upd = () => buildLayer(L);
-      return [mxChips(ORDER3, L.order, v => { L.order = v; if (v === 'front') L.stack = bumpFront(); upd(); renderPanel(); }),
+      return [mxTiles([mxObjSlider(L, LS, 'opacity', null, upd)], 1),
         mxPair(mxPill(null, 'Реагирует на свет', !!L.lit, v => { L.lit = v; upd(); renderPanel(); }),
-          L.mode === 'center' ? mxPill(null, 'Смотрит в камеру', !!L.billboard, v => { L.billboard = v; upd(); renderPanel(); }) : mxObjSlider(L, LS, 'opacity', null, upd))];
-    },
-    beat() { const L = selLayer; if (!L) return mxNeed('добавьте картинку', mxDrop('Добавить PNG или GIF', () => $('imgInput').click())); return mxObjFx(L, () => buildLayer(L)); },
-  };
-  const TGH = {
-    add() {
-      const cards = h('div', { class: 'mx-cards' }, Object.entries(SHAPE_TYPES).map(([type, d]) => { const b = h('button', { class: 'mx-card', type: 'button', title: 'Добавить: ' + d.label, onclick: () => { addShape(type); renderPanel(); } });
-        b.innerHTML = `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${SHAPE_ICONS[type]}</svg>`; b.append(h('small', {}, d.label)); return b; }));
-      if (shapes.length) { cards.append(h('span', { class: 'mx-sep tall' }));
-        shapes.slice().reverse().forEach(S => { const b = h('button', { class: 'mx-card' + (S === selShape ? ' sel' : ''), type: 'button', title: S.name, onclick: () => { selShape = S; renderPanel(); } });
-          if (S.mediaThumb) b.append(h('img', { src: S.mediaThumb, alt: '' })); else b.insertAdjacentHTML('beforeend', `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${SHAPE_ICONS[S.type]}</svg>`);
-          b.append(h('small', {}, S.name)); cards.append(b); }); }
-      return [cards];
+          L.mode === 'center' ? mxPill(null, 'Смотрит в камеру', !!L.billboard, v => { L.billboard = v; upd(); renderPanel(); }) : null)];
     },
     place() {
-      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
-      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
-      const chips = mxChips(ORDER3, S.order, v => { setShape(S, 'order', v); renderPanel(); });
-      chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!!S.fixed), onclick: () => { setShape(S, 'fixed', !S.fixed); renderPanel(); } }, 'Зафиксировать'),
-        h('button', { class: 'mx-chip', type: 'button', onclick: () => duplicateShape(S) }, 'Дублировать'), h('button', { class: 'mx-chip', type: 'button', onclick: () => removeShape(S) }, 'Удалить'));
-      return [chips, mxTiles([ss('x'), ss('y'), ss('z')], 3)];
+      const L = selLayer; if (!L) return mxNoImg();
+      const upd = () => buildLayer(L);
+      const ls = (k, label) => mxObjSlider(L, LS, k, label, upd);
+      return [mxFixPill(!L.spins, v => { L.spins = !v; upd(); renderPanel(); }),
+        mxChips(ORDER3, L.order, v => { L.order = v; if (v === 'front') L.stack = bumpFront(); upd(); renderPanel(); }),
+        mxTiles(L.mode === 'ring' ? [ls('z'), ls('rot')] : [ls('x'), ls('y'), ls('z'), ls('rot')], L.mode === 'ring' ? 3 : 4)];
+    },
+    beat() { const L = selLayer; if (!L) return mxNoImg(); return mxObjFx(L, () => buildLayer(L), 'Картинка'); },
+  };
+  const TGH = {
+    layers() {
+      const cards = h('div', { class: 'mx-cards' }, Object.entries(SHAPE_TYPES).map(([type, d]) => { const b = h('button', { class: 'mx-card', type: 'button', title: 'Добавить: ' + d.label, onclick: () => { addShape(type); renderPanel(); } });
+        b.innerHTML = `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${SHAPE_ICONS[type]}</svg>`; b.append(h('small', {}, d.label)); return b; }));
+      const list = shapes.length ? h('div', { class: 'mx-layers' }, shapes.slice().reverse().map(S => {
+        const ic = h('span', { class: 'mx-st-ic' }); ic.innerHTML = `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${SHAPE_ICONS[S.type]}</svg>`;
+        return h('div', { class: 'mx-layer' + (S === selShape ? ' sel' : ''), role: 'button', tabindex: '0', onclick: () => { selShape = S; renderPanel(); } },
+          S.mediaThumb ? h('img', { class: 'mx-thumb', src: S.mediaThumb, alt: '' }) : ic,
+          h('span', { class: 'mx-name' }, h('b', {}, S.name), h('small', {}, S.mediaKind ? (S.mediaKind === 'video' ? 'Видео: ' : 'Фото: ') + S.mediaName : 'Без фото и видео')),
+          h('button', { class: 'mx-act' + (S.visible ? '' : ' off'), type: 'button', 'aria-label': S.visible ? 'Скрыть' : 'Показать', onclick: e => { e.stopPropagation(); setShape(S, 'visible', !S.visible); renderPanel(); } }, icon('eye')),
+          h('button', { class: 'mx-act', type: 'button', 'aria-label': 'Копия', onclick: e => { e.stopPropagation(); duplicateShape(S); } }, icon('copy')),
+          h('button', { class: 'mx-act', type: 'button', 'aria-label': 'Удалить', onclick: e => { e.stopPropagation(); removeShape(S); } }, icon('trash')));
+      })) : h('p', { class: 'mx-empty' }, 'Фигур пока нет. Нажмите на тип выше — фигура появится на сцене.');
+      return [cards, list];
     },
     form() {
-      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
+      const S = selShape; if (!S) return mxNoShape();
       const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
       const flat = SHAPE_TYPES[S.type].flat;
-      return [mxTiles([ss('size'), ss('w'), ss('h')], 3), mxTiles([S.type === 'square' || S.type === 'rect' ? ss('corner', 'Скругление') : flat ? null : ss('d'), ss('rotX'), ss('rotY'), ss('rotZ', 'Поворот')], 3)];
+      return [mxTiles([ss('size'), ss('w'), ss('h'), S.type === 'square' || S.type === 'rect' ? ss('corner', 'Скругление') : flat ? null : ss('d'), ss('rotX'), ss('rotY')], 3)];
     },
-    motion() {
-      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
-      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
-      return [mxPill('d-rotate', 'Вращение', S.spin !== 0, v => { setShapeSpinOn(S, v); renderPanel(); }), mxTiles([ss('spin', 'Скорость')], 3)];
-    },
-    fill() {
-      const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); }));
+    view() {
+      const S = selShape; if (!S) return mxNoShape();
       const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
       const media = h('div', { class: 'mx-pill mx-media' },
         S.mediaThumb ? h('img', { class: 'mx-thumb', src: S.mediaThumb, alt: '' }) : h('span', { class: 'mx-thumb' }, icon('image')),
         h('span', { class: 'mx-pill-name' }, S.mediaKind ? (S.mediaKind === 'video' ? 'Видео: ' : 'Фото: ') + S.mediaName : 'Пока без фото и видео'),
-        h('button', { class: 'mx-mini', type: 'button', onclick: () => { shapeTarget = S; $('shapeMediaInput').click(); } }, S.mediaKind ? 'Заменить' : 'Фото или видео'),
-        S.mediaKind === 'video' ? h('span', { class: 'mx-hex' }, 'Звук') : null,
-        S.mediaKind === 'video' ? mxSwitch(!!S.videoSound, v => setShape(S, 'videoSound', v)) : null);
-      const row2 = S.mediaKind ? mxChips([['cover', 'Заполнить'], ['stretch', 'Растянуть'], ['tile', 'Повторить']], S.fit, v => { setShape(S, 'fit', v); renderPanel(); })
-        : mxPair(mxColor('Цвет', () => S.color, v => setShape(S, 'color', v)), ss('opacity'));
-      return [media, row2];
+        h('button', { class: 'mx-mini', type: 'button', onclick: () => { shapeTarget = S; $('shapeMediaInput').click(); } }, S.mediaKind ? 'Заменить' : 'Фото или видео'));
+      const lit = mxPill(null, 'Реагирует на свет', !!S.lit, v => { setShape(S, 'lit', v); renderPanel(); });
+      if (!S.mediaKind) return [media, mxPair(mxColor('Цвет', () => S.color, v => setShape(S, 'color', v)), mxTiles([ss('opacity')], 1)), lit];
+      return [media, mxChips([['cover', 'Заполнить'], ['stretch', 'Растянуть'], ['tile', 'Повторить']], S.fit, v => { setShape(S, 'fit', v); renderPanel(); }),
+        mxPair(S.mediaKind === 'video' ? mxPill(null, 'Звук видео', !!S.videoSound, v => setShape(S, 'videoSound', v)) : null, lit)];
     },
-    beat() { const S = selShape; if (!S) return mxNeed('добавьте фигуру', mxDrop('Добавить фигуру', () => { SUBSEL.shapes = 'add'; renderPanel(); })); return mxObjFx(S, () => buildShape(S)); },
+    place() {
+      const S = selShape; if (!S) return mxNoShape();
+      const ss = (k, label) => mxObjSlider(S, SS, k, label, (kk, v) => setShape(S, kk, v));
+      return [mxFixPill(!!S.fixed, v => { setShape(S, 'fixed', v); renderPanel(); }),
+        mxChips(ORDER3, S.order, v => { setShape(S, 'order', v); renderPanel(); }),
+        mxPill('d-rotate', 'Вращение', S.spin !== 0, v => { setShapeSpinOn(S, v); renderPanel(); }, { sub: 'В плоскости, как пластинка' }),
+        mxTiles([ss('x'), ss('y'), ss('z'), ss('rotZ', 'Поворот'), ss('spin', 'Скорость')], 3)];
+    },
+    beat() { const S = selShape; if (!S) return mxNoShape(); return mxObjFx(S, () => buildShape(S), 'Фигура'); },
   };
   const TGM = {
     track() {
@@ -5528,19 +5616,33 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       return [wave, tiles];
     },
     spectrum() {
-      const chips = mxChips([['bars', 'Полосы'], ['gram', 'Спектрограмма'], ['sphere', 'Сфера']], st.specMode, v => {
+      const mode = mxChips([['bars', 'Полосы'], ['gram', 'Спектрограмма'], ['sphere', 'Сфера']], st.specMode, v => {
         st.specMode = v; sctx.clearRect(0, 0, specCv.width, specCv.height); if (v === 'sphere' && !spherePts) { buildSphere(); if (P.specColor === COLORS.specColor.v) P.specColor = '#ffffff'; } applySphere(); renderPanel(); });
-      chips.prepend(h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!!P.specOn), onclick: () => { setParam('specOn', !P.specOn); renderPanel(); } }, P.specOn ? 'Вкл' : 'Выкл'), h('span', { class: 'mx-sep' }));
-      chips.append(h('span', { class: 'mx-sep' }), h('button', { class: 'mx-chip', type: 'button', 'aria-pressed': String(!!P.specGrad), onclick: () => { setParam('specGrad', !P.specGrad); renderPanel(); } }, 'Градиент'));
-      return [chips, mxOff(mxTiles([mxLabel('specOp', 'Яркость спектра'), st.specMode === 'sphere' ? null : mxLabel('specH', 'Высота'), st.specMode === 'sphere' ? null : mxLabel('specY', 'Положение'), color('specColor'), P.specGrad ? color('specColor2') : null, P.specGrad ? color('specColor3') : null], 3), !P.specOn)];
+      const head = mxPill(null, 'Спектр на фоне', !!P.specOn, v => { setParam('specOn', v); renderPanel(); }, { sub: P.specOn ? 'Включён' : 'Выключен' });
+      const tiles = st.specMode === 'sphere'
+        ? [mxLabel('sphereR', 'Размер сферы'), mxLabel('sphereAmp', 'Деформация'), mxLabel('sphereSpec', 'Реакция'), mxLabel('sphereSpeed', 'Скорость'), mxLabel('sphereSize', 'Частицы'), mxLabel('sphereCount', 'Количество')]
+        : [mxLabel('specOp', 'Яркость'), mxLabel('specH', 'Высота'), mxLabel('specY', 'Положение'), color('specColor'), P.specGrad ? color('specColor2') : null, P.specGrad ? color('specColor3') : null];
+      return [head, mode, mxTapOn(mxTiles(tiles, 3), !!P.specOn, () => { setParam('specOn', true); renderPanel(); })];
     },
-    sphere() {
-      return [mxChips(ORDER3, st.sphereOrder, v => { st.sphereOrder = v; applySphere(); renderPanel(); }),
-        mxTiles([mxLabel('sphereR', 'Размер сферы'), mxLabel('sphereAmp', 'Деформация'), mxLabel('sphereSpec', 'Реакция на музыку'), mxLabel('sphereSpeed', 'Скорость'), mxLabel('sphereSize', 'Размер частиц'), mxLabel('sphereCount', 'Количество'), slider('sphereLayers')], 3)];
+    // всё, что двигается под музыку, — списком: тумблер включает «Бит» у объекта
+    beat() {
+      const row = (ic, title, sub, o) => h('div', { class: 'toggle mx-pill mx-beatrow' + (o.btOn ? ' on' : '') }, icon(ic), h('span', { class: 'mx-pill-name' }, title, sub ? h('small', {}, sub) : null), mxSwitch(!!o.btOn, v => { o.btOn = v; renderPanel(); }));
+      const rows = [
+        ...(st.mainOff ? [] : [MAIN]).concat(texts).map(B => row('d-r-text', 'Текст · ' + blockTitle(B), B.btOn ? 'пульс' : '', B)),
+        ...layers.map(L => row('d-r-image', L.name, '', L)),
+        ...shapes.map(S => row('d-r-shapes', S.name + (S.mediaKind === 'video' ? ' · видео' : ''), '', S))];
+      return [...(rows.length ? rows : [h('p', { class: 'mx-empty' }, 'На сцене пока нет объектов — добавьте текст, картинку или фигуру.')]),
+        mxTiles([slider('beatSens')], 1), !MU.audio ? mxInfo('Добавьте музыку — без трека бит не слышен') : null];
     },
   };
+  // первая плитка на телефоне — один раз подсказываем про долгое нажатие (UX #11)
+  function tileHint() {
+    if (!isTgm() || !$('panel').querySelector('.mx-tiles')) return;
+    try { if (localStorage.getItem('horovod.tilehint')) return; localStorage.setItem('horovod.tilehint', '1'); } catch (e) { return; }
+    setTimeout(() => toast('Подсказка: долгое нажатие на плитку возвращает значение по умолчанию'), 900);
+  }
   function renderPanel() {
-    emitState();
+    emitState(); queueMicrotask(tileHint);
     const [, name, , desc] = TABS.find(t => t[0] === st.tab);
     const panel = $('panel'); const y = panel.scrollTop;
     panel.innerHTML = '';
@@ -5632,8 +5734,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     mk('font', 'Шрифт', h('span', { class: 'aa' }, 'Aa'));
     mk('color', 'Цвет', h('span', { class: 'wheel' }));
     mk('form', 'Форма', icon('d-te-form'));
-    mk('align', 'Положение', icon('d-te-align'), () => teLeave('form'));
-    mk('fx', 'Эффекты', icon('d-te-fx'), () => teLeave('fx'));
+    mk('align', 'Положение', icon('d-te-align'), () => teLeave('place'));
+    mk('fx', 'Эффекты', icon('d-te-fx'), () => teLeave('beat'));
     const panel = $('tePanel'); panel.innerHTML = '';
     if (TE.emoji) {
       QUICK_EMOJI.forEach(e => panel.append(h('button', { class: 'te-chip', type: 'button', onclick: () => {
@@ -5838,9 +5940,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   /* =================== ЭКСПОРТ =================== */
   let exporting = false, offlineRun = false;
   let offAudio = null; // при покадровом рендере анализ звука берётся из заранее посчитанных данных, а не из живых анализаторов
-  const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30 };
+  const exp = { long: 2160, sec: 6, vlong: 1920, fps: 30, mode: 'video', prevFmt: null };
   // адрес бота, который принимает файл и отправляет его в чат (bot/horovod-bot.mjs, раздел «Отправка из редактора»); пока пусто, кнопки отправки нет
-  const APP_VERSION = '1.3.0'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
+  const APP_VERSION = '1.3.1'; // показывается в меню профиля: по нему видно, какую версию загрузил Telegram
   const SEND_URL = 'https://1052b65425fe2e.lhr.life'; // временный туннель с Mac: после перезапуска туннеля адрес меняется
   const sendUrl = () => { try { return (localStorage.getItem('horovod.send') || SEND_URL).replace(/\/+$/, ''); } catch (e) { return SEND_URL; } };
   let downloads = null;
@@ -6228,34 +6330,51 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     updDims();
     // видео: размер по длинной стороне (9:16 при 1920 — это 1080×1920, как в сторис), чётные стороны нужны кодеку
     const vsizes = [[1280, '720p'], [1920, '1080p'], [2560, '2K'], [3840, '4K']];
-    const vdimsText = h('p', { class: 'hint' });
-    const updVDims = () => { const [w, hh] = exportDims(exp.vlong); vdimsText.textContent = `${st.format} · ${w} × ${hh} px · ${exp.fps} к/с` + (isTgm() ? '. Видео собирается покадрово: быстрее реального времени, кадры не пропадают.' : ''); };
-    updVDims();
-    if (isTgm()) pop.append(h('div', { class: 'exp-grip' }), h('div', { class: 'exp-head' }, h('h3', {}, isCircle() ? 'Экспорт · Кружок' : 'Экспорт'),
+    const sumText = h('p', { class: 'hint' });
+    const soundOf = () => MU.audio && MU.file ? `со звуком трека «${MU.title || MU.file.name.replace(/\.[^.]+$/, '')}»` : soundingVideos().length ? 'со звуком видео из сцены' : 'без звука';
+    const updSum = () => { const [w, hh] = exportDims(exp.vlong); sumText.textContent = `${w} × ${hh} · ${exp.fps} к/с · ${soundOf()}`; };
+    updSum();
+    if (isTgm()) pop.append(h('div', { class: 'exp-grip' }), h('div', { class: 'exp-head' }, h('h3', {}, 'Сохранить'),
       h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Закрыть', title: 'Закрыть', onclick: closeExport }, icon('x'))));
-    const phoneCircle = isTgm() && isCircle() && canRenderOffline(); // по макету у кружка нет блока PNG: превью, длительность, подпись и кнопка
-    pop.append(...[
-      phoneCircle ? null : section('Картинка PNG', [
-        seg(isTgm() ? '' : 'Размер', sizes.map(([v, n]) => [v, n]), () => exp.long, v => { exp.long = v; updDims(); }),
-        dimsText,
+    // что сохраняем (UX #17): видео, картинка или кружок — одним переключателем; «Кружок» ставит формат кадра сам и возвращает прежний
+    const offline = canRenderOffline();
+    const mode = !canSave() ? 'png' : isCircle() ? 'circle' : exp.mode === 'png' ? 'png' : 'video';
+    const setMode = v => {
+      if (v === 'circle') { if (!isCircle()) { exp.prevFmt = st.format; setFormat(CIRCLE); } }
+      else { exp.mode = v; if (isCircle()) setFormat(exp.prevFmt && exp.prevFmt !== CIRCLE ? exp.prevFmt : '9:16'); }
+      renderExport();
+    };
+    const modes = canSave() ? [['video', 'Видео'], ['png', 'Картинка'], ['circle', 'Кружок']] : [['png', 'Картинка']];
+    const noteText = () => {
+      const n = exp.sec === 'track' ? (MU.audio && isFinite(MU.audio.duration) ? (clipOn() && MU.clipLen ? MU.clipLen : MU.audio.duration) : 10) : exp.sec;
+      const t = Math.max(5, Math.round(n * 1.5)); // сборка идёт примерно в полтора раза дольше самого ролика
+      return (offline ? `Около ${t} ${t % 10 === 1 && t % 100 !== 11 ? 'секунды' : 'секунд'}. ` : '') + (TG ? 'Не закрывайте Telegram, пока идёт сборка.' : 'Не закрывайте вкладку, пока идёт сборка.');
+    };
+    const note = h('p', { class: 'hint exp-note' }, noteText());
+    const durSeg = () => seg('Длительность', (isCircle() ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; note.textContent = noteText(); });
+    const body = [];
+    if (mode === 'png') {
+      body.push(seg('Размер', sizes.map(([v, n]) => [v, n]), () => exp.long, v => { exp.long = v; updDims(); }), dimsText,
         h('div', { class: 'row' },
           canSave() ? h('button', { class: 'btn primary', type: 'button', style: 'flex:1', onclick: () => { closeExport(); exportPng(); } }, icon('down'), 'Скачать PNG') : null,
-          h('button', { class: 'btn', type: 'button', style: 'flex:1', onclick: () => { closeExport(); copyPng(); } }, 'Скопировать')),
-      ], null, { plain: true }),
-      canSave() ? section(phoneCircle ? '' : 'Видео', [
-        ...(phoneCircle ? [circlePreview()] : []),
-        seg('Длительность', (isCircle() ? [[6, '6 с'], [15, '15 с'], [30, '30 с'], [60, '60 с']] : [[3, '3 с'], [6, '6 с'], [10, '10 с'], [15, '15 с']]).concat(MU.audio && isFinite(MU.audio.duration) ? [['track', clipOn() ? 'Весь отрывок' : 'Весь трек']] : []), () => exp.sec, v => { exp.sec = v; }),
-        ...(phoneCircle && !/^В ролике не будет/.test(soundNote()) ? [] : [h('p', { class: 'hint' }, soundNote())]),
-        ...(canRenderOffline() && isCircle() ? [h('p', { class: 'hint' }, `Формат «Кружок»: кадр 9:16, в видео идёт центральный круг ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, звук как выше, до ${NOTE_MAX} с. Прозрачного фона в кружках Telegram нет: фоном остаётся цвет сцены.`)] : []),
-        ...(canRenderOffline() && !isCircle() ? [
-          seg('Разрешение', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updVDims(); }),
-          seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updVDims(); }),
-          vdimsText,
-          ...(isTgm() ? [] : [h('p', { class: 'hint' }, 'Видео собирается покадрово: быстрее реального времени, кадры не пропадают, частота постоянная.')]),
-        ] : canRenderOffline() ? [] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
-        h('button', { class: 'btn block' + (isCircle() ? ' primary' : ''), type: 'button', onclick: canRenderOffline() ? renderVideo : recordVideo }, h('span', { style: 'width:8px;height:8px;border-radius:50%;background:var(--danger);display:inline-block' }), canRenderOffline() ? (isCircle() ? 'Отрендерить кружок' : 'Отрендерить видео') : 'Записать видео'),
-      ], null, { plain: true }) : null,
-    ].filter(Boolean));
+          h('button', { class: 'btn', type: 'button', style: 'flex:1', onclick: () => { closeExport(); copyPng(); } }, 'Скопировать')));
+    } else if (mode === 'circle') {
+      body.push(...(isTgm() && offline ? [circlePreview()] : []), durSeg(),
+        ...(soundOf() === 'без звука' ? [h('p', { class: 'hint' }, soundNote())] : []),
+        ...(offline && !isTgm() ? [h('p', { class: 'hint' }, `Кадр 9:16, в видео идёт центральный круг ${NOTE_SIZE} × ${NOTE_SIZE}, 30 к/с, до ${NOTE_MAX} с. Прозрачного фона в кружках Telegram нет: фоном остаётся цвет сцены.`)] : []),
+        h('button', { class: 'btn block primary', type: 'button', onclick: offline ? renderVideo : recordVideo }, icon('down'), offline ? 'Сохранить кружок' : 'Записать кружок'), note);
+    } else {
+      body.push(durSeg(),
+        ...(offline ? [
+          seg('Качество', vsizes.map(([v, n]) => [v, n]), () => exp.vlong, v => { exp.vlong = v; updSum(); }),
+          seg('Частота кадров', [[30, '30 к/с'], [60, '60 к/с']], () => exp.fps, v => { exp.fps = v; updSum(); }),
+          sumText,
+        ] : [h('p', { class: 'hint' }, 'Запись идёт в реальном времени, 1080p. Включите вращение или эффекты.')]),
+        ...(soundOf() === 'без звука' ? [h('p', { class: 'hint' }, soundNote())] : []),
+        h('button', { class: 'btn block primary', type: 'button', onclick: offline ? renderVideo : recordVideo }, icon('down'), offline ? 'Сохранить видео' : 'Записать видео'), note);
+    }
+    pop.append(h('div', { class: 'exp-modes', role: 'tablist', 'aria-label': 'Что сохраняем' }, modes.map(([v, label]) =>
+      h('button', { type: 'button', role: 'tab', 'aria-selected': String(v === mode), onclick: () => setMode(v) }, label))), ...body);
   }
   function openExport() { renderExport(); $('exportPop').hidden = false; $('exportBtn').setAttribute('aria-expanded', 'true'); }
   function closeExport() { $('exportPop').hidden = true; $('exportBtn').setAttribute('aria-expanded', 'false'); }
@@ -6900,11 +7019,9 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   async function renderHome() {
     const grid = $('pgrid'); grid.innerHTML = '';
     const list = (await Store.list()).sort((a, b) => b.updated - a.updated);
-    $('homeSub').textContent = list.length ? `${list.length} ${plural(list.length, 'проект', 'проекта', 'проектов')} · всё сохраняется само` : 'Создайте первый проект — всё будет сохраняться само';
+    $('homeSub').textContent = list.length ? `Живые постеры под музыку · ${list.length} ${plural(list.length, 'проект', 'проекта', 'проектов')}` : 'Живые постеры под музыку · создайте первый';
     $('homeWarn').hidden = Store.persistent;
-    grid.append(h('button', { class: 'pcard pnew', type: 'button', onclick: createProject },
-      h('span', { class: 'pthumb' }, h('span', { class: 'pplus' }, icon('plus'))),
-      h('span', { class: 'pinfo' }, h('b', { class: 'pname' }, 'Новый проект'), h('span', { class: 'pdate' }, 'Чистая сцена · 9:16'))));
+    $('homeNew').onclick = createProject; // одна главная кнопка вместо пунктирной карточки в сетке (UX #20)
     list.forEach(m => {
       const more = h('button', { class: 'icon-btn pmore', type: 'button', 'aria-label': `Действия: «${m.name}»`, 'aria-haspopup': 'menu', onclick: e => { e.stopPropagation(); showMenu(more, m); } }, icon('dots'));
       grid.append(h('div', { class: 'pcard' },
@@ -7520,11 +7637,11 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     };
     grip.addEventListener('pointerup', endDrag); grip.addEventListener('pointercancel', endDrag);
     grip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); snapTo((SH.i + 1) % 3); } });
-    // на телефоне назад из проекта ведёт кнопка в панели инструментов, шапка Telegram остаётся с «Закрыть»
+    // назад из проекта — системная кнопка Telegram (своя «<» на телефоне скрыта классом tg-back)
     $('backBtn').addEventListener('click', () => goHome());
     // кнопка «Назад» в шапке Telegram закрывает то, что открыто поверх, и ведёт на главный экран
     const editing = () => !!PJ.id && !homeOpen && !profileOpen; // открыт проект, а не главный экран или профиль
-    const backNeeded = () => !!openMenu || !$('modal').hidden || !$('exportPop').hidden || profileOpen || (editing() && !mq.matches);
+    const backNeeded = () => !!openMenu || !$('modal').hidden || !$('exportPop').hidden || profileOpen || editing();
     const back = () => {
       if (!$('modal').hidden) closeModal();
       else if (openMenu) closeMenu();
@@ -7533,6 +7650,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       else if (editing()) goHome();
     };
     TG.BackButton.onClick(back);
+    document.documentElement.classList.add('tg-back');
     // экспорт — иконка в верхней панели; пока он идёт, закрытие приложения просит подтверждения
     $('exportBtn').title = 'Экспорт'; $('exportBtn').setAttribute('aria-label', 'Экспорт');
     TG.MainButton.hide();
