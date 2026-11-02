@@ -1,3 +1,6 @@
 __pycache__/
 .DS_Store
 bot/.token
+bot/.subscribers.json
+bot/.state.json
+bot/*.tmp
