@@ -1,11 +1,12 @@
 // Приветственный бот HOROVOD: на /start присылает картинку, описание и кнопку «Начать», которая открывает Mini App.
+// Новости об обновлениях: /news показывает последнюю версию из bot/news.json, при запуске новая версия один раз рассылается всем, кто писал боту.
 // Без зависимостей, нужен Node 18 или новее.
 //
 //   node bot/horovod-bot.mjs
 //
 // Токен из @BotFather скрипт берёт из BOT_TOKEN, затем из файла bot/.token, иначе спросит в терминале.
 // Токен нигде не сохраняется и не печатается.
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile, rename } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -73,12 +74,69 @@ async function welcome(chatId) {
   coverId = msg.photo && msg.photo.at(-1) && msg.photo.at(-1).file_id;
 }
 
+// --- Новости об обновлениях ---
+// Источник — bot/news.json (новая версия добавляется в начало списка). Кому писать — bot/.subscribers.json:
+// туда попадает каждый, кто написал боту в личку. Какая версия уже разослана — bot/.state.json. Оба файла в git не попадают.
+const NEWS_FILE = path.join(here, 'news.json');
+const SUBS_FILE = path.join(here, '.subscribers.json');
+const STATE_FILE = path.join(here, '.state.json');
+const readJson = async (file, fallback) => { try { return JSON.parse(await readFile(file, 'utf8')); } catch (e) { return fallback; } };
+const writeJson = async (file, data) => { const tmp = file + '.tmp'; await writeFile(tmp, JSON.stringify(data, null, 2)); await rename(tmp, file); };
+const subs = new Set((await readJson(SUBS_FILE, [])).map(Number));
+let subsDirty = false;
+const saveSubs = () => { if (!subsDirty) return Promise.resolve(); subsDirty = false; return writeJson(SUBS_FILE, [...subs]).catch(e => console.error('Список подписчиков не сохранён:', e.message)); };
+function remember(chatId) { if (!subs.has(chatId)) { subs.add(chatId); subsDirty = true; saveSubs(); } }
+for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, () => saveSubs().finally(() => process.exit(0)));
+const gotNews = new Set(); // кто уже получил последнюю версию за этот запуск (например, сам спросил /news во время рассылки)
+
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const ruDate = iso => { const [, m, d] = String(iso).split('-').map(Number); return m && d ? `${d} ${MONTHS[m - 1]}` : ''; };
+async function latestNews() { const n = await readJson(NEWS_FILE, null); return n && Array.isArray(n.releases) && n.releases[0] || null; }
+function newsText(r) {
+  const out = [`<b>HRVD ${esc(r.version)}${r.title ? ' — ' + esc(r.title) : ''}</b>`];
+  if (r.date) out.push(`<i>${ruDate(r.date)}</i>`);
+  if (r.done && r.done.length) out.push('', '<b>Что нового</b>', ...r.done.map(x => '• ' + esc(x)));
+  if (r.fixed && r.fixed.length) out.push('', '<b>Исправлено</b>', ...r.fixed.map(x => '• ' + esc(x)));
+  out.push('', 'Нажмите «Открыть», чтобы попробовать.');
+  return out.join('\n');
+}
+const newsKeyboard = { inline_keyboard: [[{ text: 'Открыть', web_app: { url: APP_URL } }]] };
+async function sendNews(chatId) {
+  const r = await latestNews();
+  if (!r) { await call('sendMessage', { chat_id: chatId, text: 'Новостей пока нет.', reply_markup: keyboard }); return; }
+  await call('sendMessage', { chat_id: chatId, text: newsText(r), parse_mode: 'HTML', reply_markup: newsKeyboard, link_preview_options: { is_disabled: true } });
+  gotNews.add(chatId);
+}
+// Рассылка новой версии: один раз на версию, примерно 20 сообщений в секунду (лимит Telegram — 30).
+// Кто заблокировал бота, удаляется из списка. ANNOUNCE=0 при запуске — не рассылать.
+async function announce() {
+  if (process.env.ANNOUNCE === '0') return;
+  const r = await latestNews(); if (!r) return;
+  const state = await readJson(STATE_FILE, {});
+  if (state.announced === r.version) return;
+  let sent = 0, gone = 0;
+  for (const id of [...subs]) {
+    if (gotNews.has(id)) continue;
+    try { await sendNews(id); sent++; }
+    catch (e) {
+      if (/blocked|deactivated|chat not found|kicked/i.test(e.message)) { subs.delete(id); subsDirty = true; gone++; }
+      else console.error(`Новость не ушла ${id}:`, e.message);
+      const wait = /retry after (\d+)/i.exec(e.message); if (wait) await new Promise(res => setTimeout(res, (Number(wait[1]) + 1) * 1000));
+    }
+    await new Promise(res => setTimeout(res, 50));
+  }
+  await saveSubs();
+  await writeJson(STATE_FILE, { ...state, announced: r.version, at: new Date().toISOString(), sent });
+  console.log(`Новость ${r.version} разослана: ${sent} получили${gone ? `, ${gone} заблокировали бота` : ''}`);
+}
+
 async function nudge(chatId) {
   await call('sendMessage', { chat_id: chatId, text: 'Редактор HOROVOD открывается кнопкой «Начать». Если приветствие потерялось, отправьте /start.', reply_markup: keyboard });
 }
 
 async function setup() {
-  await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }] });
+  await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }, { command: 'news', description: 'Что нового в последней версии' }] });
   await call('setMyShortDescription', { short_description: ABOUT });
   await call('setMyDescription', { description: DESCRIPTION });
   await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HOROVOD', web_app: { url: APP_URL } } });
@@ -137,6 +195,7 @@ async function main() {
   await setup().catch(e => console.error('Настройка бота не выполнена:', e.message));
   startServer();
   console.log('Бот запущен. Остановить: Ctrl+C');
+  announce().catch(e => console.error('Рассылка новостей:', e.message));
   let offset = 0;
   for (;;) {
     try {
@@ -145,8 +204,10 @@ async function main() {
         offset = u.update_id + 1;
         const m = u.message; if (!m || m.chat.type !== 'private') continue;
         // /start (так бот открывается впервые по кнопке START) получает полное приветствие, остальные сообщения — короткий ответ с той же кнопкой
+        remember(m.chat.id);
         const first = /^\/start(\s|$|@)/.test(m.text || '');
-        await (first ? welcome(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
+        const news = /^\/news(\s|$|@)/.test(m.text || '');
+        await (first ? welcome(m.chat.id) : news ? sendNews(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
       }
     } catch (e) {
       console.error('Связь с Telegram:', e.message);
