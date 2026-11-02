@@ -300,6 +300,7 @@ textarea:focus { border-color: var(--accent); outline: none; }
 .sel-btn svg.i { width: 16px; height: 16px; }
 .sel-rot { right: 0; top: -38px; cursor: grab; } .sel-del { right: -38px; top: 10px; } .sel-edit { right: -38px; top: 46px; } /* 10 px от линии рамки, как у кнопки поворота сверху */
 .sel-btn[hidden] { display: none; }
+.sel-frame.flip .sel-del, .sel-frame.flip .sel-edit { right: auto; left: -38px; } /* рамка у правого края: кнопки уходят влево, под колонку разделов не попадают */
 .sel-frame i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: #8c8c8c; box-shadow: 0 0 0 .5px rgba(0,0,0,.3); pointer-events: auto; }
 .sel-frame i::after { content: ''; position: absolute; inset: -9px; border-radius: 50%; } /* зона касания шире самого маркера */
 .sel-frame i:nth-child(1) { left: -6px; top: -6px; } .sel-frame i:nth-child(2) { right: -6px; top: -6px; }
@@ -5531,6 +5532,7 @@ const STICKERS = '__STICKERS__';
     const it = pkCurrent(), r = it && pkRect(it), W = frame.clientWidth, H = frame.clientHeight;
     if (!r || !W || !H) { if (!pkFrame.hidden) pkFrame.hidden = true; return; }
     const pad = 4, x0 = (r.x0 + 1) / 2 * W - pad, x1 = (r.x1 + 1) / 2 * W + pad, y0 = (1 - r.y1) / 2 * H - pad, y1 = (1 - r.y0) / 2 * H + pad;
+    pkFrame.classList.toggle('flip', isTgm() && x1 + 66 > W - 52);
     pkFrame.hidden = false; pkEdit.hidden = !(it.kind === 'text' && isTgm()); // править текст шторкой — только на телефоне
     pkFrame.style.cssText = `left:${x0}px;top:${y0}px;width:${Math.max(8, x1 - x0)}px;height:${Math.max(8, y1 - y0)}px`;
   }
