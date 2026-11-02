@@ -56,12 +56,15 @@ web = '<html lang="ru"><head>\n' + web.replace(marker, '</style>\n</head><body>\
 # в ней только метатеги, а люди сразу переходят в редактор app.html, параметры запуска Telegram (?…#…) при этом сохраняются
 meta = re.findall(r'<title>.*?</title>|<link rel="(?:canonical|icon)"[^>]*>|<meta (?:name="(?:description|theme-color|twitter:[a-z_:]+)"|property="og:[a-z_:]+")[^>]*>', app, re.S)
 assert any('og:image' in m for m in meta) and any('<title>' in m for m in meta)
+beta = (re.search(r'class="gate-beta">([^<]+)<', app) or [None, 'Beta'])[1]  # метка версии берётся с экрана входа
 index = ('<!doctype html>\n<html lang="ru"><head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'
          + '\n'.join(meta) + '\n'
          "<script>location.replace('app.html' + location.search + location.hash);</script>\n"
          '<style>html,body{margin:0;height:100%;background:#000;color:#9a9a9a;font:15px system-ui,sans-serif}'
-         'body{display:grid;place-items:center}a{color:#fff}</style>\n'
-         '</head><body><a href="app.html">Открыть редактор HRVD</a></body></html>\n')
+         'body{display:grid;place-items:center}a{color:#fff}'
+         '.beta{margin-top:14px;padding:3px 11px;border:1px solid rgba(255,255,255,.16);border-radius:999px;color:#9a9a9a;font:500 11px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase}'
+         'main{display:grid;justify-items:center}</style>\n'
+         '</head><body><main><a href="app.html">Открыть редактор HRVD</a><span class="beta">' + beta + '</span></main></body></html>\n')
 (root / 'index.html').write_text(index, encoding='utf-8')
 
 print('Собрано: app.html (редактор, библиотеки встроены) и index.html (лёгкая страница с превью и переходом)')
