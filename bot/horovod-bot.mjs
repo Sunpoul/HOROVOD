@@ -179,7 +179,7 @@ function startServer() {
       const form = new FormData();
       form.set('chat_id', String(user.id));
       const file = new Blob([Buffer.concat(chunks)], { type: 'video/mp4' });
-      if (note) { form.set('length', '640'); form.set('duration', String(sec)); form.set('video_note', file, 'horovod.mp4'); await call('sendVideoNote', null, form); }
+      if (note) { form.set('length', '1080'); form.set('duration', String(sec)); form.set('video_note', file, 'horovod.mp4'); await call('sendVideoNote', null, form); }
       else { form.set('supports_streaming', 'true'); form.set('video', file, 'horovod.mp4'); await call('sendVideo', null, form); }
       reply(200, { ok: true });
     } catch (e) {

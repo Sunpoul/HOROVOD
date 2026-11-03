@@ -4761,7 +4761,7 @@ const STICKERS = '__STICKERS__';
   })();
 
   /* =================== ФОРМАТЫ И РАЗМЕР =================== */
-  const NOTE_SIZE = 640, NOTE_MAX = 60; // кружок Telegram: квадрат 640 × 640, не длиннее 60 с
+  const NOTE_SIZE = 1080, NOTE_MAX = 60; // кружок Telegram: квадрат 1080 × 1080 (1080p), не длиннее 60 с
   const CIRCLE = 'Кружок'; // видеокружок Telegram: квадратный кадр, который Telegram показывает в круге
   const FORMATS = { '1:1': [1, 1], '16:9': [16, 9], '9:16': [9, 16], '4:3': [4, 3], '3:4': [3, 4], [CIRCLE]: [9, 16] };
   const isCircle = () => st.format === CIRCLE;
@@ -5072,7 +5072,8 @@ const STICKERS = '__STICKERS__';
     if (note && total > NOTE_MAX) { total = NOTE_MAX; toast('Кружок в Telegram — не длиннее минуты: беру первые 60 секунд.'); }
     const frames = Math.max(1, Math.round(total * fps));
     // подбор кодеков заранее: если что-то не поддерживается, падаем обратно на запись в реальном времени, пока ничего не тронуто
-    const bitrate = note ? 2500000 : Math.round(Math.min(80e6, Math.max(4e6, w * hh * fps * 0.1)));
+    const bitrate = note ? 4500000 :  // кружок 1080p: 4,5 Мбит/с — минута укладывается примерно в 34 МБ, лимит бота на файл 50 МБ
+      Math.round(Math.min(80e6, Math.max(4e6, w * hh * fps * 0.1)));
     let vcfg = null, acfg = null;
     for (const codec of ['avc1.640034', 'avc1.640033', 'avc1.64002a', 'avc1.640028', 'avc1.4d4028', 'avc1.4d401f']) {
       const cfg = { codec, width: w, height: hh, bitrate, framerate: fps, latencyMode: 'quality', avc: { format: 'avc' } };
