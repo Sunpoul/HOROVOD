@@ -4,3 +4,6 @@ bot/.token
 bot/.subscribers.json
 bot/.state.json
 bot/*.tmp
+bot/.admins
+bot/.support.json
+bot/.inbox.jsonl

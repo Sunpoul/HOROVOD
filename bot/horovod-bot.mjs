@@ -1,12 +1,13 @@
 // Приветственный бот HOROVOD: на /start присылает картинку, описание и кнопку «Начать», которая открывает Mini App.
 // Новости об обновлениях: /news показывает последнюю версию из bot/news.json, при запуске новая версия один раз рассылается всем, кто писал боту.
+// Поддержка: сообщения из экрана «Поддержка» в Mini App и любые сообщения в чате бот пересылает разработчику; ответ реплаем уходит обратно человеку.
 // Без зависимостей, нужен Node 18 или новее.
 //
 //   node bot/horovod-bot.mjs
 //
 // Токен из @BotFather скрипт берёт из BOT_TOKEN, затем из файла bot/.token, иначе спросит в терминале.
 // Токен нигде не сохраняется и не печатается.
-import { readFile, writeFile, rename } from 'node:fs/promises';
+import { readFile, writeFile, rename, appendFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -131,12 +132,63 @@ async function announce() {
   console.log(`Новость ${r.version} разослана: ${sent} получили${gone ? `, ${gone} заблокировали бота` : ''}`);
 }
 
+// --- Поддержка ---
+// Кому пересылать: bot/.admins — id чатов по одному в строке (свой id присылает команда /admin, записывается на сервере).
+// Связь «пересланное сообщение → кому ответить» — bot/.support.json. Если админов нет, сообщения копятся в bot/.inbox.jsonl.
+const ADMINS_FILE = path.join(here, '.admins');
+const MAP_FILE = path.join(here, '.support.json');
+const INBOX_FILE = path.join(here, '.inbox.jsonl');
+const admins = () => { try { return readFileSync(ADMINS_FILE, 'utf8').split(/\s+/).map(Number).filter(Boolean); } catch (e) { return []; } };
+const isAdmin = id => admins().includes(Number(id));
+const replyMap = await readJson(MAP_FILE, {});
+async function link(adminMsgId, userId) {
+  replyMap[adminMsgId] = userId;
+  const keys = Object.keys(replyMap); if (keys.length > 2000) keys.slice(0, keys.length - 2000).forEach(k => delete replyMap[k]);
+  await writeJson(MAP_FILE, replyMap).catch(e => console.error('Связи поддержки не сохранены:', e.message));
+}
+const who = u => `${esc([u.first_name, u.last_name].filter(Boolean).join(' ') || 'Без имени')}${u.username ? ' @' + esc(u.username) : ''} (id <code>${u.id}</code>)`;
+// text — для сообщения из Mini App; fromChat/messageId — для сообщения в чате (пересылаем как есть, со скриншотами и видео)
+async function toSupport(user, { text, diag, fromChat, messageId, source, note }) {
+  const list = admins();
+  const head = `🐞 <b>Поддержка</b> · ${source}\nОт: ${who(user)}` + (text ? `\n\n${esc(text)}` : '') + (diag ? `\n\n<i>${esc(diag)}</i>` : '');
+  if (!list.length) {
+    await appendFile(INBOX_FILE, JSON.stringify({ at: new Date().toISOString(), user: user.id, name: user.username || user.first_name || '', source, text: text || note || '(вложение без подписи)', diag: diag || '' }) + '\n');
+    console.warn('Сообщение в поддержку сохранено в bot/.inbox.jsonl: никто не получает поддержку (нет bot/.admins)');
+    return;
+  }
+  for (const a of list) {
+    try {
+      const h = await call('sendMessage', { chat_id: a, text: head + '\n\nОтветьте реплаем на это сообщение — ответ уйдёт человеку.', parse_mode: 'HTML' });
+      await link(h.message_id, user.id);
+      if (fromChat) { const f = await call('forwardMessage', { chat_id: a, from_chat_id: fromChat, message_id: messageId }); await link(f.message_id, user.id); }
+    } catch (e) { console.error(`Поддержка не дошла до ${a}:`, e.message); }
+  }
+}
+const ackAt = new Map(); // не отвечать «передал» на каждое фото из альбома: не чаще раза в 2 минуты
+async function ackSupport(chatId) {
+  if (Date.now() - (ackAt.get(chatId) || 0) < 120000) return; ackAt.set(chatId, Date.now());
+  await call('sendMessage', { chat_id: chatId, text: 'Спасибо, передал разработчику. Ответ придёт сюда.\n\nРедактор открывается кнопкой «Начать».', reply_markup: keyboard });
+}
+async function supportPrompt(chatId) {
+  await call('sendMessage', { chat_id: chatId, text: 'Опишите, что случилось и что вы делали перед этим. Можно прислать скриншот или запись экрана. Всё передам разработчику, ответ придёт сюда.' });
+}
+// разработчик ответил реплаем на сообщение поддержки — копируем ответ человеку
+async function adminReply(m) {
+  const target = replyMap[m.reply_to_message.message_id];
+  if (!target) { await call('sendMessage', { chat_id: m.chat.id, text: 'Не понял, кому ответить: отвечайте реплаем на сообщение «Поддержка» или пересланное сообщение человека.' }); return; }
+  try {
+    await call('sendMessage', { chat_id: target, text: '💬 Ответ разработчика HRVD:' });
+    await call('copyMessage', { chat_id: target, from_chat_id: m.chat.id, message_id: m.message_id });
+    await call('sendMessage', { chat_id: m.chat.id, text: '✓ Отправлено', reply_to_message_id: m.message_id });
+  } catch (e) { await call('sendMessage', { chat_id: m.chat.id, text: 'Не отправилось: ' + e.message }); }
+}
+
 async function nudge(chatId) {
   await call('sendMessage', { chat_id: chatId, text: 'Редактор HOROVOD открывается кнопкой «Начать». Если приветствие потерялось, отправьте /start.', reply_markup: keyboard });
 }
 
 async function setup() {
-  await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }, { command: 'news', description: 'Что нового в последней версии' }] });
+  await call('setMyCommands', { commands: [{ command: 'start', description: 'Открыть редактор' }, { command: 'help', description: 'Что умеет HOROVOD' }, { command: 'news', description: 'Что нового в последней версии' }, { command: 'support', description: 'Написать в поддержку' }] });
   await call('setMyShortDescription', { short_description: ABOUT });
   await call('setMyDescription', { description: DESCRIPTION });
   await call('setChatMenuButton', { menu_button: { type: 'web_app', text: 'HOROVOD', web_app: { url: APP_URL } } });
@@ -160,6 +212,18 @@ function verifyInit(initData) {
     return user && user.id ? user : null;
   } catch (e) { return null; }
 }
+// экран «Поддержка» в Mini App: текст до 2000 знаков и данные об устройстве; не чаще раза в 15 секунд от человека
+const lastSupport = new Map();
+async function supportRequest(req, user, reply) {
+  if (Date.now() - (lastSupport.get(user.id) || 0) < 15000) { reply(429, { ok: false, error: 'подождите несколько секунд' }); return; }
+  let raw = ''; for await (const c of req) { raw += c; if (raw.length > 20000) { reply(413, { ok: false, error: 'слишком длинное сообщение' }); req.destroy(); return; } }
+  let body; try { body = JSON.parse(raw); } catch (e) { reply(400, { ok: false, error: 'не получилось прочитать сообщение' }); return; }
+  const text = String(body.text || '').trim().slice(0, 2000), diag = String(body.diag || '').trim().slice(0, 1000);
+  if (text.length < 2) { reply(400, { ok: false, error: 'пустое сообщение' }); return; }
+  lastSupport.set(user.id, Date.now());
+  try { await toSupport(user, { text, diag, source: 'из приложения' }); reply(200, { ok: true }); }
+  catch (e) { console.error('Поддержка:', e.message); reply(502, { ok: false, error: 'не получилось передать, попробуйте позже' }); }
+}
 function startServer() {
   const server = http.createServer(async (req, res) => {
     const origin = req.headers.origin;
@@ -167,10 +231,11 @@ function startServer() {
     const reply = (code, obj) => { res.writeHead(code, { ...cors, 'content-type': 'application/json' }); res.end(JSON.stringify(obj)); };
     if (req.method === 'OPTIONS') { res.writeHead(204, cors); res.end(); return; }
     if (req.method === 'GET' && req.url === '/') { reply(200, { ok: true, name: 'horovod-bot' }); return; }
-    if (req.method !== 'POST' || req.url !== '/send') { reply(404, { ok: false, error: 'нет такого адреса' }); return; }
+    if (req.method !== 'POST' || (req.url !== '/send' && req.url !== '/support')) { reply(404, { ok: false, error: 'нет такого адреса' }); return; }
     if (origin && !ORIGINS.includes(origin)) { reply(403, { ok: false, error: 'запрос с чужого сайта' }); return; }
     const user = verifyInit(String(req.headers['x-init-data'] || ''));
     if (!user) { reply(401, { ok: false, error: 'не удалось проверить, что это Telegram' }); return; }
+    if (req.url === '/support') { await supportRequest(req, user, reply); return; }
     const chunks = []; let size = 0;
     for await (const c of req) { size += c.length; if (size > MAX_BYTES) { reply(413, { ok: false, error: 'файл больше 50 МБ' }); req.destroy(); return; } chunks.push(c); }
     if (!size) { reply(400, { ok: false, error: 'пустой файл' }); return; }
@@ -191,6 +256,21 @@ function startServer() {
   server.listen(PORT, () => console.log(`Приём файлов из редактора: порт ${PORT}`));
 }
 
+// /start [news|support], /news, /help, /support, /admin; реплай разработчика — ответ человеку; всё остальное — в поддержку
+async function route(m) {
+  const t = m.text || '', cmd = /^\/([a-z_]+)(?:@\w+)?(?:\s+(\S+))?/i.exec(t), name = cmd && cmd[1].toLowerCase(), arg = cmd && cmd[2];
+  const id = m.chat.id;
+  if (name === 'start') return arg === 'news' ? sendNews(id) : arg === 'support' ? supportPrompt(id) : welcome(id);
+  if (name === 'help') return welcome(id);
+  if (name === 'news') return sendNews(id);
+  if (name === 'support' || name === 'bug') return supportPrompt(id);
+  if (name === 'admin') return call('sendMessage', { chat_id: id, parse_mode: 'HTML', text: isAdmin(id) ? '✓ Вы получаете сообщения поддержки.' : `Ваш id: <code>${id}</code>\n\nЧтобы получать сообщения поддержки, выполните на сервере:\n<code>echo ${id} &gt;&gt; /opt/horovod/app/bot/.admins</code>` });
+  if (isAdmin(id)) return m.reply_to_message ? adminReply(m) : call('sendMessage', { chat_id: id, text: 'Чтобы ответить человеку, ответьте реплаем на его сообщение из поддержки.' });
+  if (cmd) return nudge(id); // незнакомая команда
+  await toSupport(m.from, { fromChat: id, messageId: m.message_id, source: 'из чата', note: m.text || m.caption });
+  await ackSupport(id);
+}
+
 async function main() {
   await setup().catch(e => console.error('Настройка бота не выполнена:', e.message));
   startServer();
@@ -205,9 +285,7 @@ async function main() {
         const m = u.message; if (!m || m.chat.type !== 'private') continue;
         // /start (так бот открывается впервые по кнопке START) получает полное приветствие, остальные сообщения — короткий ответ с той же кнопкой
         remember(m.chat.id);
-        const first = /^\/start(\s|$|@)/.test(m.text || '');
-        const news = /^\/news(\s|$|@)/.test(m.text || '');
-        await (first ? welcome(m.chat.id) : news ? sendNews(m.chat.id) : nudge(m.chat.id)).catch(e => console.error('Не отправилось:', e.message));
+        await route(m).catch(e => console.error('Не отправилось:', e.message));
       }
     } catch (e) {
       console.error('Связь с Telegram:', e.message);
