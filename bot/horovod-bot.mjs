@@ -227,7 +227,7 @@ async function supportRequest(req, user, reply) {
 function startServer() {
   const server = http.createServer(async (req, res) => {
     const origin = req.headers.origin;
-    const cors = { 'access-control-allow-origin': ORIGINS.includes(origin) ? origin : ORIGINS[0], 'access-control-allow-headers': 'content-type, x-init-data, x-kind, x-duration', 'access-control-allow-methods': 'POST, OPTIONS', vary: 'origin' };
+    const cors = { 'access-control-allow-origin': ORIGINS.includes(origin) ? origin : ORIGINS[0], 'access-control-allow-headers': 'content-type, x-init-data, x-kind, x-duration, x-width, x-height', 'access-control-allow-methods': 'POST, OPTIONS', vary: 'origin' };
     const reply = (code, obj) => { res.writeHead(code, { ...cors, 'content-type': 'application/json' }); res.end(JSON.stringify(obj)); };
     if (req.method === 'OPTIONS') { res.writeHead(204, cors); res.end(); return; }
     if (req.method === 'GET' && req.url === '/') { reply(200, { ok: true, name: 'horovod-bot' }); return; }
