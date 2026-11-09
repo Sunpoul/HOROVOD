@@ -6209,6 +6209,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         muxer.finalize();
         const outBlob = new Blob([target.buffer], { type: 'video/mp4' });
         outBlob.hrvdNote = note ? { sec: Math.max(1, Math.round(total)) } : null;
+        outBlob.hrvdDims = [w, hh]; // размер кадра уходит боту: без ширины и высоты Telegram показывает вертикальное видео сжатым в квадрат
         if (hasSound) {
           // проверяем готовый файл: читается ли звук и не тишина ли это; результат показываем, чтобы было видно, что записалось
           let check = 'проверить не удалось';
@@ -7529,14 +7530,14 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       })();
     }
     // отправка прямо в чат с ботом: бот проверяет подпись Telegram и присылает файл (кружком, если это кружок)
-    const note = blob.hrvdNote || null;
+    const note = blob.hrvdNote || null, dims = blob.hrvdDims || null;
     const canSend = isVideo && !!(TG && TG.initData) && !!sendUrl();
     let sent = false;
     const send = async btn => {
       if (sent) { try { TG.close(); } catch (e) {} return; }
       btn.disabled = true; btn.textContent = 'Отправляю…';
       try {
-        const r = await fetch(sendUrl() + '/send', { method: 'POST', body: blob, headers: { 'content-type': 'video/mp4', 'x-init-data': TG.initData, 'x-kind': note ? 'note' : 'video', 'x-duration': String(note ? note.sec : 0) } });
+        const r = await fetch(sendUrl() + '/send', { method: 'POST', body: blob, headers: { 'content-type': 'video/mp4', 'x-init-data': TG.initData, 'x-kind': note ? 'note' : 'video', 'x-width': String(dims ? dims[0] : 0), 'x-height': String(dims ? dims[1] : 0), 'x-duration': String(note ? note.sec : 0) } });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.ok) throw new Error(j.error || ('код ' + r.status));
         sent = true; btn.disabled = false; btn.textContent = 'Открыть чат с ботом';

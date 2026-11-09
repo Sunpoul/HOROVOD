@@ -245,7 +245,12 @@ function startServer() {
       form.set('chat_id', String(user.id));
       const file = new Blob([Buffer.concat(chunks)], { type: 'video/mp4' });
       if (note) { form.set('length', '640'); form.set('duration', String(sec)); form.set('video_note', file, 'horovod.mp4'); await call('sendVideoNote', null, form); }
-      else { form.set('supports_streaming', 'true'); form.set('video', file, 'horovod.mp4'); await call('sendVideo', null, form); }
+      else {
+        // Telegram не всегда сам разбирает размер кадра: без ширины и высоты вертикальное видео показывается сжатым в квадрат
+        const w = Math.round(Number(req.headers['x-width'])), hh = Math.round(Number(req.headers['x-height']));
+        if (w >= 16 && hh >= 16 && w <= 8192 && hh <= 8192) { form.set('width', String(w)); form.set('height', String(hh)); }
+        form.set('supports_streaming', 'true'); form.set('video', file, 'horovod.mp4'); await call('sendVideo', null, form);
+      }
       reply(200, { ok: true });
     } catch (e) {
       // чаще всего это «бот не может писать первым»: человек не нажимал START у бота
