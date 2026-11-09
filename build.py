@@ -73,6 +73,18 @@ index = ('<!doctype html>\n<html lang="ru"><head>\n<meta charset="utf-8">\n<meta
 
 print('Собрано: app.html (редактор, библиотеки встроены) и index.html (лёгкая страница с превью и переходом)')
 
+# шаблоны для всех: templates/<файл>.json (получается кнопкой «Сохранить как шаблон» в меню проекта) → список templates/index.json для главной
+tdir = root / 'templates'
+tdir.mkdir(exist_ok=True)
+tpls = []
+for f in sorted(tdir.glob('*.json')):
+    if f.name == 'index.json':
+        continue
+    j = json.loads(f.read_text(encoding='utf-8'))
+    tpls.append({'id': f.stem, 'file': f.name, 'name': j.get('name') or f.stem, 'sub': j.get('sub', ''), 'format': j.get('format', '9:16'), 'thumb': j.get('thumb', '')})
+(tdir / 'index.json').write_text(json.dumps(tpls, ensure_ascii=False), encoding='utf-8')
+print(f'Шаблонов в списке: {len(tpls)}')
+
 # iOS-часть собирается только если рядом лежит папка ios/
 if not (root / 'ios' / 'genspec.js').exists():
     print('Папки ios/ нет — iOS-бандл пропущен')

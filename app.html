@@ -482,6 +482,30 @@ html.gate-ok #gate { display: none; }
 .pempty { color: var(--muted); }
 .pempty svg.i { width: 28px; height: 28px; }
 .pfmt { position: absolute; left: 8px; top: 8px; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .66); color: #eeeeee; }
+/* шаблоны: ряд готовых постеров над своими проектами; список лежит в templates/index.json */
+.tpl { display: grid; gap: 12px; min-width: 0; }
+.tpl-head h2, .home-sec { margin: 0; font: 600 20px/24px var(--font-display); }
+.tpl-head p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.tpl-row { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.tpl-row::-webkit-scrollbar { display: none; }
+.tpl-card { flex: none; width: 130px; display: grid; gap: 8px; align-content: start; text-align: left; border: 0; padding: 0; background: transparent; color: inherit; }
+.tpl-card .pthumb { aspect-ratio: 130 / 196; }
+.tpl-card b { display: block; font: 500 13px/17px var(--font-display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tpl-card small { display: block; margin-top: 2px; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tpl-card:hover .pthumb { border-color: var(--muted); }
+.tpl-card:active .pthumb { transform: scale(.985); }
+.dialog.dlg-tpl { width: min(440px, 100%); }
+.dlg-tpl .tpl-body { display: flex; gap: 16px; align-items: flex-start; }
+.dlg-tpl .tpl-prev { flex: none; position: relative; width: 110px; aspect-ratio: 110 / 196; border-radius: 16px; overflow: hidden; background: var(--well); }
+.dlg-tpl .tpl-prev img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.dlg-tpl .tpl-info { display: grid; gap: 8px; min-width: 0; }
+.dlg-tpl .tpl-info h3 { font-size: 22px; }
+.dlg-tpl .tpl-meta { font-size: 13px; color: var(--muted); }
+.dlg-tpl .tpl-desc { font-size: 14px; line-height: 1.4; }
+.dlg-tpl .dlg-actions { display: grid; grid-template-columns: 1fr; }
+.dlg-tpl .dlg-actions .btn { width: 100%; }
+.dlg-tpl .dlg-actions .btn.primary { order: -1; }
+.dlg-author .field-label { font-size: 12px; color: var(--muted); }
 .home-new { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 420px; height: 52px; border: 0; border-radius: 26px; background: var(--accent); color: var(--accent-ink); font: 500 15px var(--font-body); }
 .home-new svg.i { width: 20px; height: 20px; stroke-width: 2; }
 .home-new:active { transform: scale(.985); }
@@ -899,6 +923,12 @@ html.tg-m .home-head h1 { margin: 0 0 4px; font: 500 32px/36px var(--font-displa
 html.tg-m .home-head p { font-size: 13px; line-height: 17px; }
 html.tg-m .home-new { max-width: none; }
 html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+html.tg-m .tpl-row { margin-right: -16px; padding-right: 16px; }
+html.tg-m .modal:has(.dlg-tpl) { place-items: end center; padding: 0; background: rgba(0, 0, 0, .62); }
+html.tg-m .dialog.dlg-tpl { width: 100%; border: 0; border-radius: 28px 28px 0 0; padding: 10px 16px calc(24px + env(safe-area-inset-bottom, 0px)); gap: 16px; background: #141414; }
+html.tg-m .dlg-tpl::before { content: ''; justify-self: center; width: 36px; height: 4px; border-radius: 2px; background: #4a4a4a; }
+html.tg-m .dlg-tpl .dlg-actions .btn { height: 52px; border: 0; border-radius: 999px; background: #1f1f1f; color: var(--fg); font: 500 15px/normal var(--font-body); }
+html.tg-m .dlg-tpl .dlg-actions .btn.primary { background: var(--accent); color: var(--accent-ink); }
 html.tg-m .pmore { width: 36px; height: 36px; bottom: 0; background: none; border-radius: 50%; } /* без серого круга: видны только три точки, нажатие подсвечивает кружок */
 html.tg-m .pmore:active { background: var(--raised); }
 html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
@@ -1172,6 +1202,11 @@ body.ios .frame { box-shadow: none; }
     <div class="home-head"><h1 id="homeTitle">Проекты</h1><p id="homeSub"></p></div>
     <button class="home-new" id="homeNew" type="button"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Новый постер</button>
     <p class="home-warn" id="homeWarn" hidden>Браузер не даёт сохранять данные на этой странице. Проекты останутся только до закрытия вкладки.</p>
+    <section class="tpl" id="tplBlock" aria-labelledby="tplTitle" hidden>
+      <div class="tpl-head"><h2 id="tplTitle">Шаблоны</h2><p>Готовые постеры: откройте и измените под себя</p></div>
+      <div class="tpl-row" id="tplRow"></div>
+    </section>
+    <h2 class="home-sec" id="myTitle" hidden>Мои проекты</h2>
     <div class="pgrid" id="pgrid"></div>
   </div>
 </section>
@@ -6953,6 +6988,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     const list = (await Store.list()).sort((a, b) => b.updated - a.updated);
     $('homeSub').textContent = list.length ? `Живые постеры под музыку · ${list.length} ${plural(list.length, 'проект', 'проекта', 'проектов')}` : 'Живые постеры под музыку · создайте первый';
     $('homeWarn').hidden = Store.persistent;
+    renderTemplates();
     $('homeNew').onclick = createProject; // одна главная кнопка вместо пунктирной карточки в сетке (UX #20)
     list.forEach(m => {
       const more = h('button', { class: 'icon-btn pmore', type: 'button', 'aria-label': `Действия: «${m.name}»`, 'aria-haspopup': 'menu', onclick: e => { e.stopPropagation(); showMenu(more, m); } }, icon('dots'));
@@ -6965,6 +7001,97 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     });
   }
   const plural = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? b : c; };
+
+  /* =================== ШАБЛОНЫ =================== */
+  // Готовые проекты для всех лежат в репозитории: templates/index.json (список для главной) и templates/<файл>.json (сам проект с файлами).
+  // «Использовать» копирует шаблон в проекты человека, сам шаблон не меняется. Файл шаблона автор получает в меню «⋯» своего проекта.
+  const AUTHOR_KEY = 'horovod.author';
+  const isAuthor = () => { try { return localStorage.getItem(AUTHOR_KEY) === '1'; } catch (e) { return false; } };
+  const setAuthor = on => { try { on ? localStorage.setItem(AUTHOR_KEY, '1') : localStorage.removeItem(AUTHOR_KEY); } catch (e) {} };
+  try { const q = new URLSearchParams(location.search).get('author'); if (q === '1') setAuthor(true); else if (q === '0') setAuthor(false); } catch (e) {} // ?author=1 включает режим автора на этом устройстве
+  // семь касаний по строке с версией включают и выключают режим автора там, где адресную строку не поправить (Mini App)
+  function authorTap(el) {
+    let n = 0, t = 0;
+    el.addEventListener('click', () => {
+      const now = Date.now(); n = now - t < 1500 ? n + 1 : 1; t = now;
+      if (n >= 7) { n = 0; const on = !isAuthor(); setAuthor(on); toast(on ? 'Режим автора включён: в меню «⋯» проекта есть «Сохранить как шаблон»' : 'Режим автора выключен'); if (homeOpen) renderHome(); }
+    });
+    return el;
+  }
+  let TPL = null;
+  async function loadTemplates() {
+    if (TPL) return TPL;
+    try { const r = await fetch('templates/index.json', { cache: 'no-cache' }); const j = r.ok ? await r.json() : []; TPL = Array.isArray(j) ? j.filter(t => t && t.id && t.file) : []; }
+    catch (e) { TPL = []; }
+    return TPL;
+  }
+  async function renderTemplates() {
+    const list = await loadTemplates(), blk = $('tplBlock'), row = $('tplRow');
+    if (!homeOpen) return;
+    blk.hidden = !list.length; $('myTitle').hidden = !list.length;
+    row.innerHTML = '';
+    list.forEach(t => row.append(h('button', { class: 'tpl-card', type: 'button', 'aria-label': `Шаблон «${t.name}»`, onclick: () => openTemplate(t) },
+      h('span', { class: 'pthumb' }, t.thumb ? h('img', { src: t.thumb, alt: '' }) : h('span', { class: 'pempty' }, icon('scene')), h('span', { class: 'pfmt' }, t.format || '9:16')),
+      h('span', {}, h('b', {}, t.name), t.sub ? h('small', {}, t.sub) : null))));
+  }
+  function openTemplate(t) {
+    modal(d => {
+      d.classList.add('dlg-tpl');
+      d.setAttribute('aria-labelledby', 'dlgTitle');
+      const prev = h('div', { class: 'tpl-prev' }, t.thumb ? h('img', { src: t.thumb, alt: '' }) : null, h('span', { class: 'pfmt' }, t.format || '9:16'));
+      d.append(h('div', { class: 'tpl-body' }, prev, h('div', { class: 'tpl-info' }, h('h3', { id: 'dlgTitle' }, t.name),
+        t.sub ? h('div', { class: 'tpl-meta' }, t.sub + ' · ' + (t.format || '9:16')) : null,
+        h('p', { class: 'tpl-desc' }, t.desc || 'Откроется как новый проект. Сам шаблон не меняется: правьте текст, шрифт, цвета и сохраняйте как свой.'))),
+        h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: closeModal }, 'Не сейчас'),
+          h('button', { class: 'btn primary', type: 'button', onclick: () => { closeModal(); useTemplate(t); } }, icon('plus'), 'Использовать шаблон')));
+    });
+  }
+  const b64ToBlob = (b64, type) => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Blob([u], { type: type || 'application/octet-stream' }); };
+  async function useTemplate(t) {
+    showBusy('Создаю проект из шаблона…');
+    try {
+      const r = await fetch('templates/' + encodeURIComponent(t.file), { cache: 'no-cache' }); if (!r.ok) throw new Error('код ' + r.status);
+      const j = await r.json(), nid = 'p' + rid();
+      for (const [k, f] of Object.entries(j.files || {})) await Store.putBlob(nid, k, b64ToBlob(f.b64, f.type));
+      await Store.putData(nid, JSON.stringify(j.data));
+      const now = Date.now();
+      await Store.putMeta({ id: nid, name: t.name, created: now, updated: now, thumb: t.thumb || '', format: t.format || (j.data.st && j.data.st.format) || '9:16' });
+      showBusy('');
+      await openProject(nid);
+    } catch (e) { console.error(e); showBusy(''); toast('Шаблон не открылся. Проверьте соединение и попробуйте ещё раз.', true); }
+  }
+  // автор: проект → файл шаблона (проект и все его файлы в одном .json)
+  function askTemplate(m) {
+    modal(d => {
+      d.classList.add('dlg-author');
+      const name = h('input', { class: 'text-input', type: 'text', maxlength: '60', value: m.name, 'aria-label': 'Название шаблона' });
+      const sub = h('input', { class: 'text-input', type: 'text', maxlength: '60', placeholder: 'Коротко: что внутри', 'aria-label': 'Описание шаблона' });
+      const go = async () => { const n = name.value.trim(); if (!n) { name.focus(); return; } closeModal(); await saveTemplateFile(m, n, sub.value.trim()); };
+      d.append(h('h3', { id: 'dlgTitle' }, 'Сохранить как шаблон'),
+        h('p', {}, 'Получится файл с проектом и всеми его картинками, видео и музыкой. Положите его в папку templates/ репозитория, выполните python3 build.py и сделайте push: шаблон появится у всех.'),
+        h('label', {}, h('span', { class: 'field-label' }, 'Название'), name), h('label', {}, h('span', { class: 'field-label' }, 'Описание'), sub),
+        h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: closeModal }, 'Отмена'), h('button', { class: 'btn primary', type: 'button', onclick: go }, icon('down'), 'Получить файл')));
+    });
+  }
+  async function saveTemplateFile(m, name, sub) {
+    showBusy('Собираю файл шаблона…');
+    try {
+      if (PJ.id === m.id) await flushSave();
+      const json = await Store.getData(m.id); if (!json) throw new Error('у проекта нет данных');
+      const data = JSON.parse(json), files = {};
+      for (const k of await Store.blobKeys(m.id)) {
+        const b = await Store.getBlob(m.id, k); if (!b) continue;
+        const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = rej; fr.readAsDataURL(b); });
+        files[k] = { type: b.type || '', b64 };
+      }
+      const fresh = await Store.getMeta(m.id) || m;
+      const out = { v: 1, name, sub, format: fresh.format || (data.st && data.st.format) || '9:16', thumb: fresh.thumb || '', data, files };
+      const blob = new Blob([JSON.stringify(out)], { type: 'application/json' });
+      showBusy('');
+      await saveFile('template-' + rid() + '.json', blob);
+      toast('Файл шаблона готов. Положите его в templates/, выполните python3 build.py и сделайте push.');
+    } catch (e) { console.error(e); showBusy(''); toast('Не получилось собрать шаблон: ' + (e && e.message || e), true); }
+  }
   function showMenu(anchor, m) {
     const was = openMenu && openMenu.dataset.id === m.id; closeMenu(); if (was) return;
     const item = (label, ic, fn, cls) => h('button', { class: 'pmenu-item' + (cls ? ' ' + cls : ''), type: 'button', role: 'menuitem', onclick: () => { closeMenu(); fn(); } }, icon(ic), label);
@@ -6972,13 +7099,14 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
       item('Открыть', 'scene', () => openProject(m.id)),
       item('Переименовать', 'pencil', () => askRename(m)),
       item('Дублировать', 'copy', () => duplicateProject(m.id)),
+      ...(isAuthor() ? [item('Сохранить как шаблон', 'down', () => askTemplate(m))] : []),
       item('Удалить', 'trash', () => askDelete(m), 'danger'));
     anchor.closest('.pcard').append(openMenu);
     openMenu.querySelector('button').focus();
   }
   function modal(build) {
     const box = $('modal'), dlg = box.querySelector('.dialog');
-    dlg.innerHTML = ''; build(dlg); box.hidden = false;
+    dlg.innerHTML = ''; dlg.className = 'dialog'; build(dlg); box.hidden = false;
     const f = dlg.querySelector('input, .btn.primary, .btn.danger'); if (f) { f.focus(); if (f.select) f.select(); }
   }
   function closeModal() { $('modal').hidden = true; }
@@ -7182,7 +7310,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         if (!IOS && !TG && g && g.on) { try { sessionStorage.removeItem(g.key); } catch (_) {} location.reload(); return; }
         showLock();
       }),
-      h('div', { class: 'pm-ver' }, 'HRVD · Beta ' + APP_VERSION));
+      authorTap(h('div', { class: 'pm-ver' }, 'HRVD · Beta ' + APP_VERSION)));
     const r = anchor.getBoundingClientRect();
     openMenu.style.top = Math.round(r.bottom + 8) + 'px'; openMenu.style.bottom = 'auto';
     if (r.left + r.width / 2 > innerWidth / 2) { openMenu.style.right = Math.max(8, Math.round(innerWidth - r.right)) + 'px'; openMenu.style.left = 'auto'; }
@@ -7246,7 +7374,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     body.append(h('section', { class: 'pf-sec', style: 'border-top:0;padding-top:0' },
       h('h2', {}, 'О приложении'),
       h('p', { class: 'sp-lead' }, 'HRVD — живые постеры, где музыка меняет форму. Объёмный текст по кругу, свой трек, свет и эффекты — и готовое видео, кружок или картинка прямо в Telegram.'),
-      h('p', { class: 'sp-ver' }, 'Версия ' + APP_VERSION + ' · закрытая бета'),
+      authorTap(h('p', { class: 'sp-ver' }, 'Версия ' + APP_VERSION + ' · закрытая бета')),
       news));
     fetch('bot/news.json', { cache: 'no-cache' }).then(r => r.ok ? r.json() : null).then(d => {
       const r = d && d.releases && d.releases[0]; if (!r || !news.isConnected) return;
