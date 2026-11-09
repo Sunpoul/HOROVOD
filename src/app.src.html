@@ -503,6 +503,19 @@ html.gate-ok #gate { display: none; }
 .dlg-tpl .tpl-body { display: flex; gap: 16px; align-items: flex-start; }
 .dlg-tpl .tpl-prev { flex: none; position: relative; width: 110px; aspect-ratio: 110 / 196; border-radius: 16px; overflow: hidden; background: var(--well); }
 .dlg-tpl .tpl-prev img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.dlg-tpl .tpl-live { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: none; background: #000; }
+.dlg-tpl .tpl-prev.live .tpl-live { display: block; }
+.dlg-tpl .tpl-prev.live > img { display: none; }
+.dlg-tpl .tpl-play { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; padding: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .25); background: rgba(0, 0, 0, .55); color: #fff; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transition: all .2s; }
+.dlg-tpl .tpl-play svg.i { width: 22px; height: 22px; fill: currentColor; stroke: none; }
+.dlg-tpl .tpl-prev.live .tpl-play { left: auto; top: auto; right: 8px; bottom: 8px; width: 36px; height: 36px; margin: 0; }
+.dlg-tpl .tpl-prev.live .tpl-play svg.i { width: 18px; height: 18px; }
+.dlg-tpl .tpl-play[aria-busy="true"] svg.i { display: none; }
+.dlg-tpl .tpl-play[aria-busy="true"]::after { content: ''; width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .3); border-top-color: #fff; animation: tplspin .8s linear infinite; }
+@keyframes tplspin { to { transform: rotate(360deg); } }
+.dlg-tpl .tpl-state { display: flex; align-items: center; gap: 6px; font: 500 12px/16px 'Onest', var(--font-body); color: #4dffa6; }
+.dlg-tpl .tpl-state::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.dlg-tpl .tpl-state[hidden] { display: none; }
 .dlg-tpl .tpl-info { display: grid; gap: 8px; min-width: 0; }
 .dlg-tpl .tpl-info h3 { font-size: 22px; }
 .dlg-tpl .tpl-meta { font-size: 13px; color: var(--muted); }
@@ -1059,6 +1072,7 @@ body.ios .frame { box-shadow: none; }
   <symbol id="i-cam" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5-10-6.5Z"/></symbol>
   <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="2"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="2.8"/></symbol>
   <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4.5 7h15M10 7V4.5h4V7M6.5 7l1 13h9l1-13"/></symbol>
@@ -5606,10 +5620,11 @@ const STICKERS = '__STICKERS__';
   }
   function tick(t) {
     const dt = Math.min((t - last) / 1000, 0.1); last = t;
-    if (homeOpen || profileOpen || offlineRun) { requestAnimationFrame(tick); return; } // за списком проектов и во время покадрового рендера живую сцену не рисуем
+    if ((homeOpen && !tplPrev) || profileOpen || offlineRun) { requestAnimationFrame(tick); return; } // за списком проектов и во время покадрового рендера живую сцену не рисуем
     stepScene(dt, t);
     controls.update();
     renderFrame();
+    if (tplPrev) tplPaint();
     updateSelFrame();
     requestAnimationFrame(tick);
   }
@@ -5625,6 +5640,7 @@ const STICKERS = '__STICKERS__';
   const r3 = v => Math.round(v * 1000) / 1000;
   const pick = (o, keys) => Object.fromEntries(keys.filter(k => o[k] !== undefined).map(k => [k, o[k]]));
   let homeOpen = false, loadingProject = false;
+  let tplPrev = false, tplLoading = false, tplToken = 0; // показ шаблона в шторке (см. «Шаблоны»)
   const PJ = { id: null, name: '', created: 0, lastJson: '', savedKeys: new Set(), saving: false, again: false, errAt: 0 };
 
   function serializeProject() {
@@ -5993,24 +6009,83 @@ const STICKERS = '__STICKERS__';
     modal(d => {
       d.classList.add('dlg-tpl');
       d.setAttribute('aria-labelledby', 'dlgTitle');
-      const prev = h('div', { class: 'tpl-prev' }, t.thumb ? h('img', { src: t.thumb, alt: '' }) : null, h('span', { class: 'pfmt' }, t.format || '9:16'));
+      const live = h('canvas', { class: 'tpl-live', id: 'tplLive', 'aria-hidden': 'true' });
+      const play = h('button', { class: 'tpl-play', type: 'button', 'aria-label': 'Смотреть шаблон', title: 'Смотреть шаблон' }, icon('play'));
+      const state = h('div', { class: 'tpl-state', hidden: true, 'aria-live': 'polite' });
+      const prev = h('div', { class: 'tpl-prev' }, t.thumb ? h('img', { src: t.thumb, alt: '' }) : null, live, h('span', { class: 'pfmt' }, t.format || '9:16'), play);
+      // idle — картинка и «играть»; busy — грузим шаблон; live — идёт показ и «стоп»
+      const ui = (mode, note) => {
+        prev.classList.toggle('live', mode === 'live');
+        play.setAttribute('aria-busy', String(mode === 'busy'));
+        play.replaceChildren(icon(mode === 'live' ? 'stop' : 'play'));
+        const lbl = mode === 'live' ? 'Остановить показ' : mode === 'busy' ? 'Отменить' : 'Смотреть шаблон'; play.setAttribute('aria-label', lbl); play.title = lbl;
+        state.hidden = mode !== 'live'; state.textContent = mode === 'live' ? (note || 'Идёт показ') : '';
+      };
+      play.addEventListener('click', () => {
+        if (tplPrev || tplLoading) { tplPreviewStop(); ui('idle'); return; }
+        tplPreviewStart(t, ui);
+      });
+      live.addEventListener('click', () => { if (tplPrev && MU.audio && MU.audio.paused) { togglePause(); ui('live', 'Идёт показ · с музыкой'); } }); // звук, который браузер не дал включить сам, включается нажатием на картинку
       d.append(h('div', { class: 'tpl-body' }, prev, h('div', { class: 'tpl-info' }, h('h3', { id: 'dlgTitle' }, t.name),
-        t.sub ? h('div', { class: 'tpl-meta' }, t.sub + ' · ' + (t.format || '9:16')) : null,
+        t.sub ? h('div', { class: 'tpl-meta' }, t.sub + ' · ' + (t.format || '9:16')) : null, state,
         h('p', { class: 'tpl-desc' }, t.desc || 'Откроется как новый проект. Сам шаблон не меняется: правьте текст, шрифт, цвета и сохраняйте как свой.'))),
         h('div', { class: 'dlg-actions' }, h('button', { class: 'btn', type: 'button', onclick: closeModal }, 'Не сейчас'),
           h('button', { class: 'btn primary', type: 'button', onclick: () => { closeModal(); useTemplate(t); } }, icon('plus'), 'Использовать шаблон')));
     });
   }
+  // шаблон скачивается один раз: тот же набор потом идёт и в показ, и в «Использовать»
+  const TPLP = { id: null, pack: null };
+  async function tplPack(t) {
+    if (TPLP.id === t.id && TPLP.pack) return TPLP.pack;
+    const r = await fetch('templates/' + encodeURIComponent(t.file), { cache: 'no-cache' }); if (!r.ok) throw new Error('код ' + r.status);
+    const j = await r.json(), blobs = {};
+    for (const [k, f] of Object.entries(j.files || {})) { blobs[k] = b64ToBlob(f.b64, f.type); f.b64 = ''; } // текст base64 больше не нужен, остаются файлы
+    TPLP.id = t.id; TPLP.pack = { j, blobs };
+    return TPLP.pack;
+  }
+  // показ: шаблон на самом деле загружается в сцену (на главной она скрыта), а кадр копируется в превью шторки; проект при этом не создаётся и не сохраняется
+  function tplPaint() {
+    const cv = $('tplLive'), src = renderer.domElement; if (!cv || !src.width || !src.height) return;
+    const k = Math.min(1, 480 / Math.max(src.width, src.height)), w = Math.round(src.width * k), hh = Math.round(src.height * k);
+    if (cv.width !== w || cv.height !== hh) { cv.width = w; cv.height = hh; }
+    cv.getContext('2d').drawImage(src, 0, 0, w, hh);
+  }
+  async function tplPreviewStart(t, ui) {
+    const my = ++tplToken; tplLoading = true; ui('busy');
+    try {
+      const pack = await tplPack(t); if (my !== tplToken) return;
+      const getFile = async src => {
+        if (!src) return null;
+        if (src.sticker) return stickerFile(src.sticker);
+        const b = src.blob && pack.blobs[src.blob]; return b ? new File([b], src.name || 'file', { type: src.type || b.type }) : null;
+      };
+      await loadProjectData(pack.j.data, getFile, { keepTab: true });
+      if (my !== tplToken) { resetProject(); return; } // шторку закрыли, пока шаблон грузился
+      if (!isPlaying() && (canSpin(st.mode) || vidList().length)) togglePlay();
+      tplPrev = true; tplLoading = false;
+      const hasMusic = !!MU.audio;
+      if (hasMusic) { MU.ctx.resume(); await MU.audio.play().catch(() => {}); }
+      if (my !== tplToken) return;
+      ui('live', hasMusic ? (MU.audio.paused ? 'Идёт показ · нажмите на картинку, чтобы включить звук' : 'Идёт показ · с музыкой') : 'Идёт показ');
+    } catch (e) {
+      console.error(e);
+      if (my === tplToken) { tplPrev = false; tplLoading = false; resetProject(); ui('idle'); toast('Не получилось запустить показ. Проверьте соединение.', true); }
+    } finally { if (my === tplToken) tplLoading = false; }
+  }
+  function tplPreviewStop() {
+    if (!tplPrev && !tplLoading) return;
+    tplToken++; tplPrev = false; tplLoading = false;
+    resetProject(); // сцена главной снова пустая: останавливает видео и музыку шаблона
+  }
   const b64ToBlob = (b64, type) => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Blob([u], { type: type || 'application/octet-stream' }); };
   async function useTemplate(t) {
     showBusy('Создаю проект из шаблона…');
     try {
-      const r = await fetch('templates/' + encodeURIComponent(t.file), { cache: 'no-cache' }); if (!r.ok) throw new Error('код ' + r.status);
-      const j = await r.json(), nid = 'p' + rid();
-      for (const [k, f] of Object.entries(j.files || {})) await Store.putBlob(nid, k, b64ToBlob(f.b64, f.type));
-      await Store.putData(nid, JSON.stringify(j.data));
+      const pack = await tplPack(t), nid = 'p' + rid();
+      for (const [k, b] of Object.entries(pack.blobs)) await Store.putBlob(nid, k, b);
+      await Store.putData(nid, JSON.stringify(pack.j.data));
       const now = Date.now();
-      await Store.putMeta({ id: nid, name: t.name, created: now, updated: now, thumb: t.thumb || '', format: t.format || (j.data.st && j.data.st.format) || '9:16' });
+      await Store.putMeta({ id: nid, name: t.name, created: now, updated: now, thumb: t.thumb || '', format: t.format || (pack.j.data.st && pack.j.data.st.format) || '9:16' });
       showBusy('');
       await openProject(nid);
     } catch (e) { console.error(e); showBusy(''); toast('Шаблон не открылся. Проверьте соединение и попробуйте ещё раз.', true); }
@@ -6064,7 +6139,7 @@ const STICKERS = '__STICKERS__';
     dlg.innerHTML = ''; dlg.className = 'dialog'; build(dlg); box.hidden = false;
     const f = dlg.querySelector('input, .btn.primary, .btn.danger'); if (f) { f.focus(); if (f.select) f.select(); }
   }
-  function closeModal() { $('modal').hidden = true; }
+  function closeModal() { $('modal').hidden = true; tplPreviewStop(); } // закрытие любого окна гасит показ шаблона, если он шёл
   $('modal').addEventListener('pointerdown', e => { if (e.target === $('modal')) closeModal(); });
   function askRename(m) {
     modal(d => {
