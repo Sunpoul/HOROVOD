@@ -484,6 +484,12 @@ html.gate-ok #gate { display: none; }
 .pfmt { position: absolute; left: 8px; top: 8px; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, .66); color: #eeeeee; }
 /* шаблоны: ряд готовых постеров над своими проектами; список лежит в templates/index.json */
 .tpl { display: grid; gap: 12px; min-width: 0; }
+.tpl-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; }
+.tpl-toggle { flex: none; width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--muted); }
+.tpl-toggle svg.i { width: 22px; height: 22px; transition: transform .2s; }
+.tpl-toggle:active { background: var(--raised); }
+.tpl.collapsed .tpl-toggle svg.i { transform: rotate(-90deg); }
+.tpl.collapsed .tpl-row, .tpl.collapsed .tpl-head p { display: none; } /* свёрнутый раздел — одна строка с заголовком */
 .tpl-head h2, .home-sec { margin: 0; font: 600 20px/24px var(--font-display); }
 .tpl-head p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
 .tpl-row { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
@@ -1203,7 +1209,8 @@ body.ios .frame { box-shadow: none; }
     <button class="home-new" id="homeNew" type="button"><svg class="i" aria-hidden="true"><use href="#i-plus"/></svg>Новый постер</button>
     <p class="home-warn" id="homeWarn" hidden>Браузер не даёт сохранять данные на этой странице. Проекты останутся только до закрытия вкладки.</p>
     <section class="tpl" id="tplBlock" aria-labelledby="tplTitle" hidden>
-      <div class="tpl-head"><h2 id="tplTitle">Шаблоны</h2><p>Готовые постеры: откройте и измените под себя</p></div>
+      <div class="tpl-head" id="tplHead"><div><h2 id="tplTitle">Шаблоны</h2><p>Готовые постеры: откройте и измените под себя</p></div>
+        <button class="tpl-toggle" id="tplToggle" type="button" aria-expanded="true" aria-controls="tplRow" aria-label="Свернуть шаблоны"><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></button></div>
       <div class="tpl-row" id="tplRow"></div>
     </section>
     <h2 class="home-sec" id="myTitle" hidden>Мои проекты</h2>
@@ -7025,10 +7032,18 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
     catch (e) { TPL = []; }
     return TPL;
   }
+  const TPL_KEY = 'horovod.tpl.collapsed';
+  const tplCollapsed = () => { try { return localStorage.getItem(TPL_KEY) === '1'; } catch (e) { return false; } };
+  function tplFold(on, remember) {
+    $('tplBlock').classList.toggle('collapsed', on);
+    const b = $('tplToggle'); b.setAttribute('aria-expanded', String(!on)); b.setAttribute('aria-label', on ? 'Развернуть шаблоны' : 'Свернуть шаблоны');
+    if (remember) { try { on ? localStorage.setItem(TPL_KEY, '1') : localStorage.removeItem(TPL_KEY); } catch (e) {} }
+  }
+  $('tplHead').addEventListener('click', () => tplFold(!$('tplBlock').classList.contains('collapsed'), true)); // тап по заголовку или стрелке; выбор запоминается
   async function renderTemplates() {
     const list = await loadTemplates(), blk = $('tplBlock'), row = $('tplRow');
     if (!homeOpen) return;
-    blk.hidden = !list.length; $('myTitle').hidden = !list.length;
+    blk.hidden = !list.length; $('myTitle').hidden = !list.length; tplFold(tplCollapsed());
     row.innerHTML = '';
     list.forEach(t => row.append(h('button', { class: 'tpl-card', type: 'button', 'aria-label': `Шаблон «${t.name}»`, onclick: () => openTemplate(t) },
       h('span', { class: 'pthumb' }, t.thumb ? h('img', { src: t.thumb, alt: '' }) : h('span', { class: 'pempty' }, icon('scene')), h('span', { class: 'pfmt' }, t.format || '9:16')),
