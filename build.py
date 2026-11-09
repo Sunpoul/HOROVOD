@@ -14,7 +14,11 @@ app = (src.replace('__UB__', b64('unbounded-bold-subset.ttf'))
           .replace('__TS__', b64('tsarevich.ttf'))
           .replace("'__MUXER__'", json.dumps((root / 'vendor' / 'mp4-muxer.mjs').read_text(encoding='utf-8')).replace('</', '<\\/'))
           .replace('__BN__', b64('bebas-neue.ttf'))
-          .replace('__OS__', b64('oswald-bold.ttf')))
+          .replace('__OS__', b64('oswald-bold.ttf'))
+          .replace('__TN__', b64('tsarevich-neo.ttf'))
+          .replace('__PF__', b64('puff.ttf'))
+          .replace('__PR__', b64('pressure-2.ttf'))
+          .replace('__MW__', b64('modular-wide-v2.ttf')))
 
 # стикеры: stickers/sticker-<id>.png → встроенный список
 import json

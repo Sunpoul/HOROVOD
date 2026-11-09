@@ -1209,6 +1209,10 @@ const BUILTIN_FONTS = [
   { label: 'Tsarevich', b64: '__TS__' },
   { label: 'Bebas Neue', b64: '__BN__' },
   { label: 'Oswald Bold', b64: '__OS__' },
+  { label: 'Tsarevich Neo', b64: '__TN__' },
+  { label: 'Puff', b64: '__PF__' },
+  { label: 'Pressure', b64: '__PR__' },
+  { label: 'Modular Wide', b64: '__MW__' },
 ];
 // иероглифы: Noto Sans SC Bold, ~7700 частых китайских (упр. и трад.) и японских знаков, кана и пунктуация
 const CJK_B64 = '__CJK__';
@@ -2043,6 +2047,8 @@ const STICKERS = '__STICKERS__';
     if (g) return g;
     if (isEmoji(ch, fe.font)) { g = emojiData(ch); glyphCache.set(key, g); return g; }
     let font = fe.font, glyph = font.charToGlyph(ch);
+    // в шрифте только заглавные (Tsarevich Neo, Puff, Pressure): строчную берём заглавной того же шрифта
+    if ((!glyph || glyph.index === 0) && ch !== ch.toUpperCase() && ch.toUpperCase().length === 1) { const gu = font.charToGlyph(ch.toUpperCase()); if (gu && gu.index > 0) glyph = gu; }
     // в шрифте нет знака (иероглифы, кана) — берём его из встроенного CJK-шрифта
     if ((!glyph || glyph.index === 0) && ch.trim() && /[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFFEF\u3000-\u303F]/.test(ch)) {
       const fb = getCJK();
