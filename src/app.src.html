@@ -1351,7 +1351,7 @@ const STICKERS = '__STICKERS__';
   Object.entries(S).forEach(([k, d]) => P[k] = d.v);
   Object.entries(COLORS).forEach(([k, d]) => P[k] = d.v);
   Object.entries(TOGGLES).forEach(([k, d]) => P[k] = d.v);
-  const st = { ashShape: 'flake', ashEmoji: '✨', mainOff: false, camLocked: true, mainName: 'Типографика', sphereGrad: 'fold', sphereOrder: 'back', bgFill: 'color', matGradMode: 0, specGradDir: 'freq', specMode: 'bars', fixNew: true, mode: 'flat', align: 'center', fit: 'stretch', side: 'out', format: '9:16', tab: 'text', textSub: 'text', playing: false, lastSpin: 20 };
+  const st = { ashShape: 'flake', ashEmoji: '✨', ashOrder: 'space', mainOff: false, camLocked: true, mainName: 'Типографика', sphereGrad: 'fold', sphereOrder: 'back', bgFill: 'color', matGradMode: 0, specGradDir: 'freq', specMode: 'bars', fixNew: true, mode: 'flat', align: 'center', fit: 'stretch', side: 'out', format: '9:16', tab: 'text', textSub: 'text', playing: false, lastSpin: 20 };
 
   /* =================== СЦЕНА =================== */
   const frame = $('frame');
@@ -1822,22 +1822,28 @@ const STICKERS = '__STICKERS__';
   function drawLayers() {
     renderer.clear();
     const bg = scene.background;
-    if (specVisible()) {                                            // фон, поверх него спектр
+    const ashAt = ashPts && ashPts.visible ? st.ashOrder : 'space';
+    const ash = slot => { if (ashAt !== slot) return; renderer.clearDepth(); camera.layers.set(0); renderer.render(ashScene, camera); }; // пепел целиком поверх всего, что нарисовано до него
+    if (specVisible() || ashAt === 'back') {                        // фон, поверх него спектр и пепел «за картинками»
       camera.layers.disableAll(); renderer.render(scene, camera);
       scene.background = null;
-      renderer.render(specScene, fxCam);
+      if (specVisible()) renderer.render(specScene, fxCam);
+      ash('back');
     }
     camera.layers.set(1); renderer.render(scene, camera);          // фон + картинки за текстом
     pxFlush(1);
+    ash('mid');
     scene.background = null;
     renderer.shadowMap.needsUpdate = true; // тени считаются по объектам основного слоя
     renderer.clearDepth(); camera.layers.set(0); renderer.render(scene, camera);  // текст
     pxFlush(0);
+    ash('front');
     // «перед текстом»: у каждой новой фигуры, картинки и текста свой слой выше предыдущего, между проходами глубина сбрасывается,
     // поэтому новое всегда целиком поверх старого
     const tops = new Set([2]);
     for (const list of [shapes, layers, texts]) for (const o of list) if (o.order === 'front') tops.add(renderLayerOf(o));
     [...tops].sort((a, b) => a - b).forEach(n => { renderer.clearDepth(); camera.layers.set(n); renderer.render(scene, camera); pxFlush(n); });
+    ash('top');
     if (cardVisible()) { placeCard(); renderer.render(cardScene, fxCam); }        // карточка трека
     scene.background = bg; camera.layers.set(0);
   }
@@ -1904,10 +1910,14 @@ const STICKERS = '__STICKERS__';
       }`,
   });
   let ashPts = null, ashN = 0, ashFall = 0;
+  // пепел «в пространстве» живёт в основной сцене и скрывается за буквами по глубине; остальные положения рисуются отдельным проходом между слоями кадра
+  const ashScene = new THREE.Scene();
+  const ASH_ORDER = [['back', 'За картинками'], ['mid', 'Между картинкой и текстом'], ['space', 'В пространстве'], ['front', 'Перед текстом'], ['top', 'Поверх всего']];
+  const ashHome = () => st.ashOrder === 'space' ? scene : ashScene;
   function buildAsh() {
     const n = Math.round(P.ashCount);
     if (ashPts && n === ashN) return;
-    if (ashPts) { scene.remove(ashPts); ashPts.geometry.dispose(); }
+    if (ashPts) { if (ashPts.parent) ashPts.parent.remove(ashPts); ashPts.geometry.dispose(); }
     const seed = new Float32Array(n * 4);
     for (let i = 0; i < seed.length; i++) seed[i] = Math.random();
     const g = new THREE.BufferGeometry();
@@ -1915,7 +1925,7 @@ const STICKERS = '__STICKERS__';
     g.setAttribute('seed', new THREE.BufferAttribute(seed, 4));
     ashPts = new THREE.Points(g, ashMat);
     ashPts.frustumCulled = false; ashPts.renderOrder = 5;
-    ashN = n; scene.add(ashPts);
+    ashN = n; ashHome().add(ashPts);
   }
   // эмодзи пепла: до 8 штук из строки st.ashEmoji; рисуются в атлас 4×2, из которого частицы берут клетки
   const ashEmojiList = () => { const l = graphemes(st.ashEmoji || '').filter(g => EMOJI_RE.test(g)).slice(0, 8); return l.length ? l : ['✨']; };
@@ -1933,6 +1943,7 @@ const STICKERS = '__STICKERS__';
   function applyAsh() {
     if (!P.ashOn) { if (ashPts) ashPts.visible = false; return; }
     buildAsh(); ashPts.visible = true;
+    if (ashPts.parent !== ashHome()) ashHome().add(ashPts);
     const emo = st.ashShape === 'emoji';
     ashMat.uniforms.uEmo.value = emo ? 1 : 0;
     if (emo) { const list = ashEmojiList(), key = list.join('|'); if (key !== ashEmoKey || !ashAtlas) { ashEmoKey = key; buildAshAtlas(list); } }
@@ -4079,9 +4090,10 @@ const STICKERS = '__STICKERS__';
         section('Летающий пепел', [
           seg('Форма', [['flake', 'Хлопья'], ['emoji', 'Эмодзи']], () => st.ashShape, v => { st.ashShape = v; applyAsh(); renderPanel(); }),
           ...(st.ashShape === 'emoji' ? [ashEmojiPicker()] : [color('ashColor')]),
+          seg('Слой', ASH_ORDER, () => st.ashOrder, v => { st.ashOrder = v; applyAsh(); renderPanel(); }),
           slider('ashCount'), slider('ashSpeed'), slider('ashSize'), slider('ashWind'),
-          h('p', { class: 'hint' }, 'Хлопья кружат в объёме сцены: часть пролетает перед текстом, часть — за ним. Ветер сносит их вбок.'),
-        ], () => { const o = {}; ['ashCount', 'ashSpeed', 'ashSize', 'ashWind', 'ashColor'].forEach(k => { o[k] = (S[k] || COLORS[k]).v; }); st.ashShape = ST0.ashShape; st.ashEmoji = ST0.ashEmoji; setMany(o); },
+          h('p', { class: 'hint' }, st.ashOrder === 'space' ? 'Хлопья кружат в объёме сцены: часть пролетает перед текстом, часть — за ним. Ветер сносит их вбок.' : 'Пепел идёт отдельным слоем: «между картинкой и текстом» — поверх картинок «за текстом», но под буквами; «перед текстом» — над буквами, но под картинками «перед текстом».'),
+        ], () => { const o = {}; ['ashCount', 'ashSpeed', 'ashSize', 'ashWind', 'ashColor'].forEach(k => { o[k] = (S[k] || COLORS[k]).v; }); st.ashShape = ST0.ashShape; st.ashEmoji = ST0.ashEmoji; st.ashOrder = ST0.ashOrder; applyAsh(); setMany(o); },
         { toggle: { get: () => P.ashOn, set: v => setParam('ashOn', v) } }),
       ];
     },
@@ -4164,7 +4176,7 @@ const STICKERS = '__STICKERS__';
     },
   };
   function stateSnapshot() {
-    const stOut = {}; ['mode', 'align', 'fit', 'side', 'format', 'specMode', 'bgFill', 'matGradMode', 'specGradDir', 'sphereGrad', 'sphereOrder', 'fixNew'].forEach(k => stOut[k] = st[k]);
+    const stOut = {}; ['mode', 'align', 'fit', 'side', 'format', 'specMode', 'bgFill', 'matGradMode', 'specGradDir', 'sphereGrad', 'sphereOrder', 'ashOrder', 'fixNew'].forEach(k => stOut[k] = st[k]);
     return {
       P: Object.assign({}, P), st: stOut, text: TEXT,
       fonts: fonts.map(f => ({ id: f.id, label: f.label, builtin: !!f.builtin, active: f === selText.font })),
@@ -4316,6 +4328,7 @@ const STICKERS = '__STICKERS__';
       const shape = mxChips([['flake', 'Хлопья'], ['emoji', 'Эмодзи']], st.ashShape, v => { st.ashShape = v; applyAsh(); renderPanel(); }, 'mx-inline');
       const out = mxFxTab('d-snow', 'Пепел · падающие частицы', !!P.ashOn, v => setParam('ashOn', v),
         [mxLabel('ashCount', 'Частицы'), mxLabel('ashSpeed', 'Падение'), mxLabel('ashSize', 'Размер'), mxLabel('ashWind', 'Ветер'), st.ashShape === 'emoji' ? null : color('ashColor')], 4, shape);
+      out.push(mxOff(mxChips(ASH_ORDER, st.ashOrder, v => { st.ashOrder = v; applyAsh(); renderPanel(); }), !P.ashOn));
       if (st.ashShape === 'emoji') { const row = ashEmojiPicker().querySelector('.emoji-row'); row.classList.add('mx-emoji'); out.splice(1, 0, mxOff(row, !P.ashOn)); }
       return out;
     },
@@ -5560,7 +5573,7 @@ const STICKERS = '__STICKERS__';
 
   /* =================== ПРОЕКТЫ =================== */
   // Проект = параметры сцены + ссылки на файлы. Файлы в вебе лежат в IndexedDB, на телефоне — в папке проекта.
-  const ST_KEYS = ['ashShape', 'ashEmoji', 'mainOff', 'camLocked', 'mainName', 'mode', 'align', 'fit', 'side', 'format', 'specMode', 'bgFill', 'matGradMode', 'specGradDir', 'sphereGrad', 'sphereOrder', 'fixNew', 'lastSpin'];
+  const ST_KEYS = ['ashShape', 'ashEmoji', 'ashOrder', 'mainOff', 'camLocked', 'mainName', 'mode', 'align', 'fit', 'side', 'format', 'specMode', 'bgFill', 'matGradMode', 'specGradDir', 'sphereGrad', 'sphereOrder', 'fixNew', 'lastSpin'];
   const ST0 = Object.fromEntries(ST_KEYS.map(k => [k, st[k]]));
   const TEXT0 = TEXT;
   const LAYER_KEYS = [...Object.keys(LAYER_DEF), 'name', 'ringTouched'];
@@ -6312,7 +6325,7 @@ const STICKERS = '__STICKERS__';
     mode: () => { layout(); syncPlay(); }, align: () => layout(), fit: () => layout(), side: () => layout(),
     format: v => setFormat(v),
     specMode: v => { sctx.clearRect(0, 0, specCv.width, specCv.height); if (v === 'sphere' && !spherePts) { buildSphere(); if (P.specColor === COLORS.specColor.v) P.specColor = '#ffffff'; } applySphere(); },
-    bgFill: () => applyScene(), matGradMode: () => applyMaterial(), specGradDir: () => {}, sphereGrad: () => applySphere(), sphereOrder: () => applySphere(), fixNew: () => {},
+    bgFill: () => applyScene(), matGradMode: () => applyMaterial(), specGradDir: () => {}, sphereGrad: () => applySphere(), sphereOrder: () => applySphere(), ashOrder: () => applyAsh(), fixNew: () => {},
   };
   async function importURL(url, name, mime) {
     const blob = await (await fetch(url)).blob();
