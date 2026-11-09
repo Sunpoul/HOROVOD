@@ -3891,7 +3891,7 @@ const STICKERS = '__STICKERS__';
           list.append(h('div', { class: 'layer', role: 'option', tabindex: '0', 'aria-selected': String(T === selText), onclick: pick, onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } } },
             h('span', { class: 'tnum' }, String(i + 1)),
             h('span', { class: 'name' }, blockTitle(T), h('small', {}, (T.main ? 'Основной · ' : '') + MODE_NAMES[T.mode].short)),
-            T.main ? null : h('button', { class: 'icon-btn', type: 'button', title: 'Копия', 'aria-label': 'Копия текста', onclick: e => { e.stopPropagation(); const C = addTextBlock(Object.assign(pick2(T), { posY: T.posY - 2 }), true); C.fontId = T.fontId; layoutBlock(C); renderPanel(); } }, icon('copy')),
+            h('button', { class: 'icon-btn', type: 'button', title: 'Копия', 'aria-label': 'Копия текста', onclick: e => { e.stopPropagation(); const C = addTextBlock(Object.assign(pick2(T), { posY: T.posY - 2 }), true); C.fontId = T.fontId; layoutBlock(C); renderPanel(); } }, icon('copy')),
             h('button', { class: 'icon-btn', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash'))));
         });
       }
@@ -4219,7 +4219,7 @@ const STICKERS = '__STICKERS__';
           h('span', { class: 'mx-n' }, String(i + 1)),
           h('span', { class: 'mx-name' }, h('b', {}, blockTitle(T)), h('small', {}, (T.main ? 'Основной · ' : '') + MODE_NAMES[T.mode].short)),
           h('button', { class: 'mx-act', type: 'button', title: 'Изменить текст', 'aria-label': 'Изменить текст', onclick: e => { e.stopPropagation(); selText = T; openTextEdit(); } }, icon('pencil')),
-          T.main ? null : h('button', { class: 'mx-act', type: 'button', title: 'Копия', 'aria-label': 'Копия текста', onclick: e => { e.stopPropagation(); const C = addTextBlock(Object.assign(Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS, ...BT_KEYS].map(k => [k, T[k]])), { posY: T.posY - 2 }), true); C.fontId = T.fontId; layoutBlock(C); renderPanel(); } }, icon('copy')),
+          h('button', { class: 'mx-act', type: 'button', title: 'Копия', 'aria-label': 'Копия текста', onclick: e => { e.stopPropagation(); const C = addTextBlock(Object.assign(Object.fromEntries(['text', ...BLOCK_ST, ...BLOCK_LOOK, ...BLOCK_KEYS, ...PX_KEYS, ...BT_KEYS].map(k => [k, T[k]])), { posY: T.posY - 2 }), true); C.fontId = T.fontId; layoutBlock(C); renderPanel(); } }, icon('copy')),
           h('button', { class: 'mx-act', type: 'button', title: 'Удалить', 'aria-label': 'Удалить слой', onclick: e => { e.stopPropagation(); if (T.main) removeMainText(); else removeTextBlock(T); renderPanel(); } }, icon('trash')));
       }));
       const add = h('button', { class: 'mx-add', type: 'button', onclick: () => { addTextBlock(); SUBSEL.text = 'form'; renderPanel(); openTextEdit(true); } }, icon('plus'), 'Добавить текст');
