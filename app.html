@@ -899,7 +899,8 @@ html.tg-m .home-head h1 { margin: 0 0 4px; font: 500 32px/36px var(--font-displa
 html.tg-m .home-head p { font-size: 13px; line-height: 17px; }
 html.tg-m .home-new { max-width: none; }
 html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-html.tg-m .pmore { width: 44px; height: 44px; bottom: -4px; background: var(--raised); border-radius: 50%; }
+html.tg-m .pmore { width: 36px; height: 36px; bottom: 0; background: none; border-radius: 50%; } /* без серого круга: видны только три точки, нажатие подсвечивает кружок */
+html.tg-m .pmore:active { background: var(--raised); }
 html.tg-m .pgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 html.tg-m .pcard { gap: 8px; }
 
