@@ -35,7 +35,7 @@ function askToken() {
 // токен: переменная окружения, затем файл bot/.token (в git не попадает), затем скрытый запрос в терминале
 const fileToken = () => { try { return readFileSync(path.join(here, '.token'), 'utf8').trim(); } catch (e) { return ''; } };
 const TOKEN = process.env.BOT_TOKEN || fileToken() || (process.stdin.isTTY ? await askToken() : '');
-const APP_URL = process.env.APP_URL || 'https://sunpoul.github.io/HOROVOD/';
+const APP_URL = process.env.APP_URL || 'https://horovod.su/app.html'; // тот же адрес, что у Main App и Menu Button в BotFather: при Same-Origin Restriction они должны совпадать с адресом страницы
 const API = process.env.TG_API || 'https://api.telegram.org'; // свой адрес нужен только для проверки на поддельном API
 const COVER = path.join(here, '..', 'brand', 'telegram', 'welcome-1280x720.png');
 
