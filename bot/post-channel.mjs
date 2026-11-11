@@ -5,6 +5,7 @@
 //   node bot/post-channel.mjs @имя_канала --pin
 //   node bot/post-channel.mjs -1001234567890 --text "Свой текст поста (HTML)" --button "Открыть редактор"
 //   node bot/post-channel.mjs @имя_канала --dry      # только показать, что будет отправлено
+//   node bot/post-channel.mjs @имя_канала --edit 12  # добавить кнопку к уже опубликованному посту (номер из ссылки t.me/канал/12)
 //
 // Параметры:
 //   --text "…"     подпись к посту (HTML: <b>, <i>, <a href>); без него — стандартное описание HOROVOD
@@ -12,6 +13,7 @@
 //   --url "…"      куда ведёт кнопка (по умолчанию https://t.me/gethorovod_bot?startapp)
 //   --no-photo     без картинки, только текст
 //   --pin          закрепить пост без уведомления
+//   --edit N       не публиковать новый пост, а добавить кнопку к посту номер N (боту нужно право «Редактирование сообщений других»)
 //   --dry          ничего не отправлять
 //
 // Кнопка со ссылкой t.me/<бот>?startapp открывает Mini App, если в @BotFather включён Main Mini App:
@@ -52,10 +54,11 @@ const CAPTION = val('--text') || [
 const BUTTON = val('--button') || 'Открыть HOROVOD';
 const URL = val('--url') || 'https://t.me/gethorovod_bot?startapp';
 const withPhoto = !flag('--no-photo');
+const editId = Number(val('--edit')) || 0;
 const markup = { inline_keyboard: [[{ text: BUTTON, url: URL }]] };
 
 if (flag('--dry')) {
-  console.log(JSON.stringify({ channel, photo: withPhoto ? COVER : null, caption: CAPTION, reply_markup: markup, pin: flag('--pin') }, null, 2));
+  console.log(JSON.stringify({ channel, edit: editId || null, photo: editId || !withPhoto ? null : COVER, caption: CAPTION, reply_markup: markup, pin: flag('--pin') }, null, 2));
   process.exit(0);
 }
 if (!TOKEN) {
@@ -72,6 +75,12 @@ const call = async (method, body, form) => {
 };
 
 try {
+  if (editId) {
+    await call('editMessageReplyMarkup', { chat_id: channel, message_id: editId, reply_markup: markup });
+    console.log(`Кнопка «${BUTTON}» добавлена к посту ${editId}.`);
+    if (flag('--pin')) { await call('pinChatMessage', { chat_id: channel, message_id: editId, disable_notification: true }); console.log('Пост закреплён.'); }
+    process.exit(0);
+  }
   let msg;
   if (withPhoto) {
     const form = new FormData();
@@ -87,6 +96,7 @@ try {
 } catch (e) {
   const m = String(e.message || e);
   if (/chat not found/i.test(m)) console.error('Канал не найден или бот в нём не состоит. Добавьте бота администратором канала и проверьте имя.');
+  else if (/message is not modified/i.test(m)) console.error('У этого поста уже стоит такая кнопка.');
   else if (/not enough rights|administrator|CHAT_ADMIN_REQUIRED/i.test(m)) console.error('У бота нет прав: в администраторах канала включите «Публикация сообщений» (и «Закрепление сообщений» для --pin).');
   else console.error('Не отправилось:', m);
   process.exit(1);
