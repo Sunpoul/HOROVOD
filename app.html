@@ -5677,7 +5677,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
         st.specMode = v; sctx.clearRect(0, 0, specCv.width, specCv.height); if (v === 'sphere' && !spherePts) { buildSphere(); if (P.specColor === COLORS.specColor.v) P.specColor = '#ffffff'; } applySphere(); renderPanel(); });
       const head = mxPill(null, 'Спектр на фоне', !!P.specOn, v => { setParam('specOn', v); renderPanel(); }, { sub: P.specOn ? 'Включён' : 'Выключен' });
       const tiles = st.specMode === 'sphere'
-        ? [mxLabel('sphereR', 'Размер сферы'), mxLabel('sphereAmp', 'Деформация'), mxLabel('sphereSpec', 'Реакция'), mxLabel('sphereSpeed', 'Скорость'), mxLabel('sphereSize', 'Частицы'), mxLabel('sphereCount', 'Количество')]
+        ? [mxLabel('sphereR', 'Размер сферы'), mxLabel('sphereAmp', 'Деформация'), mxLabel('sphereSpec', 'Реакция'), mxLabel('sphereSpeed', 'Скорость'), mxLabel('sphereSize', 'Частицы'), mxLabel('sphereCount', 'Количество'),
+          color('specColor', Object.assign({}, COLORS.specColor, { label: 'Цвет сферы' })), P.specGrad ? color('specColor2') : null, P.specGrad ? color('specColor3') : null]
         : [mxLabel('specOp', 'Яркость'), mxLabel('specH', 'Высота'), mxLabel('specY', 'Положение'), color('specColor'), P.specGrad ? color('specColor2') : null, P.specGrad ? color('specColor3') : null];
       return [head, mode, mxTapOn(mxTiles(tiles, 3), !!P.specOn, () => { setParam('specOn', true); renderPanel(); })];
     },
