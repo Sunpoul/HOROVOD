@@ -6,6 +6,7 @@
 //   node bot/post-channel.mjs -1001234567890 --text "Свой текст поста (HTML)" --button "Открыть редактор"
 //   node bot/post-channel.mjs @имя_канала --dry      # только показать, что будет отправлено
 //   node bot/post-channel.mjs @имя_канала --edit 12  # добавить кнопку к уже опубликованному посту (номер из ссылки t.me/канал/12)
+//   node bot/post-channel.mjs @имя_канала --copy 12  # опубликовать копию поста 12 (видео и подпись те же) уже с кнопкой
 //
 // Параметры:
 //   --text "…"     подпись к посту (HTML: <b>, <i>, <a href>); без него — стандартное описание HOROVOD
@@ -13,6 +14,7 @@
 //   --url "…"      куда ведёт кнопка (по умолчанию https://t.me/gethorovod_bot?startapp)
 //   --no-photo     без картинки, только текст
 //   --pin          закрепить пост без уведомления
+//   --copy N       опубликовать копию поста N вместе с видео или картинкой и подписью, но с кнопкой; старый пост остаётся (удалите его сами)
 //   --edit N       не публиковать новый пост, а добавить кнопку к посту номер N (боту нужно право «Редактирование сообщений других»)
 //   --dry          ничего не отправлять
 //
@@ -57,10 +59,11 @@ const BUTTON = val('--button') || 'Открыть HOROVOD';
 const URL = val('--url') || 'https://t.me/gethorovod_bot?startapp';
 const withPhoto = !flag('--no-photo');
 const editId = Number(val('--edit')) || 0;
+const copyId = Number(val('--copy')) || 0;
 const markup = { inline_keyboard: [[{ text: BUTTON, url: URL }]] };
 
 if (flag('--dry')) {
-  console.log(JSON.stringify({ channel, edit: editId || null, photo: editId || !withPhoto ? null : COVER, caption: CAPTION, reply_markup: markup, pin: flag('--pin') }, null, 2));
+  console.log(JSON.stringify({ channel, edit: editId || null, copy: copyId || null, photo: editId || !withPhoto ? null : COVER, caption: CAPTION, reply_markup: markup, pin: flag('--pin') }, null, 2));
   process.exit(0);
 }
 if (!TOKEN) {
@@ -81,6 +84,13 @@ try {
     await call('editMessageReplyMarkup', { chat_id: channel, message_id: editId, reply_markup: markup });
     console.log(`Кнопка «${BUTTON}» добавлена к посту ${editId}.`);
     if (flag('--pin')) { await call('pinChatMessage', { chat_id: channel, message_id: editId, disable_notification: true }); console.log('Пост закреплён.'); }
+    process.exit(0);
+  }
+  if (copyId) {
+    const r = await call('copyMessage', { chat_id: channel, from_chat_id: channel, message_id: copyId, reply_markup: markup });
+    const name = String(channel).replace(/^@/, '');
+    console.log('Опубликована копия поста ' + copyId + (channel.startsWith('@') ? ': https://t.me/' + name + '/' + r.message_id : ' (номер ' + r.message_id + ')'));
+    if (flag('--pin')) { await call('pinChatMessage', { chat_id: channel, message_id: r.message_id, disable_notification: true }); console.log('Пост закреплён.'); }
     process.exit(0);
   }
   let msg;
