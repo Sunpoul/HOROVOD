@@ -29,7 +29,9 @@ const args = process.argv.slice(2);
 const flag = n => args.includes(n);
 const val = n => { const i = args.indexOf(n); return i >= 0 && args[i + 1] && !args[i + 1].startsWith('--') ? args[i + 1] : undefined; };
 
-const channel = args.find(a => /^(@[\w]{4,}|-100\d+)$/.test(a));
+// имя канала можно писать без @ (и с широким ＠, который подставляет русская раскладка): hrvd_chanel, @hrvd_chanel, -1001234567890
+const channelArg = args.find(a => /^[@＠]?[A-Za-z]\w{3,}$|^-100\d+$/.test(a));
+const channel = channelArg ? (/^-100/.test(channelArg) ? channelArg : '@' + channelArg.replace(/^[@＠]/, '')) : null;
 if (!channel) {
   console.error('Укажите канал: node bot/post-channel.mjs @имя_канала   (или числовой id вида -1001234567890)');
   process.exit(1);
