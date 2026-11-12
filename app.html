@@ -2368,10 +2368,22 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
 
   let quiet = false, quietUntil = 0; // во время открытия проекта уведомления не нужны
   let TG = null; // Telegram.WebApp, если приложение открыто как Mini App
+  // родное окно Telegram для ошибок: по одному, остальные ждут своей очереди (одинаковые не повторяются)
+  const tgQ = []; let tgOpen = false;
+  function tgAlert(msg) {
+    try { if (!TG.showAlert || !TG.isVersionAtLeast('6.2')) return false; } catch (e) { return false; }
+    if (tgOpen) { if (!tgQ.includes(msg)) tgQ.push(msg); return true; }
+    tgOpen = true;
+    try {
+      TG.showAlert(String(msg).slice(0, 256), () => { tgOpen = false; const n = tgQ.shift(); if (n) tgAlert(n); });
+    } catch (e) { tgOpen = false; return false; }
+    return true;
+  }
   function toast(msg, err) {
     if (quiet || Date.now() < quietUntil) return;
     if (TG) { try { TG.HapticFeedback.notificationOccurred(err ? 'error' : 'success'); } catch (e) {} }
     if (IOS) { post({ type: 'toast', text: msg, error: !!err }); return; }
+    if (err && TG && tgAlert(msg)) return; // в Telegram ошибки показываем родным окном: оно не исчезает само, пока его не закроют
     const t = h('div', { class: 'toast' + (err ? ' err' : '') }, msg);
     $('toasts').append(t);
     setTimeout(() => t.remove(), err ? 6000 : 3500);
