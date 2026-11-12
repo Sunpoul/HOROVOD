@@ -6053,13 +6053,52 @@ const STICKERS = '__STICKERS__';
   }
   // шаблон скачивается один раз: тот же набор потом идёт и в показ, и в «Использовать»
   const TPLP = { id: null, pack: null };
-  async function tplPack(t) {
+  // скачивание с тремя попытками и таймаутом на «зависание» (30 с без новых данных); onProgress(байт скачано)
+  async function tplFetch(url, onProgress) {
+    let last = null;
+    for (let a = 0; a < 3; a++) {
+      const ctl = new AbortController(); let timer = 0;
+      const kick = () => { clearTimeout(timer); timer = setTimeout(() => ctl.abort(), 30000); };
+      try {
+        kick();
+        const r = await fetch(url, { signal: ctl.signal });
+        if (!r.ok) { const e = new Error('код ' + r.status); e.status = r.status; throw e; }
+        if (!r.body || !r.body.getReader) { const txt = await r.text(); clearTimeout(timer); return txt; }
+        const rd = r.body.getReader(), dec = new TextDecoder(); let got = 0, txt = '';
+        for (;;) {
+          const { done, value } = await rd.read(); if (done) break;
+          got += value.length; txt += dec.decode(value, { stream: true }); kick();
+          if (onProgress) onProgress(got);
+        }
+        txt += dec.decode(); clearTimeout(timer); return txt;
+      } catch (e) {
+        clearTimeout(timer); last = e;
+        if (e.status && e.status >= 400 && e.status < 500) break; // файла нет — повторять нечего
+        if (a < 2) await sleepMs(900 * (a + 1));
+      }
+    }
+    last.tplStage = 'net'; throw last;
+  }
+  async function tplPack(t, onProgress) {
     if (TPLP.id === t.id && TPLP.pack) return TPLP.pack;
-    const r = await fetch('templates/' + encodeURIComponent(t.file), { cache: 'no-cache' }); if (!r.ok) throw new Error('код ' + r.status);
-    const j = await r.json(), blobs = {};
-    for (const [k, f] of Object.entries(j.files || {})) { blobs[k] = b64ToBlob(f.b64, f.type); f.b64 = ''; } // текст base64 больше не нужен, остаются файлы
+    const txt = await tplFetch('templates/' + encodeURIComponent(t.file), onProgress);
+    let j, blobs = {};
+    try {
+      j = JSON.parse(txt);
+      for (const [k, f] of Object.entries(j.files || {})) { blobs[k] = b64ToBlob(f.b64, f.type); f.b64 = ''; } // текст base64 больше не нужен, остаются файлы
+    } catch (e) { e.tplStage = 'parse'; throw e; }
     TPLP.id = t.id; TPLP.pack = { j, blobs };
     return TPLP.pack;
+  }
+  // человеческое объяснение, что именно пошло не так (раньше всегда «проверьте соединение»)
+  function tplWhy(e) {
+    const nm = (e && e.name) || 'Error', msg = String((e && e.message) || '');
+    const code = (nm + (msg ? ': ' + msg : '')).slice(0, 80);
+    if (nm === 'QuotaExceededError' || /quota|no space|full/i.test(msg)) return 'Не хватает места на телефоне для шаблона. Освободите память и попробуйте снова.';
+    if (e && e.tplStage === 'store') return 'Телефон не дал сохранить шаблон (' + code + '). Освободите память или перезапустите Telegram.';
+    if (e && e.tplStage === 'parse') return 'Файл шаблона скачался с ошибкой (' + code + '). Попробуйте ещё раз, лучше по Wi‑Fi.';
+    if (e && e.tplStage === 'net') return e.status ? 'Шаблон не нашёлся на сервере (' + code + ').' : 'Файл шаблона не скачался (' + code + '). Проверьте интернет или попробуйте по Wi‑Fi.';
+    return 'Шаблон не открылся (' + code + ').';
   }
   // показ: шаблон на самом деле загружается в сцену (на главной она скрыта), а кадр копируется в превью шторки; проект при этом не создаётся и не сохраняется
   function tplPaint() {
@@ -6087,7 +6126,7 @@ const STICKERS = '__STICKERS__';
       ui('live', hasMusic ? (MU.audio.paused ? 'Идёт показ · нажмите на картинку, чтобы включить звук' : 'Идёт показ · с музыкой') : 'Идёт показ');
     } catch (e) {
       console.error(e);
-      if (my === tplToken) { tplPrev = false; tplLoading = false; resetProject(); ui('idle'); toast('Не получилось запустить показ. Проверьте соединение.', true); }
+      if (my === tplToken) { tplPrev = false; tplLoading = false; resetProject(); ui('idle'); toast('Не получилось запустить показ. ' + tplWhy(e), true); }
     } finally { if (my === tplToken) tplLoading = false; }
   }
   function tplPreviewStop() {
@@ -6097,16 +6136,25 @@ const STICKERS = '__STICKERS__';
   }
   const b64ToBlob = (b64, type) => { const s = atob(b64), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new Blob([u], { type: type || 'application/octet-stream' }); };
   async function useTemplate(t) {
-    showBusy('Создаю проект из шаблона…');
+    showBusy('Скачиваю шаблон…');
+    let nid = null;
     try {
-      const pack = await tplPack(t), nid = 'p' + rid();
-      for (const [k, b] of Object.entries(pack.blobs)) await Store.putBlob(nid, k, b);
-      await Store.putData(nid, JSON.stringify(pack.j.data));
-      const now = Date.now();
-      await Store.putMeta({ id: nid, name: t.name, created: now, updated: now, thumb: t.thumb || '', format: t.format || (pack.j.data.st && pack.j.data.st.format) || '9:16' });
+      const pack = await tplPack(t, got => showBusy('Скачиваю шаблон… ' + (got / 1048576).toFixed(1) + ' МБ'));
+      showBusy('Создаю проект из шаблона…');
+      nid = 'p' + rid();
+      try {
+        for (const [k, b] of Object.entries(pack.blobs)) await Store.putBlob(nid, k, b);
+        await Store.putData(nid, JSON.stringify(pack.j.data));
+        const now = Date.now();
+        await Store.putMeta({ id: nid, name: t.name, created: now, updated: now, thumb: t.thumb || '', format: t.format || (pack.j.data.st && pack.j.data.st.format) || '9:16' });
+      } catch (e) { e.tplStage = e.tplStage || 'store'; throw e; }
       showBusy('');
       await openProject(nid);
-    } catch (e) { console.error(e); showBusy(''); toast('Шаблон не открылся. Проверьте соединение и попробуйте ещё раз.', true); }
+    } catch (e) {
+      console.error(e); showBusy('');
+      if (nid) { try { await Store.remove(nid); } catch (_) {} } // не оставляем недозаписанный проект
+      toast(tplWhy(e), true);
+    }
   }
   // автор: проект → файл шаблона (проект и все его файлы в одном .json)
   function askTemplate(m) {
