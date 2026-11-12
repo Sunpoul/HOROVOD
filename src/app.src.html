@@ -3593,6 +3593,10 @@ const STICKERS = '__STICKERS__';
     'Всё сразу': { noise: 15, grain: 1.5, vhs: 60, glitch: 50, aberr: 45, scan: 35, petrol: 85, pixel: 0, petrolScale: 0.6, petrolSpeed: 0.5, metal: 0.8, rough: 0.22, matColor: '#2a2c30' },
     'Пиксели': { pixel: 100, pixelSize: 1.4, pixelGap: 16, pixelRound: 0, pixelLevels: 10, pixelMono: 100, pixelTint: '#cfd8f4', pixelBack: '#05050b', noise: 0, vhs: 0, glitch: 0, aberr: 0, scan: 0, petrol: 0 },
   };
+  // «Без обработки» (десктоп): свет, отражения и тени выключены, остаётся ровная заливка цветом материала; фон и цвет букв не трогаем
+  const LIGHT_RAW = { keyInt: 0, rimInt: 0, ambColor: '#ffffff', ambInt: 1, env: 0, exposure: 1, metal: 0, rough: 1, keyShadow: false };
+  const lightChipsMap = () => Object.assign({ 'Без обработки': LIGHT_RAW }, LIGHT_PRESETS);
+  const lightPresetOf = n => n === 'Без обработки' ? LIGHT_RAW : LIGHT_PRESETS[n];
   let activeLightPreset = 'Студия', activeFxPreset = 'Чисто';
 
   /* =================== UI-КОМПОНЕНТЫ =================== */
@@ -4148,7 +4152,7 @@ const STICKERS = '__STICKERS__';
     },
     light() {
       return [
-        section('Пресеты', [presetChips(LIGHT_PRESETS, activeLightPreset, n => { activeLightPreset = n; setMany(LIGHT_PRESETS[n]); }),
+        section('Пресеты', [presetChips(lightChipsMap(), activeLightPreset, n => { activeLightPreset = n; setMany(lightPresetOf(n)); }),
           h('p', { class: 'hint' }, 'Пресет меняет свет, фон и материал букв. Дальше подстройте вручную.')]),
         section('Основной свет', [color('keyColor'), slider('keyInt'), slider('keyAz'), slider('keyEl'), tog('keyShadow')], ['keyColor', 'keyInt', 'keyAz', 'keyEl', 'keyShadow']),
         section('Контровой свет', [h('p', { class: 'hint' }, 'Цветной блик по краям букв, светит сзади.'), color('rimColor'), slider('rimInt'), slider('rimAz'), slider('rimEl'), slider('rimOrbit')], ['rimColor', 'rimInt', 'rimAz', 'rimEl', 'rimOrbit']),
