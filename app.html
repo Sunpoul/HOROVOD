@@ -2957,6 +2957,7 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   }
   function drawLayers() {
     renderer.clear();
+    if (bgTex) renderer.render(bgScene, fxCam); // фон-картинка или видео: в исходных цветах, без тонирования
     const bg = scene.background;
     const ashAt = ashPts && ashPts.visible ? st.ashOrder : 'space';
     const ash = slot => { if (ashAt !== slot) return; renderer.clearDepth(); camera.layers.set(0); renderer.render(ashScene, camera); }; // пепел целиком поверх всего, что нарисовано до него
@@ -3976,6 +3977,11 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
 
   /* фон-картинка */
   let bgTex = null, bgAspect = 1;
+  // Картинка и видео на фоне рисуются отдельным квадратом на весь кадр: через scene.background three.js прогоняет их
+  // через тонирование ACES, и видео выходит контрастнее и насыщеннее оригинала. Квадрат без тонирования показывает исходные цвета.
+  const bgScene = new THREE.Scene();
+  const bgQuad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ depthTest: false, depthWrite: false, toneMapped: false }));
+  bgQuad.frustumCulled = false; bgQuad.scale.set(2, 2, 1); bgQuad.position.z = -0.5; bgScene.add(bgQuad);
   let bgVideo = null, bgKind = '', bgSound = false, bgAnim = null;
   function clearBgMedia() {
     if (bgTex) bgTex.dispose();
@@ -4093,7 +4099,8 @@ const STICKERS = [{"id": "wings", "label": "Сердце с крыльями", "
   function applyScene() {
     if (typeof applySphere === 'function') applySphere();
     if (!bgTex && st.bgFill !== 'color') drawBgGrad();
-    scene.background = bgTex || (st.bgFill !== 'color' ? bgGradTex : lin(P.bgColor));
+    if (bgQuad.material.map !== bgTex) { bgQuad.material.map = bgTex; bgQuad.material.needsUpdate = true; }
+    scene.background = bgTex ? null : (st.bgFill !== 'color' ? bgGradTex : lin(P.bgColor));
     floor.visible = P.floor; floorMat.opacity = P.shadowOp / 100;
     resize();
   }
