@@ -1683,14 +1683,48 @@ const STICKERS = '__STICKERS__';
     if (!m.has(sr)) { const p = decodeVideoAudio0(file, sr); m.set(sr, p); p.catch(() => m.delete(sr)); }
     return m.get(sr);
   }
+  // есть ли в MP4/MOV звуковая дорожка: читается только заголовок moov, а не весь файл. true / false; null — не удалось понять (не MP4 и т. п.)
+  async function mp4HasAudio(file) {
+    try {
+      const cc = (d, p) => String.fromCharCode(d.getUint8(p), d.getUint8(p + 1), d.getUint8(p + 2), d.getUint8(p + 3));
+      let pos = 0, moov = null;
+      while (pos + 8 <= file.size) {
+        const d = new DataView(await file.slice(pos, pos + 16).arrayBuffer());
+        let size = d.getUint32(0), hdr = 8;
+        if (size === 1) { size = Number(d.getBigUint64(8)); hdr = 16; } else if (size === 0) size = file.size - pos;
+        if (size < hdr) break;
+        if (cc(d, 4) === 'moov') { moov = new DataView(await file.slice(pos + hdr, pos + size).arrayBuffer()); break; }
+        pos += size;
+      }
+      if (!moov) return null;
+      const kids = (s0, e0) => {
+        const out = [];
+        while (s0 + 8 <= e0) {
+          let size = moov.getUint32(s0), hdr = 8;
+          if (size === 1) { size = Number(moov.getBigUint64(s0 + 8)); hdr = 16; } else if (size === 0) size = e0 - s0;
+          if (size < hdr || s0 + size > e0) break;
+          out.push({ t: cc(moov, s0 + 4), s: s0 + hdr, e: s0 + size }); s0 += size;
+        }
+        return out;
+      };
+      const sub = (b, t) => kids(b.s, b.e).filter(k => k.t === t);
+      for (const t of sub({ s: 0, e: moov.byteLength }, 'trak')) {
+        const mdia = sub(t, 'mdia')[0], hdlr = mdia && sub(mdia, 'hdlr')[0];
+        if (hdlr && cc(moov, hdlr.s + 8) === 'soun') return true;
+      }
+      return false;
+    } catch (e) { return null; }
+  }
   async function decodeVideoAudio0(file, sr) {
     let first = null;
+    if (await mp4HasAudio(file) === false) { const er = new Error('в файле нет звуковой дорожки'); er.silent = true; er.noTrack = true; throw er; } // без чтения всего видео в память
     try {
+      if (file.size > 400 * 1048576) throw new Error('файл большой: читаю только звук'); // целиком такой файл в память не берём
       const buf = await new OfflineAudioContext(2, 1, sr).decodeAudioData(await file.arrayBuffer());
       if (buf && buf.length) return buf;
     } catch (e) { first = e; }
     try { return await mp4AudioBuffer(file, sr); }
-    catch (e) { const er = new Error((first && first.name ? first.name + ' → ' : '') + (e && e.message || e)); er.silent = !!(e && e.silent); throw er; }
+    catch (e) { const er = new Error((first && first.name ? first.name + ' → ' : '') + (e && e.message || e)); er.silent = !!(e && e.silent); er.noTrack = !!(e && e.noTrack); throw er; }
   }
   async function mp4AudioBuffer(file, sr) {
     if (!window.AudioDecoder) throw new Error('нет AudioDecoder');
@@ -5081,7 +5115,18 @@ const STICKERS = '__STICKERS__';
     if (renderJob || recorder) return;
     wakeAudio();
     const withAudio = !!(MU.audio && MU.file);
-    const vsounds = soundingVideos(), hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
+    // звук видео из сцены берём в ролик, только если он правда есть: у видео без звуковой дорожки тумблер «Звук видео» ничего не даёт,
+    // и такой ролик нужно собрать покадрово без звука на всю длину видео, а не падать в запись в реальном времени
+    let vsounds = soundingVideos();
+    if (vsounds.length && window.OfflineAudioContext) {
+      const sr0 = withAudio ? MU.ctx.sampleRate : 48000, usable = [];
+      for (const vs of vsounds) {
+        try { const d = await decodeVideoAudio(vs.file, sr0); if (d && d.length) usable.push(vs); }
+        catch (e) { toast(e && e.noTrack ? 'В видео «' + vs.name + '» нет звуковой дорожки, оно будет без звука.' : 'Не удалось прочитать звук видео «' + vs.name + '»: оно будет без звука (' + (e && (e.name === 'Error' ? e.message : e.name) || 'ошибка') + ').', !(e && e.noTrack)); }
+      }
+      vsounds = usable;
+    }
+    const hasSound = withAudio || vsounds.length > 0; // звук трека и/или звук видео из сцены
     if (!canRenderOffline() || (hasSound && !window.AudioEncoder)) { lastExport.why = !window.AudioEncoder && hasSound ? 'нет кодировщика звука (AudioEncoder)' : 'нет покадрового рендера (WebCodecs)'; toast('Покадровый рендер не поддерживается этим браузером — идёт запись в реальном времени.'); recordVideo(); return; }
     closeExport();
     const note = isCircle();
